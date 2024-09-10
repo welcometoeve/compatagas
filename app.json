@@ -13,48 +13,20 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.maayanalbert.photo.sharing",
-      "buildNumber": "1.0.9",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ],
-      "package": "com.maayanalbert.photo.sharing"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/favicon.png",
-          "color": "#ffffff",
-          "sounds": ["./local/path/to/your/notification-sound.wav"]
-        }
-      ],
-      "expo-router",
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
-        }
-      ]
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     },
@@ -63,14 +35,14 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b7e9a12f-3d6c-4a8e-9f1b-c5d2e7f8a9b0"
+        "projectId": "9ba33157-3b06-4cda-a52d-b67052ca0559"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/b7e9a12f-3d6c-4a8e-9f1b-c5d2e7f8a9b0"
+      "url": "https://u.expo.dev/9ba33157-3b06-4cda-a52d-b67052ca0559"
     }
   }
 }
