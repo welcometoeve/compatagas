@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Photo Sharer",
+    "name": "Compatagas",
     "slug": "compatagas",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -63,14 +63,14 @@
         "origin": false
       },
       "eas": {
-        "projectId": "5f4c72d8-5c0d-4405-af28-2d4e8ca63324"
+        "projectId": "b7e9a12f-3d6c-4a8e-9f1b-c5d2e7f8a9b0"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/5f4c72d8-5c0d-4405-af28-2d4e8ca63324"
+      "url": "https://u.expo.dev/b7e9a12f-3d6c-4a8e-9f1b-c5d2e7f8a9b0"
     }
   }
 }
