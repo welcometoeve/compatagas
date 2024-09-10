@@ -5,15 +5,17 @@ import {
   ThemeProvider,
 } from "@react-navigation/native"
 import { useFonts } from "expo-font"
-import { Stack } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import "react-native-reanimated"
-import { View, Button, Text, AppState, StyleSheet } from "react-native"
+import { View, Button, AppState, StyleSheet } from "react-native"
 import * as Updates from "expo-updates"
 
 import { useColorScheme } from "@/hooks/useColorScheme"
 import App from "./(tabs)"
 import NavBar from "./NavBar"
+import { UserProvider, useUser } from "@/contexts/UserContext"
+import AccountScreen from "./(tabs)/login"
+import { DebugView } from "./(tabs)/DebugView"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -23,8 +25,10 @@ function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   })
   const appState = useRef(AppState.currentState)
+  const [isDebugVisible, setIsDebugVisible] = useState(false)
   const [update, setUpdate] = useState<Updates.UpdateCheckResult | null>(null)
   const [updateString, setUpdateString] = useState("")
+  const { user, authenticating, signingUp } = useUser()
 
   useEffect(() => {
     if (loaded) {
@@ -80,10 +84,27 @@ function RootLayout() {
     return null
   }
 
+  if (!authenticating && !user) {
+    return <AccountScreen />
+  }
+
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <App />
+      <View style={styles.container}>
+        <View style={styles.debugButtonContainer}>
+          <Button title="Debug" onPress={() => setIsDebugVisible(true)} />
+        </View>
 
+        <View style={[styles.fullPageView, styles.cameraView]}>
+          <App />
+        </View>
+        <DebugView
+          isVisible={isDebugVisible}
+          onClose={() => setIsDebugVisible(false)}
+          update={update}
+          updateString={updateString}
+        />
+      </View>
       <NavBar />
     </ThemeProvider>
   )
@@ -110,5 +131,9 @@ const styles = StyleSheet.create({
 })
 
 export default function ContextWrapper() {
-  return <RootLayout />
+  return (
+    <UserProvider>
+      <RootLayout />
+    </UserProvider>
+  )
 }
