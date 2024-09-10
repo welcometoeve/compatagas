@@ -10,17 +10,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { parse } from "@babel/core"
 
 // Define types
-type User = {
+export type UserProfile = {
   id: number
   phoneNumber: number
   name: string | null
 }
 
 type UserContextType = {
-  user: User | null
+  user: UserProfile | null
   authenticating: boolean
   signingUp: boolean
-  createUser: (phoneNumber: number, name: string) => Promise<User>
+  createUser: (phoneNumber: number, name: string) => Promise<UserProfile>
 }
 
 // Create Supabase client
@@ -36,11 +36,13 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserProfile | null>(null)
   const [authenticating, setAuthenticating] = useState(true)
   const [signingUp, setSigningIn] = useState(false)
 
-  const authenticate = async (phoneNumber: number): Promise<User | null> => {
+  const authenticate = async (
+    phoneNumber: number
+  ): Promise<UserProfile | null> => {
     setSigningIn(true)
     try {
       const { data, error } = await supabase
@@ -61,7 +63,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const createUser = async (
     phoneNumber: number,
     name: string
-  ): Promise<User> => {
+  ): Promise<UserProfile> => {
     setSigningIn(true)
     try {
       // First, try to fetch the user

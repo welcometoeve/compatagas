@@ -16,6 +16,9 @@ import NavBar from "./NavBar"
 import { UserProvider, useUser } from "@/contexts/UserContext"
 import AccountScreen from "./(tabs)/login"
 import { DebugView } from "./(tabs)/DebugView"
+import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
+import { AnswerProvider, useAnswers } from "@/contexts/AnswerContext"
+import ErrorModal from "@/components/ErrorModal"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -25,10 +28,14 @@ function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   })
   const appState = useRef(AppState.currentState)
-  const [isDebugVisible, setIsDebugVisible] = useState(false)
+  const [isDebugVisible, setIsDebugVisible] = useState<boolean>(false)
   const [update, setUpdate] = useState<Updates.UpdateCheckResult | null>(null)
-  const [updateString, setUpdateString] = useState("")
+  const [updateString, setUpdateString] = useState<string>("")
   const { user, authenticating, signingUp } = useUser()
+  const { refreshFriends, error: friendsError, friends } = useFriends()
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
+  const { fetchError: fetchAnswersError, fetchAnswers } = useAnswers()
+  const [errorMessage, setErrorMessage] = useState<string>("")
 
   useEffect(() => {
     if (loaded) {
@@ -44,11 +51,9 @@ function RootLayout() {
         nextAppState === "active"
       ) {
         setUpdateString(updateString + "\nState is active")
-
         console.log("App has come to the foreground!")
         checkForUpdates()
       }
-
       appState.current = nextAppState
     })
 
@@ -56,6 +61,19 @@ function RootLayout() {
       subscription.remove()
     }
   }, [])
+
+  useEffect(() => {
+    if (user && !authenticating && !signingUp) {
+      refreshFriends()
+    }
+  }, [user, authenticating, signingUp])
+
+  useEffect(() => {
+    if (friendsError || fetchAnswersError) {
+      setErrorMessage(friendsError || fetchAnswersError || "An error occurred")
+      setIsErrorModalVisible(true)
+    }
+  }, [friendsError, fetchAnswersError])
 
   async function checkForUpdates() {
     setUpdateString(updateString + "\nChecking for updates")
@@ -66,7 +84,6 @@ function RootLayout() {
       setUpdate(updateResult)
       if (updateResult.isAvailable) {
         setUpdateString(updateString + "\nUpdating")
-
         await Updates.fetchUpdateAsync()
         await Updates.reloadAsync()
       } else {
@@ -78,6 +95,11 @@ function RootLayout() {
         `${updateString}\nError checking for updates: ${JSON.stringify(error)}`
       )
     }
+  }
+
+  const handleErrorModalClose = () => {
+    setIsErrorModalVisible(false)
+    refreshFriends()
   }
 
   if (!loaded) {
@@ -96,13 +118,19 @@ function RootLayout() {
         </View>
 
         <View style={[styles.fullPageView, styles.cameraView]}>
-          <App />
+          {friends.length > 0 && <App />}
         </View>
         <DebugView
           isVisible={isDebugVisible}
           onClose={() => setIsDebugVisible(false)}
           update={update}
           updateString={updateString}
+        />
+        <ErrorModal
+          visible={isErrorModalVisible}
+          message={errorMessage}
+          onClose={handleErrorModalClose}
+          retry={fetchAnswersError ? fetchAnswers : refreshFriends}
         />
       </View>
       <NavBar />
@@ -133,7 +161,11 @@ const styles = StyleSheet.create({
 export default function ContextWrapper() {
   return (
     <UserProvider>
-      <RootLayout />
+      <FriendsProvider>
+        <AnswerProvider>
+          <RootLayout />
+        </AnswerProvider>
+      </FriendsProvider>
     </UserProvider>
   )
 }

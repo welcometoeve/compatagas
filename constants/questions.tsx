@@ -1,3 +1,9 @@
+export type Question = {
+  id: number
+  label: string
+  options: string[]
+}
+
 export const questions: Question[] = [
   {
     id: 1,
@@ -95,9 +101,3 @@ export const questions: Question[] = [
     options: ["Sending selfies 🤳", "Sending feet pics 🦶"],
   },
 ]
-
-export type Question = {
-  id: number
-  label: string
-  options: string[]
-}
