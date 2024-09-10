@@ -1,24 +1,23 @@
 import React, { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { Ionicons } from "@expo/vector-icons"
-import { Page, usePage } from "@/contexts/PageContext"
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 
 interface TabItem {
   name: string
   activeIcon: keyof typeof Ionicons.glyphMap
   inactiveIcon: keyof typeof Ionicons.glyphMap
-  page: Page
+  page: string
 }
 
 const tabs: TabItem[] = [
   {
-    name: "Cameras",
+    name: "Your Results",
     activeIcon: "images",
     inactiveIcon: "image-outline",
     page: "albums",
   },
   {
-    name: "Shutter",
+    name: "Questions",
     activeIcon: "camera",
     inactiveIcon: "camera-outline",
     page: "camera",
@@ -32,18 +31,19 @@ const tabs: TabItem[] = [
 ]
 
 const NavBar: React.FC = () => {
-  const { page, setPage } = usePage()
+  // const { page, setPage } = usePage()
+  const [page, setPage] = useState("camera")
 
-  const tabIsActive = (page: Page, tab: Page) => {
-    if (
-      (page === "album" || page === "albums") &&
-      (tab === "album" || tab === "albums")
-    ) {
-      return true
-    } else {
-      return page === tab
-    }
-  }
+  // const tabIsActive = (page: Page, tab: Page) => {
+  //   if (
+  //     (page === "album" || page === "albums") &&
+  //     (tab === "album" || tab === "albums")
+  //   ) {
+  //     return true
+  //   } else {
+  //     return page === tab
+  //   }
+  // }
 
   return (
     <View style={styles.container}>
@@ -51,23 +51,28 @@ const NavBar: React.FC = () => {
         <TouchableOpacity
           key={tab.name}
           style={styles.tabItem}
-          onPress={() => setPage(tab.page)}
+          // onPress={() => setPage(tab.page)}
         >
+          {tab.name === "Your Results" && (
+            <MaterialCommunityIcons
+              name={page === tab.page ? tab.activeIcon : tab.inactiveIcon}
+              size={28}
+              color={page === tab.page ? "white" : "#8E8E93"}
+            />
+          )}
           <Ionicons
-            name={
-              tabIsActive(page, tab.page) ? tab.activeIcon : tab.inactiveIcon
-            }
+            name={page === tab.page ? tab.activeIcon : tab.inactiveIcon}
             size={28}
-            color={tabIsActive(page, tab.page) ? "white" : "#8E8E93"}
+            color={page === tab.page ? "white" : "#8E8E93"}
           />
-          {/* <Text
+          <Text
             style={[
               styles.tabText,
-              { color: tabIsActive(page, tab.page) ? "white" : "#8E8E93" },
+              { color: page === tab.page ? "white" : "#8E8E93" },
             ]}
           >
             {tab.name}
-          </Text> */}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
