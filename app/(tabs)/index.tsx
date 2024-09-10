@@ -154,7 +154,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#1E1E1E", // Slightly lighter than the background for contrast
   },
   toggleText: {
     color: "#FFFFFF",
