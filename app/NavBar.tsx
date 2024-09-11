@@ -1,32 +1,38 @@
 import React, { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
+import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons"
 
 interface TabItem {
   name: string
-  activeIcon: keyof typeof Ionicons.glyphMap
-  inactiveIcon: keyof typeof Ionicons.glyphMap
+  activeIcon:
+    | keyof typeof Ionicons.glyphMap
+    | keyof typeof AntDesign.glyphMap
+    | keyof typeof FontAwesome.glyphMap
+  inactiveIcon:
+    | keyof typeof Ionicons.glyphMap
+    | keyof typeof AntDesign.glyphMap
+    | keyof typeof FontAwesome.glyphMap
   page: string
 }
 
 const tabs: TabItem[] = [
   {
-    name: "Results",
-    activeIcon: "images",
-    inactiveIcon: "image-outline",
-    page: "albums",
+    name: "Quizzes",
+    page: "quizzes",
+    activeIcon: "document-text",
+    inactiveIcon: "document-text-outline",
   },
   {
     name: "Questions",
-    activeIcon: "camera",
-    inactiveIcon: "camera-outline",
     page: "camera",
+    activeIcon: "questioncircle",
+    inactiveIcon: "questioncircleo",
   },
   {
-    name: "Profile",
-    activeIcon: "person",
-    inactiveIcon: "person-outline",
-    page: "profile",
+    name: "Results",
+    page: "results",
+    activeIcon: "folder-open",
+    inactiveIcon: "folder-open-o",
   },
 ]
 
@@ -53,11 +59,38 @@ const NavBar: React.FC = () => {
           style={styles.tabItem}
           // onPress={() => setPage(tab.page)}
         >
-          <Ionicons
-            name={page === tab.page ? tab.activeIcon : tab.inactiveIcon}
-            size={28}
-            color={page === tab.page ? "white" : "#8E8E93"}
-          />
+          {tab.name === "Questions" ? (
+            <AntDesign
+              name={
+                (page === tab.page
+                  ? tab.activeIcon
+                  : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
+              }
+              size={24}
+              color={page === tab.page ? "white" : "#8E8E93"}
+            />
+          ) : tab.name === "Quizzes" ? (
+            <Ionicons
+              name={
+                (page === tab.page
+                  ? tab.activeIcon
+                  : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
+              }
+              size={28}
+              color={page === tab.page ? "white" : "#8E8E93"}
+            />
+          ) : (
+            <FontAwesome
+              name={
+                (page === tab.page
+                  ? tab.activeIcon
+                  : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
+              }
+              size={26}
+              color={page === tab.page ? "white" : "#8E8E93"}
+            />
+          )}
+
           <Text
             style={[
               styles.tabText,

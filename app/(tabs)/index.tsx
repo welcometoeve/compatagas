@@ -6,7 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from "react-native"
-import { questions } from "../../constants/questions"
+import { questions, quizzes } from "../../constants/questions"
 import { useFriends } from "@/contexts/FriendsContext"
 import { useAnswers } from "@/contexts/AnswerContext"
 
@@ -31,19 +31,7 @@ export default function App() {
     null
   )
   const [currentFriendId, setCurrentFriendId] = useState<number | null>(null)
-  const [availableQuestions, setAvailableQuestions] = useState<Question[]>([])
   const [addError, setAddError] = useState<string | undefined>()
-
-  const updateAvailableQuestions = (friendId: number) => {
-    const answeredQuestionIds = answers
-      .filter((a) => a.userItsAboutId === friendId)
-      .map((a) => a.questionId)
-
-    const newAvailableQuestions = questions.filter(
-      (q) => !answeredQuestionIds.includes(q.id)
-    )
-    setAvailableQuestions(newAvailableQuestions)
-  }
 
   const selectRandomFriend = () => {
     const availableFriends = friends.filter((friend) =>
@@ -79,7 +67,6 @@ export default function App() {
     const newFriendId = selectRandomFriend()
     setCurrentFriendId(newFriendId)
     if (newFriendId !== null) {
-      updateAvailableQuestions(newFriendId)
       const newQuestionId = selectRandomQuestion(newFriendId)
       setCurrentQuestionId(newQuestionId)
     }
