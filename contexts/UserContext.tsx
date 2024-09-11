@@ -8,6 +8,7 @@ import {
 import { createClient } from "@supabase/supabase-js"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { parse } from "@babel/core"
+import { SupabaseKey, SupabaseUrl } from "@/constants"
 
 // Define types
 export type UserProfile = {
@@ -24,10 +25,7 @@ type UserContextType = {
 }
 
 // Create Supabase client
-const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_KEY!
-)
+const supabase = createClient(SupabaseUrl, SupabaseKey)
 
 // Create context
 const UserContext = createContext<UserContextType | undefined>(undefined)
