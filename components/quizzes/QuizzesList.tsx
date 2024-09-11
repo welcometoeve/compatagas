@@ -1,5 +1,6 @@
-import { Quiz, quizzes } from "@/constants/questions"
-import React, { useState } from "react"
+import { questions, Quiz, quizzes } from "@/constants/questions"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import React from "react"
 import {
   View,
   Text,
@@ -10,7 +11,6 @@ import {
   ListRenderItem,
   TouchableOpacity,
 } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
 
 const { width } = Dimensions.get("window")
 const columnWidth = width / 2 - 15 // 15 is the total horizontal padding
@@ -20,12 +20,28 @@ type QuizItemProps = {
   onPress: () => void
 }
 
-const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => (
-  <TouchableOpacity style={styles.quizItem} onPress={onPress}>
-    <Image source={item.src} style={styles.quizImage} />
-    {/* <Text style={styles.quizName}>{item.name}</Text> */}
-  </TouchableOpacity>
-)
+const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
+  const { selfAnswers } = useSelfAnswers()
+  const answered = selfAnswers.some(
+    (answer) =>
+      questions.find((question) => question.id === answer.questionId)
+        ?.quizId === item.id
+  )
+  return (
+    <TouchableOpacity
+      style={styles.quizItem}
+      onPress={onPress}
+      disabled={answered}
+    >
+      <Image source={item.src} style={[styles.quizImage]} />
+      {answered && (
+        <View style={styles.doneOverlay}>
+          <Text style={styles.doneText}>Done!</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  )
+}
 
 type QuizzesViewProps = {
   setCurQuizId: (id: number) => void
@@ -62,7 +78,7 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     padding: 5,
-    backgroundColor: "#121212", // Dark background for the entire list
+    backgroundColor: "#121212",
   },
   row: {
     justifyContent: "space-between",
@@ -70,21 +86,15 @@ const styles = StyleSheet.create({
   quizItem: {
     width: columnWidth,
     marginBottom: 10,
-    backgroundColor: "#1E1E1E", // Darker background for each item
+    backgroundColor: "#1E1E1E",
     borderRadius: 8,
     overflow: "hidden",
+    position: "relative", // Add this to position the overlay correctly
   },
   quizImage: {
     width: columnWidth,
-    height: columnWidth, // Set height to be the same as width
+    height: columnWidth,
     resizeMode: "cover",
-  },
-  quizName: {
-    padding: 10,
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#FFFFFF", // White text for better contrast
   },
   title: {
     marginTop: 50,
@@ -94,11 +104,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 40,
   },
-  currentQuiz: {
-    fontSize: 16,
+  doneOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+  },
+  doneText: {
     color: "#FFFFFF",
-    textAlign: "center",
-    marginTop: 20,
+    fontSize: 24,
+    fontWeight: "bold",
   },
 })
 

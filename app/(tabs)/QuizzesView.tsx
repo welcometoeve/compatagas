@@ -1,21 +1,15 @@
 import QuizList from "@/components/quizzes/QuizzesList"
-import QuizView from "@/components/quizzes/QuizView"
+import QuizView from "@/components/quizzes/TakeQuizView"
 import { questions, Quiz, quizzes } from "@/constants/questions"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import React, { useState } from "react"
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  ListRenderItem,
-  TouchableOpacity,
-} from "react-native"
+
 import { SafeAreaView } from "react-native-safe-area-context"
+import { Question } from "."
 
 const QuizzesView: React.FC = () => {
   const [curQuizId, setCurQuizId] = useState<number | null>(null)
+  const { selfAnswers } = useSelfAnswers()
 
   const curQuiz = quizzes.find((quiz) => quiz.id === curQuizId)
   const curQuestions = questions.filter(

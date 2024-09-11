@@ -20,6 +20,10 @@ import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
 import { AnswerProvider, useAnswers } from "@/contexts/AnswerContext"
 import ErrorModal from "@/components/ErrorModal"
 import QuizzesView from "./(tabs)/QuizzesView"
+import {
+  SelfAnswerProvider,
+  useSelfAnswers,
+} from "@/contexts/SelfAnswerContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -36,6 +40,9 @@ function RootLayout() {
   const { refreshFriends, error: friendsError, friends } = useFriends()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchAnswers } = useAnswers()
+  const { fetchError: fetchSelfAnswersError, fetchSelfAnswers } =
+    useSelfAnswers()
+
   const [errorMessage, setErrorMessage] = useState<string>("")
   const [page, setPage] = useState("questions")
 
@@ -71,11 +78,16 @@ function RootLayout() {
   }, [user, authenticating, signingUp])
 
   useEffect(() => {
-    if (friendsError || fetchAnswersError) {
-      setErrorMessage(friendsError || fetchAnswersError || "An error occurred")
+    if (friendsError || fetchAnswersError || fetchSelfAnswersError) {
+      setErrorMessage(
+        friendsError ||
+          fetchAnswersError ||
+          fetchSelfAnswersError ||
+          "An error occurred"
+      )
       setIsErrorModalVisible(true)
     }
-  }, [friendsError, fetchAnswersError])
+  }, [friendsError, fetchAnswersError, fetchSelfAnswersError])
 
   async function checkForUpdates() {
     setUpdateString(updateString + "\nChecking for updates")
@@ -101,7 +113,13 @@ function RootLayout() {
 
   const handleErrorModalClose = () => {
     setIsErrorModalVisible(false)
-    refreshFriends()
+    if (friendsError) {
+      refreshFriends()
+    } else if (fetchAnswersError) {
+      fetchAnswers()
+    } else if (fetchSelfAnswersError) {
+      fetchSelfAnswers()
+    }
   }
 
   if (!loaded) {
@@ -138,7 +156,13 @@ function RootLayout() {
           visible={isErrorModalVisible}
           message={errorMessage}
           onClose={handleErrorModalClose}
-          retry={fetchAnswersError ? fetchAnswers : refreshFriends}
+          retry={
+            friendsError
+              ? refreshFriends
+              : fetchAnswersError
+              ? fetchAnswers
+              : fetchSelfAnswers
+          }
         />
       </View>
       <NavBar page={page} setPage={setPage} />
@@ -170,9 +194,11 @@ export default function ContextWrapper() {
   return (
     <UserProvider>
       <FriendsProvider>
-        <AnswerProvider>
-          <RootLayout />
-        </AnswerProvider>
+        <SelfAnswerProvider>
+          <AnswerProvider>
+            <RootLayout />
+          </AnswerProvider>
+        </SelfAnswerProvider>
       </FriendsProvider>
     </UserProvider>
   )

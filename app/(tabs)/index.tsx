@@ -9,6 +9,8 @@ import {
 import { questions, quizzes } from "../../constants/questions"
 import { useFriends } from "@/contexts/FriendsContext"
 import { useAnswers } from "@/contexts/AnswerContext"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { useUser } from "@/contexts/UserContext"
 
 export type Answer = {
   id: number
@@ -32,10 +34,19 @@ export default function App() {
   )
   const [currentFriendId, setCurrentFriendId] = useState<number | null>(null)
   const [addError, setAddError] = useState<string | undefined>()
+  const { selfAnswers } = useSelfAnswers()
+  const { user } = useUser()
+
+  const availableQuestions: Question[] = questions.filter(
+    (question) =>
+      !!selfAnswers.find(
+        (answer) => answer.id === question.id && answer.userId !== user?.id
+      )
+  )
 
   const selectRandomFriend = () => {
     const availableFriends = friends.filter((friend) =>
-      questions.some(
+      availableQuestions.some(
         (q) =>
           !answers.some(
             (a) => a.userItsAboutId === friend.id && a.questionId === q.id
@@ -50,7 +61,7 @@ export default function App() {
   }
 
   const selectRandomQuestion = (friendId: number) => {
-    const unansweredQuestions = questions.filter(
+    const unansweredQuestions = availableQuestions.filter(
       (q) =>
         !answers.some(
           (a) => a.userItsAboutId === friendId && a.questionId === q.id
@@ -97,7 +108,9 @@ export default function App() {
     }
   }
 
-  const currentQuestion = questions.find((q) => q.id === currentQuestionId)
+  const currentQuestion = availableQuestions.find(
+    (q) => q.id === currentQuestionId
+  )
   const currentFriend = friends.find((f) => f.id === currentFriendId)
 
   const isOutOfQuestions = useMemo(() => {
@@ -105,7 +118,7 @@ export default function App() {
       const answeredQuestionIds = answers
         .filter((a) => a.userItsAboutId === friend.id)
         .map((a) => a.questionId)
-      return questions.every((q) => answeredQuestionIds.includes(q.id))
+      return availableQuestions.every((q) => answeredQuestionIds.includes(q.id))
     })
   }, [friends, answers])
 
