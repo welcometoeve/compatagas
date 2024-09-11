@@ -102,21 +102,21 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
   }
 
-  useEffect(() => {
-    const initializeUser = async () => {
-      setAuthenticating(true)
-      try {
-        const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber")
-        if (storedPhoneNumber) {
-          await authenticate(parseInt(storedPhoneNumber))
-        }
-      } finally {
-        setAuthenticating(false)
-      }
-    }
+  // useEffect(() => {
+  //   const initializeUser = async () => {
+  //     setAuthenticating(true)
+  //     try {
+  //       const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber")
+  //       if (storedPhoneNumber) {
+  //         await authenticate(parseInt(storedPhoneNumber))
+  //       }
+  //     } finally {
+  //       setAuthenticating(false)
+  //     }
+  //   }
 
-    initializeUser()
-  }, [])
+  //   initializeUser()
+  // }, [])
 
   return (
     <UserContext.Provider
