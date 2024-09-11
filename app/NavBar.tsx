@@ -11,7 +11,7 @@ interface TabItem {
 
 const tabs: TabItem[] = [
   {
-    name: "Results",
+    name: "Your Results",
     activeIcon: "images",
     inactiveIcon: "image-outline",
     page: "albums",
