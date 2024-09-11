@@ -1,6 +1,9 @@
+import { ImageSourcePropType } from "react-native"
+
 export type Quiz = {
   id: number
   name: string
+  src: ImageSourcePropType
 }
 
 export type Question = {
@@ -13,11 +16,13 @@ export type Question = {
 export const basicQuiz: Quiz = {
   id: 1,
   name: "Basic Quiz",
+  src: require("../assets/images/basicQuiz.webp"),
 }
 
 export const hornyQuiz: Quiz = {
   id: 2,
   name: "Horny Quiz",
+  src: require("../assets/images/hornyQuiz.webp"),
 }
 
 export const basicQuestions: Question[] = [

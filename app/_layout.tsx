@@ -19,6 +19,7 @@ import { DebugView } from "./(tabs)/DebugView"
 import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
 import { AnswerProvider, useAnswers } from "@/contexts/AnswerContext"
 import ErrorModal from "@/components/ErrorModal"
+import QuizzesView from "./(tabs)/QuizzesView"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -36,6 +37,7 @@ function RootLayout() {
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchAnswers } = useAnswers()
   const [errorMessage, setErrorMessage] = useState<string>("")
+  const [page, setPage] = useState("questions")
 
   useEffect(() => {
     if (loaded) {
@@ -118,7 +120,13 @@ function RootLayout() {
         </View>
 
         <View style={[styles.fullPageView, styles.cameraView]}>
-          {friends.length > 0 && <App />}
+          {page === "questions" ? (
+            friends.length > 0 ? (
+              <App />
+            ) : null
+          ) : (
+            <QuizzesView />
+          )}
         </View>
         <DebugView
           isVisible={isDebugVisible}
@@ -133,7 +141,7 @@ function RootLayout() {
           retry={fetchAnswersError ? fetchAnswers : refreshFriends}
         />
       </View>
-      <NavBar />
+      <NavBar page={page} setPage={setPage} />
     </ThemeProvider>
   )
 }

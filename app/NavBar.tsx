@@ -24,7 +24,7 @@ const tabs: TabItem[] = [
   },
   {
     name: "Questions",
-    page: "camera",
+    page: "questions",
     activeIcon: "questioncircle",
     inactiveIcon: "questioncircleo",
   },
@@ -36,28 +36,19 @@ const tabs: TabItem[] = [
   },
 ]
 
-const NavBar: React.FC = () => {
-  // const { page, setPage } = usePage()
-  const [page, setPage] = useState("camera")
+interface NavBarProps {
+  page: string
+  setPage: (page: string) => void
+}
 
-  // const tabIsActive = (page: Page, tab: Page) => {
-  //   if (
-  //     (page === "album" || page === "albums") &&
-  //     (tab === "album" || tab === "albums")
-  //   ) {
-  //     return true
-  //   } else {
-  //     return page === tab
-  //   }
-  // }
-
+const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
   return (
     <View style={styles.container}>
       {tabs.map((tab) => (
         <TouchableOpacity
           key={tab.name}
           style={styles.tabItem}
-          // onPress={() => setPage(tab.page)}
+          onPress={() => setPage(tab.page)}
         >
           {tab.name === "Questions" ? (
             <AntDesign
