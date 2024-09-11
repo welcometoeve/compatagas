@@ -53,13 +53,6 @@ const NavBar: React.FC = () => {
           style={styles.tabItem}
           // onPress={() => setPage(tab.page)}
         >
-          {tab.name === "Your Results" && (
-            <MaterialCommunityIcons
-              name={page === tab.page ? tab.activeIcon : tab.inactiveIcon}
-              size={28}
-              color={page === tab.page ? "white" : "#8E8E93"}
-            />
-          )}
           <Ionicons
             name={page === tab.page ? tab.activeIcon : tab.inactiveIcon}
             size={28}
