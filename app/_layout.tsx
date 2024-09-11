@@ -14,6 +14,7 @@ import * as Updates from "expo-updates"
 import { useColorScheme } from "@/hooks/useColorScheme"
 import App from "./(tabs)"
 import NavBar from "./NavBar"
+import { UserProvider } from "@/contexts/UserContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -110,5 +111,9 @@ const styles = StyleSheet.create({
 })
 
 export default function ContextWrapper() {
-  return <RootLayout />
+  return (
+    <UserProvider>
+      <RootLayout />
+    </UserProvider>
+  )
 }
