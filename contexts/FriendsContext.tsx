@@ -7,6 +7,7 @@ import {
 } from "react"
 import { createClient } from "@supabase/supabase-js"
 import { useUser, UserProfile } from "./UserContext" // Assuming UserContext is in a separate file
+import { SupabaseKey, SupabaseUrl } from "@/constants"
 
 type FriendsContextType = {
   friends: UserProfile[]
@@ -15,11 +16,7 @@ type FriendsContextType = {
   refreshFriends: () => Promise<void>
 }
 
-// Create Supabase client
-const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_KEY!
-)
+const supabase = createClient(SupabaseUrl, SupabaseKey)
 
 // Create context
 const FriendsContext = createContext<FriendsContextType | undefined>(undefined)

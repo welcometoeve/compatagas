@@ -2,12 +2,10 @@ import React, { createContext, useContext, useState, useEffect } from "react"
 import { createClient, PostgrestError } from "@supabase/supabase-js"
 import { useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
+import { SupabaseKey, SupabaseUrl } from "@/constants"
 
 // Create Supabase client
-const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_KEY!
-)
+const supabase = createClient(SupabaseUrl, SupabaseKey)
 
 export type Answer = {
   id: number
