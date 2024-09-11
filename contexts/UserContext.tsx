@@ -20,14 +20,14 @@ type UserContextType = {
   user: User | null
   authenticating: boolean
   signingUp: boolean
-  createUser: (phoneNumber: number, name: string) => Promise<User>
+  createUser: (phoneNumber: number, name: string) => undefined
 }
 
-// Create Supabase client
-const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_KEY!
-)
+// // Create Supabase client
+// const supabase = createClient(
+//   process.env.EXPO_PUBLIC_SUPABASE_URL!,
+//   process.env.EXPO_PUBLIC_SUPABASE_KEY!
+// )
 
 // Create context
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -40,67 +40,67 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [authenticating, setAuthenticating] = useState(true)
   const [signingUp, setSigningIn] = useState(false)
 
-  const authenticate = async (phoneNumber: number): Promise<User | null> => {
-    setSigningIn(true)
-    try {
-      const { data, error } = await supabase
-        .from("User")
-        .select("*")
-        .eq("phoneNumber", phoneNumber)
-        .single()
+  // const authenticate = async (phoneNumber: number): Promise<User | null> => {
+  //   setSigningIn(true)
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from("User")
+  //       .select("*")
+  //       .eq("phoneNumber", phoneNumber)
+  //       .single()
 
-      if (error || !data) return null
-      setUser(data)
-      await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
-      return data
-    } finally {
-      setSigningIn(false)
-    }
-  }
+  //     if (error || !data) return null
+  //     setUser(data)
+  //     await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
+  //     return data
+  //   } finally {
+  //     setSigningIn(false)
+  //   }
+  // }
 
-  const createUser = async (
-    phoneNumber: number,
-    name: string
-  ): Promise<User> => {
-    setSigningIn(true)
-    try {
-      // First, try to fetch the user
-      const { data: existingUser, error: fetchError } = await supabase
-        .from("User")
-        .select("*")
-        .eq("phoneNumber", phoneNumber)
-        .single()
+  // const createUser = async (
+  //   phoneNumber: number,
+  //   name: string
+  // ): Promise<User> => {
+  //   setSigningIn(true)
+  //   try {
+  //     // First, try to fetch the user
+  //     const { data: existingUser, error: fetchError } = await supabase
+  //       .from("User")
+  //       .select("*")
+  //       .eq("phoneNumber", phoneNumber)
+  //       .single()
 
-      if (fetchError && fetchError.code !== "PGRST116") {
-        // PGRST116 is the error code for "Results contain 0 rows"
-        throw new Error("Failed to check for existing user")
-      }
+  //     if (fetchError && fetchError.code !== "PGRST116") {
+  //       // PGRST116 is the error code for "Results contain 0 rows"
+  //       throw new Error("Failed to check for existing user")
+  //     }
 
-      if (existingUser) {
-        // User already exists, return the existing user
-        setUser(existingUser)
-        await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
-        return existingUser
-      }
+  //     if (existingUser) {
+  //       // User already exists, return the existing user
+  //       setUser(existingUser)
+  //       await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
+  //       return existingUser
+  //     }
 
-      // User doesn't exist, insert a new user
-      const { data: newUser, error: insertError } = await supabase
-        .from("User")
-        .insert({ phoneNumber: phoneNumber, name: name })
-        .select()
-        .single()
+  //     // User doesn't exist, insert a new user
+  //     const { data: newUser, error: insertError } = await supabase
+  //       .from("User")
+  //       .insert({ phoneNumber: phoneNumber, name: name })
+  //       .select()
+  //       .single()
 
-      if (insertError || !newUser) {
-        throw new Error("Failed to create user")
-      }
+  //     if (insertError || !newUser) {
+  //       throw new Error("Failed to create user")
+  //     }
 
-      setUser(newUser)
-      await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
-      return newUser
-    } finally {
-      setSigningIn(false)
-    }
-  }
+  //     setUser(newUser)
+  //     await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
+  //     return newUser
+  //   } finally {
+  //     setSigningIn(false)
+  //   }
+  // }
 
   // useEffect(() => {
   //   const initializeUser = async () => {
@@ -120,7 +120,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <UserContext.Provider
-      value={{ user, authenticating, signingUp, createUser }}
+      value={{
+        user,
+        authenticating,
+        signingUp,
+        createUser: (phoneNumber: number, name: string) => undefined,
+      }}
     >
       {children}
     </UserContext.Provider>
