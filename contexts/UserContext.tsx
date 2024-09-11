@@ -23,11 +23,11 @@ type UserContextType = {
   createUser: (phoneNumber: number, name: string) => undefined
 }
 
-// // Create Supabase client
-// const supabase = createClient(
-//   process.env.EXPO_PUBLIC_SUPABASE_URL!,
-//   process.env.EXPO_PUBLIC_SUPABASE_KEY!
-// )
+// Create Supabase client
+const supabase = createClient(
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.EXPO_PUBLIC_SUPABASE_KEY!
+)
 
 // Create context
 const UserContext = createContext<UserContextType | undefined>(undefined)
