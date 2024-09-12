@@ -22,7 +22,7 @@ const AccountScreen = () => {
     setError("")
     setSuccess(false)
 
-    if (!name || !phoneNumber) {
+    if (!name || phoneNumber === undefined) {
       setError("Please fill in all fields.")
       return
     }
@@ -54,7 +54,7 @@ const AccountScreen = () => {
             <Text style={styles.label}>Phone Number</Text>
             <TextInput
               style={styles.input}
-              value={phoneNumber?.toString()}
+              value={phoneNumber as any}
               onChangeText={(phoneNumber: string) =>
                 setPhoneNumber(parseInt(phoneNumber))
               }
