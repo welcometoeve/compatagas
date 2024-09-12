@@ -10,7 +10,6 @@ import {
 import { AlertTriangle, ChevronLeft, CheckCircle } from "lucide-react-native"
 import { Question, Quiz } from "@/constants/questions"
 import { useUser } from "@/contexts/UserContext"
-import { useAnswers } from "@/contexts/AnswerContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 
 type QuizViewProps = {

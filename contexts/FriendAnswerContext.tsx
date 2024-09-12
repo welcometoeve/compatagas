@@ -8,7 +8,7 @@ import { useSelfAnswers } from "./SelfAnswerContext"
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
 
-export type Answer = {
+export type FriendAnswer = {
   id: number
   answererId: number
   userItsAboutId: number
@@ -16,24 +16,26 @@ export type Answer = {
   optionIndex: number
 }
 
-type AnswerContextType = {
-  answers: Answer[]
-  addAnswer: (
+type FriendAnswerContextType = {
+  friendAnswers: FriendAnswer[]
+  addFriendAnswer: (
     userItsAboutId: number,
     questionId: number,
     optionIndex: number
   ) => Promise<string | undefined> // Return error message if failed
   fetchError: string | null
   isLoading: boolean
-  fetchAnswers: () => Promise<void>
+  fetchFriendAnswers: () => Promise<void>
 }
 
-const AnswerContext = createContext<AnswerContextType | undefined>(undefined)
+const AnswerContext = createContext<FriendAnswerContextType | undefined>(
+  undefined
+)
 
 export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [answers, setAnswers] = useState<Answer[]>([])
+  const [answers, setAnswers] = useState<FriendAnswer[]>([])
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
@@ -52,7 +54,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setFetchError(null)
 
     const { data, error } = await supabase
-      .from("Answer")
+      .from("FriendAnswer")
       .select("*")
       .eq("answererId", user.id)
 
@@ -73,7 +75,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   ) => {
     if (!user) return
 
-    const newAnswer: Omit<Answer, "id"> = {
+    const newAnswer: Omit<FriendAnswer, "id"> = {
       answererId: user.id,
       userItsAboutId,
       questionId,
@@ -81,7 +83,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const { data, error } = await supabase
-      .from("Answer")
+      .from("FriendAnswer")
       .insert(newAnswer)
       .select()
 
@@ -96,11 +98,11 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <AnswerContext.Provider
       value={{
-        answers,
-        addAnswer,
+        friendAnswers: answers,
+        addFriendAnswer: addAnswer,
         fetchError,
         isLoading,
-        fetchAnswers,
+        fetchFriendAnswers: fetchAnswers,
       }}
     >
       {children}
@@ -108,7 +110,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   )
 }
 
-export const useAnswers = () => {
+export const useFriendAnswers = () => {
   const context = useContext(AnswerContext)
   if (context === undefined) {
     throw new Error("useAnswers must be used within an AnswerProvider")

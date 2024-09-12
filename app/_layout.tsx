@@ -17,7 +17,10 @@ import { UserProvider, useUser } from "@/contexts/UserContext"
 import AccountScreen from "./(tabs)/login"
 import { DebugView } from "./(tabs)/DebugView"
 import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
-import { AnswerProvider, useAnswers } from "@/contexts/AnswerContext"
+import {
+  AnswerProvider,
+  useFriendAnswers,
+} from "@/contexts/FriendAnswerContext"
 import ErrorModal from "@/components/ErrorModal"
 import QuizzesView from "./(tabs)/QuizzesView"
 import {
@@ -39,7 +42,8 @@ function RootLayout() {
   const { user, authenticating, signingUp } = useUser()
   const { refreshFriends, error: friendsError, friends } = useFriends()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
-  const { fetchError: fetchAnswersError, fetchAnswers } = useAnswers()
+  const { fetchError: fetchAnswersError, fetchFriendAnswers } =
+    useFriendAnswers()
   const { fetchError: fetchSelfAnswersError, fetchSelfAnswers } =
     useSelfAnswers()
 
@@ -116,7 +120,7 @@ function RootLayout() {
     if (friendsError) {
       refreshFriends()
     } else if (fetchAnswersError) {
-      fetchAnswers()
+      fetchFriendAnswers()
     } else if (fetchSelfAnswersError) {
       fetchSelfAnswers()
     }
@@ -160,7 +164,7 @@ function RootLayout() {
             friendsError
               ? refreshFriends
               : fetchAnswersError
-              ? fetchAnswers
+              ? fetchFriendAnswers
               : fetchSelfAnswers
           }
         />

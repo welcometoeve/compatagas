@@ -8,9 +8,9 @@ import {
 } from "react-native"
 import { questions, quizzes } from "../../constants/questions"
 import { useFriends } from "@/contexts/FriendsContext"
-import { useAnswers } from "@/contexts/AnswerContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
+import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 
 export type Answer = {
   id: number
@@ -28,7 +28,7 @@ export type Question = {
 
 export default function App() {
   const { friends } = useFriends()
-  const { answers, addAnswer, isLoading } = useAnswers()
+  const { friendAnswers, addFriendAnswer, isLoading } = useFriendAnswers()
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(
     null
   )
@@ -49,7 +49,7 @@ export default function App() {
     const availableFriends = friends.filter((friend) =>
       availableQuestions.some(
         (q) =>
-          !answers.some(
+          !friendAnswers.some(
             (a) => a.userItsAboutId === friend.id && a.questionId === q.id
           ) &&
           selfAnswers.some(
@@ -71,7 +71,7 @@ export default function App() {
   ) => {
     const unansweredQuestions = availableQuestions.filter(
       (q) =>
-        !answers.some(
+        !friendAnswers.some(
           (a) => a.userItsAboutId === friendId && a.questionId === q.id
         ) &&
         selfAnswers.some(
@@ -102,13 +102,13 @@ export default function App() {
     ) {
       selectNewFriendAndQuestion()
     }
-  }, [friends, answers])
+  }, [friends, friendAnswers])
 
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
 
     try {
-      addAnswer(currentFriendId, currentQuestionId, optionIndex)
+      addFriendAnswer(currentFriendId, currentQuestionId, optionIndex)
       selectNewFriendAndQuestion()
     } catch (error) {
       setAddError(JSON.stringify(error))
@@ -123,7 +123,7 @@ export default function App() {
 
   const isOutOfQuestions = useMemo(() => {
     return friends.every((friend) => {
-      const answeredQuestionIds = answers
+      const answeredQuestionIds = friendAnswers
         .filter((a) => a.userItsAboutId === friend.id)
         .map((a) => a.questionId)
       return availableQuestions.every(
@@ -134,7 +134,7 @@ export default function App() {
           )
       )
     })
-  }, [friends, answers, selfAnswers])
+  }, [friends, friendAnswers, selfAnswers])
 
   if (isOutOfQuestions) {
     return (
