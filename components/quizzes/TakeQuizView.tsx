@@ -163,7 +163,9 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               {question.options.map((option, index) => (
                 <TouchableOpacity
                   key={index}
-                  onPress={() => handleOptionSelect(question.id, option)}
+                  onPress={() => {
+                    handleOptionSelect(question.id, option)
+                  }}
                   style={{
                     padding: 12,
                     borderRadius: 8,

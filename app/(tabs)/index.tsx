@@ -57,6 +57,7 @@ export default function App() {
           )
       )
     )
+
     if (availableFriends.length > 0) {
       const randomIndex = Math.floor(Math.random() * availableFriends.length)
       return availableFriends[randomIndex].id
@@ -64,7 +65,10 @@ export default function App() {
     return null
   }
 
-  const selectRandomQuestion = (friendId: number) => {
+  const selectRandomQuestion = (
+    friendId: number,
+    currentQuestionId: number | null
+  ) => {
     const unansweredQuestions = availableQuestions.filter(
       (q) =>
         !answers.some(
@@ -72,7 +76,8 @@ export default function App() {
         ) &&
         selfAnswers.some(
           (sa) => sa.userId === friendId && sa.questionId === q.id
-        )
+        ) &&
+        q.id !== currentQuestionId
     )
     if (unansweredQuestions.length > 0) {
       const randomIndex = Math.floor(Math.random() * unansweredQuestions.length)
@@ -85,7 +90,7 @@ export default function App() {
     const newFriendId = selectRandomFriend()
     setCurrentFriendId(newFriendId)
     if (newFriendId !== null) {
-      const newQuestionId = selectRandomQuestion(newFriendId)
+      const newQuestionId = selectRandomQuestion(newFriendId, currentQuestionId)
       setCurrentQuestionId(newQuestionId)
     }
   }
@@ -156,13 +161,15 @@ export default function App() {
               <TouchableOpacity
                 key={index}
                 style={styles.button}
-                onPress={() => handleAnswer(index)}
+                onPress={() => {
+                  handleAnswer(index)
+                }}
                 disabled={isLoading}
               >
                 <Text style={styles.buttonText}>{option}</Text>
               </TouchableOpacity>
             ))}
-            {addError && (
+            {/* {addError && (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{addError}</Text>
                 <TouchableOpacity
@@ -172,7 +179,7 @@ export default function App() {
                   <Text style={styles.retryButtonText}>Retry</Text>
                 </TouchableOpacity>
               </View>
-            )}
+            )} */}
           </>
         )}
       </View>
