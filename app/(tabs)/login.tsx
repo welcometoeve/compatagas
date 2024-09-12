@@ -63,7 +63,7 @@ const AccountScreen = () => {
               keyboardType="phone-pad"
             />
           </View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.button, signingUp && styles.disabledButton]}
             onPress={handleSubmit}
             disabled={signingUp}
@@ -71,7 +71,7 @@ const AccountScreen = () => {
             <Text style={styles.buttonText}>
               {signingUp ? "Creating Account..." : "Create Account"}
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           {error ? (
             <View style={styles.errorContainer}>
               <Text style={styles.errorTitle}>Error</Text>
