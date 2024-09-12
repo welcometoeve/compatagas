@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
-import { createClient, PostgrestError } from "@supabase/supabase-js"
+import {
+  createClient,
+  PostgrestError,
+  RealtimeChannel,
+} from "@supabase/supabase-js"
 import { useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
@@ -39,8 +43,40 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const { friends } = useFriends()
 
   useEffect(() => {
+    let subscription: RealtimeChannel | null = null
+
     if (user) {
       fetchAnswers()
+
+      // Set up real-time subscription
+      subscription = supabase
+        .channel("SelfAnswer")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "SelfAnswer" },
+          (payload) => {
+            const newAnswer = payload.new as SelfAnswer
+            setAnswers((prevAnswers) => {
+              // Check if the answer already exists
+              const exists = prevAnswers.some(
+                (a) =>
+                  a.userId === newAnswer.userId &&
+                  a.questionId === newAnswer.questionId
+              )
+              if (!exists) {
+                return [...prevAnswers, newAnswer]
+              }
+              return prevAnswers
+            })
+          }
+        )
+        .subscribe()
+    }
+
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription)
+      }
     }
   }, [user, friends])
 
@@ -65,6 +101,15 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const addAnswer = async (questionId: number, optionIndex: number) => {
     if (!user) return
 
+    // Check if the answer already exists
+    const exists = answers.some(
+      (a) => a.userId === user.id && a.questionId === questionId
+    )
+
+    if (exists) {
+      return "Answer already exists for this user and question"
+    }
+
     const newAnswer: Omit<SelfAnswer, "id"> = {
       userId: user.id,
       questionId,
@@ -80,10 +125,8 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error adding self answer:", error)
       return "Error adding self answer"
     } else if (data) {
-      setAnswers([...answers, data[0]])
+      // The new answer will be added by the subscription
     }
-
-    answers.push(data[0])
   }
 
   return (

@@ -102,7 +102,7 @@ export default function App() {
     ) {
       selectNewFriendAndQuestion()
     }
-  }, [friends, friendAnswers])
+  }, [friends, friendAnswers, selfAnswers])
 
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
