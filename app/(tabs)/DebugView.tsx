@@ -27,6 +27,7 @@ export function DebugView({
   updateString,
 }: DebugViewProps) {
   const { clearUser } = useUser()
+  const { user } = useUser()
 
   return (
     <Modal
@@ -40,16 +41,22 @@ export function DebugView({
           <Text style={styles.closeButtonText}>X</Text>
         </TouchableOpacity>
         <Text style={styles.debugTitle}>Debug Information</Text>
-        <Text style={styles.debugText}>App State: {AppState.currentState}</Text>
+        {/* <Text style={styles.debugText}>App State: {AppState.currentState}</Text>
         <Text style={styles.debugText}>Update: {JSON.stringify(update)}</Text>
         {update && (
           <Text style={styles.debugText}>
             Update Info: {JSON.stringify(update, null, 2)}
           </Text>
-        )}
+        )} */}
         <Text style={styles.debugText} selectable>
           {updateString}
         </Text>
+        <Text style={styles.debugText}>User Name: {user?.name}</Text>
+        <Text style={styles.debugText}>User Id: {user?.id}</Text>
+        <Text style={styles.debugText}>
+          User Phone Number: {user?.phoneNumber}
+        </Text>
+
         <Button
           title="Log Out"
           onPress={() => {
