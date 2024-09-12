@@ -22,6 +22,7 @@ type UserContextType = {
   authenticating: boolean
   signingUp: boolean
   createUser: (phoneNumber: number, name: string) => Promise<UserProfile>
+  clearUser: () => void
 }
 
 // Create Supabase client
@@ -120,7 +121,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <UserContext.Provider
-      value={{ user, authenticating, signingUp, createUser }}
+      value={{
+        user,
+        authenticating,
+        signingUp,
+        createUser,
+        clearUser: () => setUser(null),
+      }}
     >
       {children}
     </UserContext.Provider>

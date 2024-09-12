@@ -28,7 +28,7 @@ const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
     (answer) =>
       questions.find(
         (question) =>
-          question.id === answer.questionId && answer.userId === user.id
+          question.id === answer.questionId && answer.userId === user?.id
       )?.quizId === item.id
   )
   return (

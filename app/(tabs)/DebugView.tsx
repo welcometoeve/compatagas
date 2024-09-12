@@ -11,6 +11,7 @@ import {
 import { UpdateCheckResult } from "expo-updates"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { createClient } from "@supabase/supabase-js"
+import { useUser } from "@/contexts/UserContext"
 
 interface DebugViewProps {
   isVisible: boolean
@@ -25,6 +26,8 @@ export function DebugView({
   update,
   updateString,
 }: DebugViewProps) {
+  const { clearUser } = useUser()
+
   return (
     <Modal
       animationType="slide"
@@ -48,9 +51,10 @@ export function DebugView({
           {updateString}
         </Text>
         <Button
-          title="Clear Local Storage"
+          title="Log Out"
           onPress={() => {
             AsyncStorage.clear()
+            clearUser()
             onClose()
           }}
         />
