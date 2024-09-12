@@ -1,11 +1,11 @@
 import QuizList from "@/components/quizzes/QuizzesList"
 import QuizView from "@/components/quizzes/TakeQuizView"
-import { questions, Quiz, quizzes } from "@/constants/questions"
+import { questions, Quiz, quizzes } from "@/components/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import React, { useState } from "react"
 
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Question } from "."
+import { View } from "react-native"
 
 const QuizzesView: React.FC = () => {
   const [curQuizId, setCurQuizId] = useState<number | null>(null)
@@ -16,7 +16,7 @@ const QuizzesView: React.FC = () => {
     (question) => question.quizId === curQuizId
   )
   return (
-    <SafeAreaView
+    <View
       style={{
         backgroundColor: "#121212", // Dark background for the entire list
         flex: 1,
@@ -31,7 +31,7 @@ const QuizzesView: React.FC = () => {
       ) : (
         <QuizList setCurQuizId={setCurQuizId} />
       )}
-    </SafeAreaView>
+    </View>
   )
 }
 

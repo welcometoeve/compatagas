@@ -6,25 +6,11 @@ import {
   StyleSheet,
   SafeAreaView,
 } from "react-native"
-import { questions, quizzes } from "../../constants/questions"
+import { Question, questions, quizzes } from "../../components/questions"
 import { useFriends } from "@/contexts/FriendsContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
-
-export type Answer = {
-  id: number
-  answererId: number
-  userItsAboutId: number
-  questionId: number
-  optionIndex: number
-}
-
-export type Question = {
-  id: number
-  label: string
-  options: string[]
-}
 
 export default function App() {
   const { friends } = useFriends()
@@ -166,7 +152,7 @@ export default function App() {
                 }}
                 disabled={isLoading}
               >
-                <Text style={styles.buttonText}>{option}</Text>
+                <Text style={styles.buttonText}>{option.label}</Text>
               </TouchableOpacity>
             ))}
             {/* {addError && (

@@ -53,7 +53,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         .channel("SelfAnswer")
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "SelfAnswer" },
+          { event: "*", schema: "public", table: "SelfAnswer" },
           (payload) => {
             const newAnswer = payload.new as SelfAnswer
             setAnswers((prevAnswers) => {

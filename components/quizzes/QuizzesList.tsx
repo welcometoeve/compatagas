@@ -1,4 +1,4 @@
-import { questions, Quiz, quizzes } from "@/constants/questions"
+import { questions, Quiz, quizzes } from "@/components/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import React from "react"
@@ -32,11 +32,7 @@ const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
       )?.quizId === item.id
   )
   return (
-    <TouchableOpacity
-      style={styles.quizItem}
-      onPress={onPress}
-      disabled={answered}
-    >
+    <TouchableOpacity style={styles.quizItem} onPress={onPress}>
       <Image source={item.src} style={[styles.quizImage]} />
       {answered && (
         <View style={styles.doneOverlay}>
