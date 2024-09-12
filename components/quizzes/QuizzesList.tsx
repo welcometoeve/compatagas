@@ -1,5 +1,6 @@
 import { questions, Quiz, quizzes } from "@/constants/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { useUser } from "@/contexts/UserContext"
 import React from "react"
 import {
   View,
@@ -22,10 +23,13 @@ type QuizItemProps = {
 
 const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
   const { selfAnswers } = useSelfAnswers()
+  const { user } = useUser()
   const answered = selfAnswers.some(
     (answer) =>
-      questions.find((question) => question.id === answer.questionId)
-        ?.quizId === item.id
+      questions.find(
+        (question) =>
+          question.id === answer.questionId && answer.userId === user.id
+      )?.quizId === item.id
   )
   return (
     <TouchableOpacity
