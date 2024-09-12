@@ -41,13 +41,13 @@ export function DebugView({
           <Text style={styles.closeButtonText}>X</Text>
         </TouchableOpacity>
         <Text style={styles.debugTitle}>Debug Information</Text>
-        {/* <Text style={styles.debugText}>App State: {AppState.currentState}</Text>
+        <Text style={styles.debugText}>App State: {AppState.currentState}</Text>
         <Text style={styles.debugText}>Update: {JSON.stringify(update)}</Text>
         {update && (
           <Text style={styles.debugText}>
             Update Info: {JSON.stringify(update, null, 2)}
           </Text>
-        )} */}
+        )}
         <Text style={styles.debugText} selectable>
           {updateString}
         </Text>

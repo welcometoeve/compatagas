@@ -109,9 +109,7 @@ function RootLayout() {
       }
     } catch (error) {
       console.log(`Error checking for updates: ${error}`)
-      setUpdateString(
-        `${updateString}\nError checking for updates: ${JSON.stringify(error)}`
-      )
+      setUpdateString(`${updateString}\nError checking for updates: ${error}`)
     }
   }
 
