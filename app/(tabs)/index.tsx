@@ -40,7 +40,8 @@ export default function App() {
   const availableQuestions: Question[] = questions.filter(
     (question) =>
       !!selfAnswers.find(
-        (answer) => answer.id === question.id && answer.userId !== user?.id
+        (answer) =>
+          answer.questionId === question.id && answer.userId !== user?.id
       )
   )
 
@@ -50,6 +51,9 @@ export default function App() {
         (q) =>
           !answers.some(
             (a) => a.userItsAboutId === friend.id && a.questionId === q.id
+          ) &&
+          selfAnswers.some(
+            (sa) => sa.userId === friend.id && sa.questionId === q.id
           )
       )
     )
@@ -65,6 +69,9 @@ export default function App() {
       (q) =>
         !answers.some(
           (a) => a.userItsAboutId === friendId && a.questionId === q.id
+        ) &&
+        selfAnswers.some(
+          (sa) => sa.userId === friendId && sa.questionId === q.id
         )
     )
     if (unansweredQuestions.length > 0) {
@@ -96,11 +103,7 @@ export default function App() {
     if (currentFriendId === null || currentQuestionId === null) return
 
     try {
-      addAnswer(currentFriendId, currentQuestionId, optionIndex) // figure out what to do with errors later
-      // setAddError(error)
-      // if (error) return
-
-      // If successful, move to the next friend and question
+      addAnswer(currentFriendId, currentQuestionId, optionIndex)
       selectNewFriendAndQuestion()
     } catch (error) {
       setAddError(JSON.stringify(error))
@@ -118,9 +121,15 @@ export default function App() {
       const answeredQuestionIds = answers
         .filter((a) => a.userItsAboutId === friend.id)
         .map((a) => a.questionId)
-      return availableQuestions.every((q) => answeredQuestionIds.includes(q.id))
+      return availableQuestions.every(
+        (q) =>
+          answeredQuestionIds.includes(q.id) ||
+          !selfAnswers.some(
+            (sa) => sa.userId === friend.id && sa.questionId === q.id
+          )
+      )
     })
-  }, [friends, answers])
+  }, [friends, answers, selfAnswers])
 
   if (isOutOfQuestions) {
     return (
