@@ -7,10 +7,13 @@ import {
   SafeAreaView,
   ActivityIndicator,
 } from "react-native"
-import { AlertTriangle, ChevronLeft, CheckCircle } from "lucide-react-native"
+import { ChevronLeft } from "lucide-react-native"
 import { Question, Quiz, Side } from "@/components/questions"
 import { useUser } from "@/contexts/UserContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { CustomAlert } from "./CustomAlert"
+import QuestionView from "./QuestionView"
+import ResultSlider from "./ResultSlider"
 
 type QuizViewProps = {
   quiz: Quiz
@@ -21,42 +24,6 @@ type QuizViewProps = {
 type Answers = {
   [key: number]: { label: string; side: Side }
 }
-
-const CustomAlert: React.FC<{
-  title: string
-  description: string
-  variant: "warning" | "info" | "success"
-}> = ({ title, description, variant }) => (
-  <View
-    style={{
-      padding: 16,
-      borderRadius: 8,
-      backgroundColor:
-        variant === "warning"
-          ? "#7c2d12"
-          : variant === "success"
-          ? "#065f46"
-          : "#1f2937",
-      borderColor:
-        variant === "warning"
-          ? "#ca8a04"
-          : variant === "success"
-          ? "#10b981"
-          : "#a78bfa",
-      borderWidth: 1,
-      marginTop: 16,
-    }}
-  >
-    {variant === "warning" && (
-      <AlertTriangle size={16} color="white" style={{ marginBottom: 8 }} />
-    )}
-    {variant === "success" && (
-      <CheckCircle size={16} color="white" style={{ marginBottom: 8 }} />
-    )}
-    <Text style={{ fontWeight: "bold", color: "white" }}>{title}</Text>
-    <Text style={{ color: "white" }}>{description}</Text>
-  </View>
-)
 
 const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   const [answers, setAnswers] = useState<Answers>({})
@@ -172,52 +139,6 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
     }
   }
 
-  const renderSlider = () => {
-    if (quizResult === null) return null
-
-    const sliderPosition = ((quizResult + 1) / 2) * 100
-    const leftPosition = `${sliderPosition}%`
-
-    return (
-      <View style={{ marginTop: 24, marginBottom: 24 }}>
-        <Text style={{ color: "white", marginBottom: 8, textAlign: "center" }}>
-          Your Result
-        </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Text style={{ color: "white" }}>{quiz.leftLabel}</Text>
-          <Text style={{ color: "white" }}>{quiz.rightLabel}</Text>
-        </View>
-        <View
-          style={{
-            height: 20,
-            backgroundColor: "rgb(40, 40, 40)",
-            borderRadius: 10,
-            marginTop: 8,
-          }}
-        >
-          <View
-            style={{
-              position: "absolute",
-              left: `${sliderPosition}%`,
-              transform: [{ translateX: -14 }],
-              marginTop: -4,
-              width: 28,
-              height: 28,
-              backgroundColor: "#8b5cf6",
-              borderRadius: 14,
-            }}
-          />
-        </View>
-      </View>
-    )
-  }
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }}>
       <ScrollView
@@ -251,61 +172,19 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         </View>
 
         {questions.map((question) => (
-          <View key={question.id} style={{ marginBottom: 24 }}>
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "600",
-                marginBottom: 8,
-                color: "white",
-              }}
-            >
-              {question.label}
-            </Text>
-            <View>
-              {question.options.map((option, index) => {
-                const isSelected =
-                  answers[question.id]?.label === option.label &&
-                  answers[question.id]?.side === option.side
-                const isLocked = lockedAnswers.has(question.id)
-
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      handleOptionSelect(question.id, option)
-                    }}
-                    disabled={isLocked}
-                    style={{
-                      padding: 12,
-                      borderRadius: 8,
-                      backgroundColor:
-                        isSelected && !isLocked
-                          ? "#7c3aed"
-                          : isSelected
-                          ? "#8b5cf6"
-                          : "rgb(40, 40, 40)",
-                      marginBottom: 8,
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      borderWidth: 1,
-                      borderColor: !isLocked
-                        ? "transparent"
-                        : isSelected
-                        ? "#8b5cf6"
-                        : "gray",
-                    }}
-                  >
-                    <Text style={{ color: "white" }}>{option.label}</Text>
-                  </TouchableOpacity>
-                )
-              })}
-            </View>
-          </View>
+          <QuestionView
+            key={question.id}
+            answers={answers}
+            lockedAnswers={lockedAnswers}
+            handleOptionSelect={handleOptionSelect}
+            question={question}
+            index={question.id}
+          />
         ))}
 
-        {renderSlider()}
+        {quizResult !== null && (
+          <ResultSlider quiz={quiz} quizResult={quizResult} />
+        )}
 
         {quizResult === null ? (
           <TouchableOpacity
@@ -355,7 +234,6 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             variant="warning"
           />
         )}
-
         {submitError && (
           <CustomAlert
             title="Error"
@@ -363,7 +241,6 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             variant="warning"
           />
         )}
-
         {submitSuccess && (
           <CustomAlert
             title="Success"

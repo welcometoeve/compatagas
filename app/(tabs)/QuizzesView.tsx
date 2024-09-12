@@ -1,11 +1,11 @@
 import QuizList from "@/components/quizzes/QuizzesList"
-import QuizView from "@/components/quizzes/TakeQuizView"
 import { questions, Quiz, quizzes } from "@/components/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import React, { useState } from "react"
 
 import { SafeAreaView } from "react-native-safe-area-context"
 import { View } from "react-native"
+import QuizView from "@/components/quizzes/takeQuizView/TakeQuizView"
 
 const QuizzesView: React.FC = () => {
   const [curQuizId, setCurQuizId] = useState<number | null>(null)
