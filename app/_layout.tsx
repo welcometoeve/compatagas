@@ -27,7 +27,7 @@ import {
   SelfAnswerProvider,
   useSelfAnswers,
 } from "@/contexts/SelfAnswerContext"
-import ResultsView from "./(tabs)/ResultsView"
+import { ResultsView } from "./(tabs)/ResultsView"
 
 SplashScreen.preventAutoHideAsync()
 

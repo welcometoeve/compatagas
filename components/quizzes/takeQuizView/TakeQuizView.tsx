@@ -6,6 +6,8 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Image,
+  ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft } from "lucide-react-native"
 import { Question, Quiz, Side } from "@/components/questions"
@@ -145,30 +147,39 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 24, paddingBottom: 0 }}
       >
-        <View
+        <TouchableOpacity
+          onPress={goBack}
           style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 24,
+            position: "absolute",
+            top: 24,
+            left: 24,
+            zIndex: 1,
           }}
         >
+          <ChevronLeft size={24} color="white" />
+        </TouchableOpacity>
+
+        <View style={{ marginBottom: 24, alignItems: "center" }}>
+          <Image
+            source={quiz.src}
+            style={{
+              width: 200,
+              height: 200,
+              borderRadius: 16,
+              marginBottom: 16,
+            }}
+            resizeMode="cover"
+          />
           <Text
             style={{
               fontSize: 32,
               fontWeight: "bold",
               color: "white",
               textAlign: "center",
-              width: "100%",
             }}
           >
             {quiz.name}
           </Text>
-          <TouchableOpacity
-            onPress={goBack}
-            style={{ marginRight: 16, position: "absolute" }}
-          >
-            <ChevronLeft size={24} color="white" />
-          </TouchableOpacity>
         </View>
 
         {questions.map((question) => (
