@@ -20,17 +20,17 @@ export default function App() {
   )
   const [currentFriendId, setCurrentFriendId] = useState<number | null>(null)
   const [addError, setAddError] = useState<string | undefined>()
-  const { selfAnswers } = useSelfAnswers()
   const { user } = useUser()
 
   // only offer questions that have been answered by another user
-  const availableQuestions: Question[] = questions.filter(
-    (question) =>
-      !!selfAnswers.find(
-        (answer) =>
-          answer.questionId === question.id && answer.userId !== user?.id
-      )
-  )
+  const availableQuestions: Question[] = questions
+  // .filter(
+  //   (question) =>
+  //     !!selfAnswers.find(
+  //       (answer) =>
+  //         answer.questionId === question.id && answer.userId !== user?.id
+  //     )
+  // )
 
   // only consider answers from the current user
   const filteredFriendAnswers = friendAnswers.filter(
@@ -43,9 +43,6 @@ export default function App() {
         (q) =>
           !filteredFriendAnswers.some(
             (a) => a.selfId === friend.id && a.questionId === q.id
-          ) &&
-          selfAnswers.some(
-            (sa) => sa.userId === friend.id && sa.questionId === q.id
           )
       )
     )
@@ -65,11 +62,7 @@ export default function App() {
       (q) =>
         !filteredFriendAnswers.some(
           (a) => a.selfId === friendId && a.questionId === q.id
-        ) &&
-        selfAnswers.some(
-          (sa) => sa.userId === friendId && sa.questionId === q.id
-        ) &&
-        q.id !== currentQuestionId
+        ) && q.id !== currentQuestionId
     )
     if (unansweredQuestions.length > 0) {
       const randomIndex = Math.floor(Math.random() * unansweredQuestions.length)
@@ -94,7 +87,7 @@ export default function App() {
     ) {
       selectNewFriendAndQuestion()
     }
-  }, [friends, filteredFriendAnswers, selfAnswers])
+  }, [friends, filteredFriendAnswers])
 
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
@@ -118,15 +111,9 @@ export default function App() {
       const answeredQuestionIds = filteredFriendAnswers
         .filter((a) => a.selfId === friend.id)
         .map((a) => a.questionId)
-      return availableQuestions.every(
-        (q) =>
-          answeredQuestionIds.includes(q.id) ||
-          !selfAnswers.some(
-            (sa) => sa.userId === friend.id && sa.questionId === q.id
-          )
-      )
+      return availableQuestions.every((q) => answeredQuestionIds.includes(q.id))
     })
-  }, [friends, filteredFriendAnswers, selfAnswers])
+  }, [friends, filteredFriendAnswers])
 
   if (isOutOfQuestions) {
     return (
