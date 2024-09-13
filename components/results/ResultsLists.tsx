@@ -56,7 +56,7 @@ const ResultsList: React.FC<{ setQuizItem: (quizItem: QuizItem) => void }> = ({
         <Text style={styles.quizTitle}>{item.quiz.name}</Text>
         <Text style={styles.quizSubtitle}>
           {activeTab === "your"
-            ? `Take By: ${item.theirIds
+            ? `Taken By: ${item.theirIds
                 .map((id) => allUsers.find((user) => user.id === id)?.name)
                 .join(", ")}`
             : `Taken For: ${

@@ -17,6 +17,14 @@ import { CustomAlert } from "./CustomAlert"
 import QuestionView from "./QuestionView"
 import ResultSlider from "./ResultSlider"
 
+export type SelfAnswer = {
+  id: number
+  userId: number
+  questionId: number
+  optionIndex: number
+  quizId: number
+}
+
 type QuizViewProps = {
   quiz: Quiz
   questions: Question[]
@@ -41,26 +49,28 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   const { user } = useUser()
 
   useEffect(() => {
-    // Initialize answers with existing self-answers and lock them
     if (user && selfAnswers) {
       const existingAnswers: Answers = {}
       const lockedQuestions = new Set<number>()
+      const relevantSelfAnswers: SelfAnswer[] = []
+
       questions.forEach((question) => {
         const selfAnswer = selfAnswers.find(
           (sa) => sa.userId === user.id && sa.questionId === question.id
         )
-        if (selfAnswer !== undefined) {
+        if (selfAnswer) {
           existingAnswers[question.id] =
             question.options[selfAnswer.optionIndex]
           lockedQuestions.add(question.id)
+          relevantSelfAnswers.push(selfAnswer)
         }
       })
+
       setAnswers(existingAnswers)
       setLockedAnswers(lockedQuestions)
 
-      // Calculate quiz result if all questions are answered
-      if (lockedQuestions.size === questions.length) {
-        calculateQuizResult(existingAnswers)
+      if (relevantSelfAnswers.length === questions.length) {
+        calculateQuizResult(relevantSelfAnswers)
       }
     }
   }, [user, selfAnswers, questions])
@@ -82,20 +92,15 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
     }
   }
 
-  const calculateQuizResult = (finalAnswers: Answers) => {
+  const calculateQuizResult = (selfAnswers: SelfAnswer[]) => {
     let totalScore = 0
     questions.forEach((question) => {
-      const answer = finalAnswers[question.id]
-      if (answer) {
-        const optionIndex = question.options.findIndex(
-          (opt) => opt.label === answer.label && opt.side === answer.side
-        )
-        const score = answer.side === Side.LEFT ? -1 : 1
-        const normalizedScore =
-          score *
-          ((optionIndex % (question.options.length / 2)) /
-            (question.options.length / 2 - 1))
-        totalScore += normalizedScore
+      const selfAnswer = selfAnswers.find((sa) => sa.questionId === question.id)
+      if (selfAnswer) {
+        const optionIndex = selfAnswer.optionIndex
+        const side = question.options[optionIndex].side
+        const score = side === Side.LEFT ? -1 : 1
+        totalScore += score
       }
     })
     const averageScore = totalScore / questions.length
@@ -109,7 +114,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
       setSubmitSuccess(false)
 
       try {
-        const submissionPromises = questions.map((question) => {
+        const newSelfAnswersPromises = questions.map(async (question) => {
           if (!lockedAnswers.has(question.id)) {
             const selectedOption = answers[question.id]
             const optionIndex = question.options.findIndex(
@@ -117,20 +122,39 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
                 opt.label === selectedOption.label &&
                 opt.side === selectedOption.side
             )
-            return addSelfAnswer(question.id, optionIndex)
+            const newSelfAnswerId = await addSelfAnswer(
+              question.id,
+              optionIndex
+            )
+            if (newSelfAnswerId) {
+              return {
+                id: Number(newSelfAnswerId),
+                userId: user.id,
+                questionId: question.id,
+                optionIndex,
+                quizId: quiz.id,
+              } as SelfAnswer
+            }
           }
-          return Promise.resolve()
+          return null
         })
 
-        const results = await Promise.all(submissionPromises)
-        const errors = results.filter((result: any) => result !== undefined)
+        const newSelfAnswers = (
+          await Promise.all(newSelfAnswersPromises)
+        ).filter((answer): answer is SelfAnswer => answer !== null)
 
-        if (errors.length > 0) {
-          setSubmitError(`Failed to submit ${errors.length} answer(s)`)
-        } else {
-          setSubmitSuccess(true)
-          calculateQuizResult(answers)
-        }
+        setSubmitSuccess(true)
+
+        // Combine existing and new self answers
+        const allSelfAnswers = [
+          ...(selfAnswers?.filter(
+            (sa) =>
+              sa.userId === user.id &&
+              questions.some((q) => q.id === sa.questionId)
+          ) || []),
+          ...newSelfAnswers,
+        ]
+        calculateQuizResult(allSelfAnswers)
       } catch (error) {
         setSubmitError("An unexpected error occurred")
       } finally {
@@ -161,7 +185,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
 
         <View style={{ marginBottom: 24, alignItems: "center" }}>
           <Image
-            source={quiz.src}
+            source={quiz.src as ImageSourcePropType}
             style={{
               width: 200,
               height: 200,

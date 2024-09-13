@@ -6,162 +6,211 @@ import {
   SafeAreaView,
   Image,
   TouchableOpacity,
+  StyleSheet,
 } from "react-native"
 import { ChevronLeft } from "lucide-react-native"
 import { Question, Quiz, Side } from "@/components/questions"
 import { useUser } from "@/contexts/UserContext"
-import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import ResultSlider from "../quizzes/takeQuizView/ResultSlider"
-import QuestionView from "../quizzes/takeQuizView/QuestionView"
-import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import ResultSlider from "./ResultResultSlider"
+import QuestionResultView from "./QuestionResultView"
 
 type QuizResultsViewProps = {
   quiz: Quiz
   questions: Question[]
   goBack: () => void
-  resultType: "your" | "their"
   theirIds: number[]
+  resultType: string
+}
+
+type Result = {
+  id: number
+  name: string
+  value: number
+  isSelf: boolean
 }
 
 const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   quiz,
   questions,
   goBack,
+  theirIds,
 }) => {
-  const [answers, setAnswers] = useState<{
-    [key: number]: { label: string; side: Side }
-  }>({})
-  const [quizResult, setQuizResult] = useState<number | null>(null)
+  const [results, setResults] = useState<Result[]>([])
 
-  const { user } = useUser()
+  const { user, allUsers } = useUser()
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
 
   useEffect(() => {
-    if (user && selfAnswers) {
+    if (user && selfAnswers && friendAnswers) {
+      const allResults: Result[] = []
+
+      // Calculate user's result
       const userAnswers = selfAnswers.filter(
         (sa) => sa.userId === user.id && sa.quizId === quiz.id
       )
+      const userResult = calculateQuizResult(userAnswers)
 
-      const answersMap: { [key: number]: { label: string; side: Side } } = {}
-      userAnswers.forEach((sa) => {
-        const question = questions.find((q) => q.id === sa.questionId)
-        if (question) {
-          const option = question.options[sa.optionIndex]
-          answersMap[sa.questionId] = { label: option.label, side: option.side }
-        }
+      allResults.push({
+        id: user.id,
+        name: "You",
+        value: userResult,
+        isSelf: true,
       })
 
-      setAnswers(answersMap)
-      calculateQuizResult(answersMap)
-    }
-  }, [user, selfAnswers, questions, quiz.id])
+      // Calculate friends' results
+      theirIds.forEach((friendId) => {
+        const friendAnswers1 = friendAnswers.filter(
+          (fa) => fa.friendId === friendId && fa.quizId === quiz.id
+        )
+        const friendResult = calculateQuizResult(friendAnswers1)
+        const friendName =
+          allUsers.find((u) => u.id === friendId)?.name || "Friend"
+        allResults.push({
+          id: friendId,
+          name: friendName,
+          value: friendResult,
+          isSelf: false,
+        })
+      })
 
-  const calculateQuizResult = (finalAnswers: {
-    [key: number]: { label: string; side: Side }
-  }) => {
+      setResults(allResults)
+    }
+  }, [user, selfAnswers, friendAnswers, questions, quiz.id, theirIds, allUsers])
+
+  const calculateQuizResult = (answers: (SelfAnswer | FriendAnswer)[]) => {
     let totalScore = 0
     questions.forEach((question) => {
-      const answer = finalAnswers[question.id]
+      const answer = answers.find((a) => a.questionId === question.id)
       if (answer) {
-        const optionIndex = question.options.findIndex(
-          (opt) => opt.label === answer.label && opt.side === answer.side
-        )
-        const score = answer.side === Side.LEFT ? -1 : 1
-        const normalizedScore =
-          score *
-          ((optionIndex % (question.options.length / 2)) /
-            (question.options.length / 2 - 1))
-        totalScore += normalizedScore
+        const optionIndex = answer.optionIndex
+        const side = question.options[optionIndex].side
+        const score = side === Side.LEFT ? -1 : 1
+        totalScore += score
       }
     })
     const averageScore = totalScore / questions.length
-    setQuizResult(averageScore)
+    return averageScore
+  }
+
+  const handleOptionSelect = (questionId: number, optionIndex: number) => {
+    // This function is now a no-op since answers are locked in the results view
+    console.log("Option selected:", questionId, optionIndex)
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }}>
+    <SafeAreaView style={styles.container}>
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 24, paddingBottom: 0 }}
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
       >
-        <TouchableOpacity
-          onPress={goBack}
-          style={{
-            position: "absolute",
-            top: 24,
-            left: 24,
-            zIndex: 1,
-          }}
-        >
+        <TouchableOpacity onPress={goBack} style={styles.backButton}>
           <ChevronLeft size={24} color="white" />
         </TouchableOpacity>
 
-        <View style={{ marginBottom: 24, alignItems: "center" }}>
+        <View style={styles.quizHeader}>
           <Image
             source={quiz.src}
-            style={{
-              width: 200,
-              height: 200,
-              borderRadius: 16,
-              marginBottom: 16,
-            }}
+            style={styles.quizImage}
             resizeMode="cover"
           />
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: "bold",
-              color: "white",
-              textAlign: "center",
-            }}
-          >
-            {`Your ${quiz.name}`} Results
-          </Text>
+          <Text style={styles.quizTitle}>{`Your ${quiz.name} Results`}</Text>
         </View>
 
-        {quizResult !== null && (
-          <ResultSlider quiz={quiz} quizResult={quizResult} />
+        <ResultSlider quiz={quiz} results={results} />
+
+        <View style={styles.spacer}></View>
+
+        {questions.map((question) =>
+          selfAnswers.find(
+            (sa) => sa.userId === user?.id && sa.questionId === question.id
+          ) ? (
+            <QuestionResultView
+              key={question.id}
+              question={question}
+              selfAnswer={
+                selfAnswers.find(
+                  (sa) =>
+                    sa.userId === user?.id && sa.questionId === question.id
+                )!
+              }
+              friendAnswers={friendAnswers.filter(
+                (fa) =>
+                  fa.questionId === question.id &&
+                  theirIds.includes(fa.friendId)
+              )}
+              lockedAnswers={new Set(questions.map((q) => q.id))}
+              handleOptionSelect={handleOptionSelect}
+              index={question.id}
+            />
+          ) : null
         )}
 
-        <View
-          style={{
-            height: 50,
-          }}
-        ></View>
-
-        {questions.map((question) => (
-          <QuestionView
-            key={question.id}
-            question={question}
-            answers={answers}
-            lockedAnswers={new Set(questions.map((q) => q.id))}
-            handleOptionSelect={() => {}}
-            index={question.id}
-          />
-        ))}
-
-        <TouchableOpacity
-          onPress={goBack}
-          style={{
-            marginTop: 24,
-            marginBottom: 24,
-            backgroundColor: "rgb(40, 40, 40)",
-            padding: 12,
-            borderRadius: 8,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <ChevronLeft size={20} color="white" style={{ marginRight: 8 }} />
-          <Text style={{ color: "white", fontWeight: "bold" }}>
-            Back to Quizzes
-          </Text>
+        <TouchableOpacity onPress={goBack} style={styles.backToQuizzesButton}>
+          <ChevronLeft size={20} color="white" style={styles.backButtonIcon} />
+          <Text style={styles.backButtonText}>Back to Quizzes</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#121212",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 24,
+    paddingBottom: 0,
+  },
+  backButton: {
+    position: "absolute",
+    top: 24,
+    left: 24,
+    zIndex: 1,
+  },
+  quizHeader: {
+    marginBottom: 24,
+    alignItems: "center",
+  },
+  quizImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  quizTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
+  },
+  spacer: {
+    height: 50,
+  },
+  backToQuizzesButton: {
+    marginTop: 24,
+    marginBottom: 24,
+    backgroundColor: "rgb(40, 40, 40)",
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backButtonIcon: {
+    marginRight: 8,
+  },
+  backButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+})
 
 export default QuizResultsView

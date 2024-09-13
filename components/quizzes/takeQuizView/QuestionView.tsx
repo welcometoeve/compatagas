@@ -63,7 +63,7 @@ export default function QuestionView({
                   ? "transparent"
                   : isSelected
                   ? "#8b5cf6"
-                  : "gray",
+                  : "rgb(80, 80, 80)",
               }}
             >
               <Text style={{ color: "white" }}>{option.label}</Text>
