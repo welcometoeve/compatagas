@@ -4,6 +4,7 @@ import { useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
 import { useSelfAnswers } from "./SelfAnswerContext"
+import { questions } from "@/components/questions"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -14,6 +15,7 @@ export type FriendAnswer = {
   selfId: number
   questionId: number
   optionIndex: number
+  quizId: number
 }
 
 type FriendAnswerContextType = {
@@ -53,10 +55,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase
-      .from("FriendAnswer")
-      .select("*")
-      .eq("friendId", user.id)
+    const { data, error } = await supabase.from("FriendAnswer").select("*")
 
     if (error) {
       console.error("Error fetching answers:", error)
@@ -80,6 +79,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       selfId: selfId,
       questionId,
       optionIndex,
+      quizId: questions.find((q) => q.id === questionId)?.quizId || 0,
     }
 
     const { data, error } = await supabase

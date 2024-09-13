@@ -1,5 +1,5 @@
-import { Quiz, quizzes } from "@/components/questions"
-import React, { useState } from "react"
+import { Quiz, quizzes, Question, questions } from "@/components/questions"
+import React, { useState, useMemo } from "react"
 import {
   View,
   Text,
@@ -10,15 +10,73 @@ import {
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronRight } from "lucide-react-native"
-import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 
 const ResultsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"your" | "their">("your")
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
-  const { user } = useUser()
+  const { user, allUsers } = useUser()
+
+  const filterQuizzes = (
+    quizzes: Quiz[],
+    selfAnswers: SelfAnswer[],
+    friendAnswers: FriendAnswer[]
+  ): Quiz[] => {
+    if (activeTab === "your") {
+      return quizzes.filter((quiz) => {
+        const quizQuestions = questions.filter(
+          (question) => question.quizId === quiz.id
+        )
+
+        const youFilledIn = !!selfAnswers.find(
+          (answer) => answer.userId === user?.id && answer.quizId === quiz.id
+        )
+        const friendFilledIn = friendAnswers
+          .filter((answer) => {
+            const matches =
+              answer.quizId === quiz.id && answer.selfId === user?.id
+            return matches
+          })
+          .reduce((acc, current) => {
+            acc[current.friendId] = (acc[current.friendId] || 0) + 1
+            return acc
+          }, {} as Record<string, number>)
+
+        const atLeastOneFriendFilledAll = Object.values(friendFilledIn).some(
+          (count) => count >= quizQuestions.length
+        )
+        return youFilledIn && atLeastOneFriendFilledAll
+      })
+    } else {
+      return quizzes.flatMap((quiz) => {
+        const youAnswers = friendAnswers.filter(
+          (answer) => answer.friendId === user?.id && answer.quizId === quiz.id
+        )
+        const k: Quiz[] = []
+        const quizQuestions = questions.filter(
+          (question) => question.quizId === quiz.id
+        )
+        for (const user of allUsers) {
+          const userAnswers = youAnswers.filter(
+            (answer) => answer.selfId === user.id
+          )
+          if (userAnswers.length >= quizQuestions.length) {
+            k.push(quiz)
+          }
+        }
+        return k
+      })
+    }
+  }
+
+  const quizItems = useMemo(
+    () => filterQuizzes(quizzes, selfAnswers, friendAnswers),
+    [quizzes, selfAnswers, friendAnswers, user?.id]
+  )
+
   const renderQuizItem = ({ item }: { item: Quiz }) => (
     <TouchableOpacity style={styles.quizItem}>
       <Image source={item.src} style={styles.quizImage} />
@@ -49,7 +107,7 @@ const ResultsView: React.FC = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={quizzes}
+        data={quizItems}
         renderItem={renderQuizItem}
         keyExtractor={(item) => item.id.toString()}
         style={styles.list}
@@ -58,8 +116,8 @@ const ResultsView: React.FC = () => {
       <View style={styles.bottomTextContainer}>
         <Text style={styles.bottomText}>
           {activeTab === "your"
-            ? "Quizzes will show up when someone else has taken them about you."
-            : "Quizzes will show up when you have taken them about someone else."}
+            ? "Quiz results will show up when someone else has taken them about you."
+            : "Quiz results will show up when you have taken them about someone else."}
         </Text>
       </View>
     </SafeAreaView>

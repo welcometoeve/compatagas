@@ -7,6 +7,7 @@ import {
 import { useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
+import { questions } from "@/components/questions"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -16,6 +17,7 @@ export type SelfAnswer = {
   userId: number
   questionId: number
   optionIndex: number
+  quizId: number
 }
 
 type SelfAnswerContextType = {
@@ -114,6 +116,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       userId: user.id,
       questionId,
       optionIndex,
+      quizId: questions.find((q) => q.id === questionId)?.quizId || 0,
     }
 
     const { data, error } = await supabase

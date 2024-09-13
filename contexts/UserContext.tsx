@@ -70,7 +70,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       const { data: existingUser, error: fetchError } = await supabase
         .from("User")
         .select("*")
-        .eq("phoneNumber", phoneNumber)
+        .eq("phoneNumber", parseInt(phoneNumber.toString()))
         .single()
 
       if (fetchError && fetchError.code !== "PGRST116") {
@@ -136,7 +136,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         "postgres_changes",
         { event: "*", schema: "public", table: "User" },
         (payload) => {
-          console.log("Change received!", payload)
           fetchAllUsers() // Refetch all users when there's a change
         }
       )

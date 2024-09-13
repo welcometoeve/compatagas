@@ -23,6 +23,7 @@ export default function App() {
   const { selfAnswers } = useSelfAnswers()
   const { user } = useUser()
 
+  // only offer questions that have been answered by another user
   const availableQuestions: Question[] = questions.filter(
     (question) =>
       !!selfAnswers.find(
@@ -31,11 +32,16 @@ export default function App() {
       )
   )
 
+  // only consider answers from the current user
+  const filteredFriendAnswers = friendAnswers.filter(
+    (answer) => answer.friendId === user?.id
+  )
+
   const selectRandomFriend = () => {
     const availableFriends = friends.filter((friend) =>
       availableQuestions.some(
         (q) =>
-          !friendAnswers.some(
+          !filteredFriendAnswers.some(
             (a) => a.selfId === friend.id && a.questionId === q.id
           ) &&
           selfAnswers.some(
@@ -57,7 +63,7 @@ export default function App() {
   ) => {
     const unansweredQuestions = availableQuestions.filter(
       (q) =>
-        !friendAnswers.some(
+        !filteredFriendAnswers.some(
           (a) => a.selfId === friendId && a.questionId === q.id
         ) &&
         selfAnswers.some(
@@ -88,7 +94,7 @@ export default function App() {
     ) {
       selectNewFriendAndQuestion()
     }
-  }, [friends, friendAnswers, selfAnswers])
+  }, [friends, filteredFriendAnswers, selfAnswers])
 
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
@@ -109,7 +115,7 @@ export default function App() {
 
   const isOutOfQuestions = useMemo(() => {
     return friends.every((friend) => {
-      const answeredQuestionIds = friendAnswers
+      const answeredQuestionIds = filteredFriendAnswers
         .filter((a) => a.selfId === friend.id)
         .map((a) => a.questionId)
       return availableQuestions.every(
@@ -120,7 +126,7 @@ export default function App() {
           )
       )
     })
-  }, [friends, friendAnswers, selfAnswers])
+  }, [friends, filteredFriendAnswers, selfAnswers])
 
   if (isOutOfQuestions) {
     return (
