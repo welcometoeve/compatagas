@@ -16,19 +16,19 @@ import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
 import { act } from "react-test-renderer"
-import processQuizLists from "@/components/proccessQuizLists"
+import processQuizLists, { QuizItem } from "./proccessQuizLists"
 
-export interface QuizItem {
-  quiz: Quiz
-  theirIds: number[]
+interface ResultsListProps {
+  setQuizItem: (quizItem: QuizItem) => void
+  activeTab: "your" | "their"
+  setActiveTab: React.Dispatch<React.SetStateAction<"your" | "their">>
 }
 
-const ResultsList: React.FC<{ setQuizItem: (quizItem: QuizItem) => void }> = ({
+const ResultsList: React.FC<ResultsListProps> = ({
   setQuizItem,
-}: {
-  setQuizItem: (quizItem: QuizItem) => void
+  activeTab,
+  setActiveTab,
 }) => {
-  const [activeTab, setActiveTab] = useState<"your" | "their">("your")
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
   const { user, allUsers } = useUser()
@@ -47,20 +47,18 @@ const ResultsList: React.FC<{ setQuizItem: (quizItem: QuizItem) => void }> = ({
     [selfAnswers, friendAnswers, quizzes, user]
   )
 
-  const renderQuizItem: ListRenderItem<{ quiz: Quiz; theirIds: number[] }> = ({
-    item,
-  }) => (
+  const renderQuizItem: ListRenderItem<QuizItem> = ({ item }) => (
     <TouchableOpacity style={styles.quizItem} onPress={() => setQuizItem(item)}>
       <Image source={item.quiz.src} style={styles.quizImage} />
       <View style={styles.quizInfo}>
         <Text style={styles.quizTitle}>{item.quiz.name}</Text>
         <Text style={styles.quizSubtitle}>
           {activeTab === "your"
-            ? `Taken By: ${item.theirIds
+            ? `Taken By: ${item.friendIds
                 .map((id) => allUsers.find((user) => user.id === id)?.name)
                 .join(", ")}`
             : `Taken For: ${
-                allUsers.find((user) => user.id === item.theirIds[0])?.name
+                allUsers.find((user) => user.id === item.selfId)?.name
               }`}
         </Text>
       </View>
@@ -87,7 +85,7 @@ const ResultsList: React.FC<{ setQuizItem: (quizItem: QuizItem) => void }> = ({
       <FlatList
         data={activeTab === "your" ? yourQuizzes : theirQuizzes}
         renderItem={renderQuizItem}
-        keyExtractor={(item) => item.quiz.id.toString() + item.theirIds.join()}
+        keyExtractor={(item) => item.quiz.id.toString() + item.friendIds.join()}
         style={styles.list}
       />
 

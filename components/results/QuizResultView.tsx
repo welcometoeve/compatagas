@@ -20,8 +20,9 @@ type QuizResultsViewProps = {
   quiz: Quiz
   questions: Question[]
   goBack: () => void
-  theirIds: number[]
-  resultType: string
+  friendIds: number[]
+  quizType: string
+  selfId: number
 }
 
 type Result = {
@@ -35,7 +36,9 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   quiz,
   questions,
   goBack,
-  theirIds,
+  friendIds,
+  quizType,
+  selfId,
 }) => {
   const [results, setResults] = useState<Result[]>([])
 
@@ -47,30 +50,33 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
     if (user && selfAnswers && friendAnswers) {
       const allResults: Result[] = []
 
-      // Calculate user's result
-      const userAnswers = selfAnswers.filter(
-        (sa) => sa.userId === user.id && sa.quizId === quiz.id
+      const selfResult = calculateQuizResult(
+        selfAnswers.filter(
+          (sa) => sa.userId === selfId && sa.quizId === quiz.id
+        )
       )
-      const userResult = calculateQuizResult(userAnswers)
 
       allResults.push({
-        id: user.id,
-        name: "You",
-        value: userResult,
+        id: selfId,
+        name:
+          user.id === selfId
+            ? "You"
+            : allUsers.find((u) => u.id === selfId)?.name || "Friend",
+        value: selfResult,
         isSelf: true,
       })
 
-      // Calculate friends' results
-      theirIds.forEach((friendId) => {
-        const friendAnswers1 = friendAnswers.filter(
-          (fa) => fa.friendId === friendId && fa.quizId === quiz.id
+      friendIds.forEach((friendId) => {
+        const friendResult = calculateQuizResult(
+          friendAnswers.filter(
+            (fa) => fa.friendId === friendId && fa.quizId === quiz.id
+          )
         )
-        const friendResult = calculateQuizResult(friendAnswers1)
         const friendName =
           allUsers.find((u) => u.id === friendId)?.name || "Friend"
         allResults.push({
           id: friendId,
-          name: friendName,
+          name: user.id === friendId ? "You" : friendName,
           value: friendResult,
           isSelf: false,
         })
@@ -78,7 +84,15 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
       setResults(allResults)
     }
-  }, [user, selfAnswers, friendAnswers, questions, quiz.id, theirIds, allUsers])
+  }, [
+    user,
+    selfAnswers,
+    friendAnswers,
+    questions,
+    quiz.id,
+    friendIds,
+    allUsers,
+  ])
 
   const calculateQuizResult = (answers: (SelfAnswer | FriendAnswer)[]) => {
     let totalScore = 0
@@ -100,6 +114,11 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
     console.log("Option selected:", questionId, optionIndex)
   }
 
+  const userName =
+    selfId === user?.id
+      ? "Your"
+      : `${allUsers.find((u) => u.id === selfId)?.name}'s` || "Friend"
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -116,7 +135,9 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
             style={styles.quizImage}
             resizeMode="cover"
           />
-          <Text style={styles.quizTitle}>{`Your ${quiz.name} Results`}</Text>
+          <Text
+            style={styles.quizTitle}
+          >{`${userName} ${quiz.name} Results`}</Text>
         </View>
 
         <ResultSlider quiz={quiz} results={results} />
@@ -125,21 +146,18 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
         {questions.map((question) =>
           selfAnswers.find(
-            (sa) => sa.userId === user?.id && sa.questionId === question.id
+            (sa) => sa.userId === selfId && sa.questionId === question.id
           ) ? (
             <QuestionResultView
               key={question.id}
               question={question}
               selfAnswer={
-                selfAnswers.find(
-                  (sa) =>
-                    sa.userId === user?.id && sa.questionId === question.id
-                )!
+                selfAnswers.find((sa) => sa.questionId === question.id)!
               }
               friendAnswers={friendAnswers.filter(
                 (fa) =>
                   fa.questionId === question.id &&
-                  theirIds.includes(fa.friendId)
+                  friendIds.includes(fa.friendId)
               )}
               lockedAnswers={new Set(questions.map((q) => q.id))}
               handleOptionSelect={handleOptionSelect}

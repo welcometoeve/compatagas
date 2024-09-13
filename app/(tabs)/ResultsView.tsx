@@ -16,22 +16,29 @@ import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
 import { act } from "react-test-renderer"
-import processQuizLists from "@/components/proccessQuizLists"
-import ResultsList, { QuizItem } from "@/components/results/ResultsLists"
+import ResultsList from "@/components/results/ResultsLists"
 import QuizResultsView from "@/components/results/QuizResultView"
+import { QuizItem } from "@/components/results/proccessQuizLists"
 
 export const ResultsView: React.FC = () => {
   const [curQuizItem, setCurQuizItem] = useState<QuizItem | null>(null)
+  const { user } = useUser()
+  const [activeTab, setActiveTab] = useState<"your" | "their">("your")
 
   return !curQuizItem ? (
-    <ResultsList setQuizItem={setCurQuizItem} />
+    <ResultsList
+      setQuizItem={setCurQuizItem}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+    />
   ) : (
     <QuizResultsView
       quiz={curQuizItem.quiz}
       goBack={() => setCurQuizItem(null)}
       questions={questions.filter((q) => q.quizId === curQuizItem.quiz.id)}
-      resultType="your"
-      theirIds={curQuizItem.theirIds}
+      quizType={user?.id === curQuizItem.selfId ? "your" : "them"}
+      friendIds={curQuizItem.friendIds}
+      selfId={curQuizItem.selfId}
     />
   )
 }

@@ -1,11 +1,12 @@
 import { FriendAnswer } from "@/contexts/FriendAnswerContext"
 import { SelfAnswer } from "@/contexts/SelfAnswerContext"
-import { Question, Quiz } from "./questions"
-import collect from "./collect"
+import { Question, Quiz } from "../questions"
+import collect from "../collect"
 
-interface QuizListItem {
+export interface QuizItem {
   quiz: Quiz
-  theirIds: number[]
+  friendIds: number[]
+  selfId: number
 }
 
 export default function processQuizLists(
@@ -14,7 +15,7 @@ export default function processQuizLists(
   quizzes: Quiz[],
   questions: Question[],
   userId: number
-): { yourQuizzes: QuizListItem[]; theirQuizzes: QuizListItem[] } {
+): { yourQuizzes: QuizItem[]; theirQuizzes: QuizItem[] } {
   const selfQuizzes = collect(selfAnswers, ["quizId", "userId"]).map(
     (answers) => ({ quizId: answers[0].quizId, userId: answers[0].userId })
   )
@@ -60,15 +61,17 @@ export default function processQuizLists(
   const yourQuizzes = quizzesYouCompletedAboutYourself
     .map((q) => ({
       quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
-      theirIds: quizzesYourFriendsCompletedAboutYou
+      friendIds: quizzesYourFriendsCompletedAboutYou
         .filter((f) => f.quizId === q.quizId)
         .map((f) => f.friendId),
+      selfId: q.userId,
     }))
-    .filter((q) => q.theirIds.length > 0)
+    .filter((q) => q.friendIds.length > 0)
 
   const theirQuizzes = quizzesYouCompletedAboutYourFriends.map((q) => ({
     quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
-    theirIds: [q.selfId],
+    friendIds: [userId],
+    selfId: q.selfId,
   }))
 
   return { yourQuizzes, theirQuizzes }

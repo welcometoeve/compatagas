@@ -21,21 +21,27 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   lockedAnswers,
 }) => {
   const isLocked = lockedAnswers.has(question.id)
-  const { allUsers } = useUser()
+  const { allUsers, user } = useUser()
 
   const getUsersForOption = (optionIndex: number) => {
     const names: string[] = []
 
     if (selfAnswer && selfAnswer.optionIndex === optionIndex) {
-      names.push("You")
+      names.push(
+        selfAnswer.userId === user?.id
+          ? "You"
+          : allUsers.find((user) => user.id === selfAnswer.userId)?.name ||
+              "Unknown"
+      )
     }
 
     const friendsWhoSelected = (friendAnswers ?? [])
       .filter((answer) => answer.optionIndex === optionIndex)
-      .map(
-        (answer) =>
-          allUsers.find((user) => user.id === answer.friendId)?.name ||
-          "Unknown"
+      .map((answer) =>
+        answer.friendId === user?.id
+          ? "You"
+          : allUsers.find((user) => user.id === answer.friendId)?.name ||
+            "Unknown"
       )
 
     names.push(...friendsWhoSelected)
