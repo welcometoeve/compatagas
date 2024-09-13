@@ -7,12 +7,16 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  ListRenderItem,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronRight } from "lucide-react-native"
 import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
+import collect from "@/components/collect"
+import { act } from "react-test-renderer"
+import processQuizLists from "@/components/proccessQuizLists"
 
 const ResultsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"your" | "their">("your")
@@ -20,71 +24,36 @@ const ResultsView: React.FC = () => {
   const { friendAnswers } = useFriendAnswers()
   const { user, allUsers } = useUser()
 
-  const filterQuizzes = (
-    quizzes: Quiz[],
-    selfAnswers: SelfAnswer[],
-    friendAnswers: FriendAnswer[]
-  ): Quiz[] => {
-    if (activeTab === "your") {
-      return quizzes.filter((quiz) => {
-        const quizQuestions = questions.filter(
-          (question) => question.quizId === quiz.id
-        )
-
-        const youFilledIn = !!selfAnswers.find(
-          (answer) => answer.userId === user?.id && answer.quizId === quiz.id
-        )
-        const friendFilledIn = friendAnswers
-          .filter((answer) => {
-            const matches =
-              answer.quizId === quiz.id && answer.selfId === user?.id
-            return matches
-          })
-          .reduce((acc, current) => {
-            acc[current.friendId] = (acc[current.friendId] || 0) + 1
-            return acc
-          }, {} as Record<string, number>)
-
-        const atLeastOneFriendFilledAll = Object.values(friendFilledIn).some(
-          (count) => count >= quizQuestions.length
-        )
-        return youFilledIn && atLeastOneFriendFilledAll
-      })
-    } else {
-      return quizzes.flatMap((quiz) => {
-        const youAnswers = friendAnswers.filter(
-          (answer) => answer.friendId === user?.id && answer.quizId === quiz.id
-        )
-        const k: Quiz[] = []
-        const quizQuestions = questions.filter(
-          (question) => question.quizId === quiz.id
-        )
-        for (const user of allUsers) {
-          const userAnswers = youAnswers.filter(
-            (answer) => answer.selfId === user.id
+  const { yourQuizzes, theirQuizzes } = useMemo(
+    () =>
+      user
+        ? processQuizLists(
+            friendAnswers,
+            selfAnswers,
+            quizzes,
+            questions,
+            user?.id
           )
-          if (userAnswers.length >= quizQuestions.length) {
-            k.push(quiz)
-          }
-        }
-        return k
-      })
-    }
-  }
-
-  const quizItems = useMemo(
-    () => filterQuizzes(quizzes, selfAnswers, friendAnswers),
-    [quizzes, selfAnswers, friendAnswers, user?.id]
+        : { yourQuizzes: [], theirQuizzes: [] },
+    [selfAnswers, friendAnswers, quizzes, user]
   )
 
-  const renderQuizItem = ({ item }: { item: Quiz }) => (
+  const renderQuizItem: ListRenderItem<{ quiz: Quiz; theirIds: number[] }> = ({
+    item,
+  }) => (
     <TouchableOpacity style={styles.quizItem}>
-      <Image source={item.src} style={styles.quizImage} />
+      <Image source={item.quiz.src} style={styles.quizImage} />
       <View style={styles.quizInfo}>
-        <Text style={styles.quizTitle}>{item.name}</Text>
-        <Text
-          style={styles.quizSubtitle}
-        >{`${item.leftLabel} vs ${item.rightLabel}`}</Text>
+        <Text style={styles.quizTitle}>{item.quiz.name}</Text>
+        <Text style={styles.quizSubtitle}>
+          {activeTab === "your"
+            ? `Take By: ${item.theirIds
+                .map((id) => allUsers.find((user) => user.id === id)?.name)
+                .join(", ")}`
+            : `Taken For: ${
+                allUsers.find((user) => user.id === item.theirIds[0])?.name
+              }`}
+        </Text>
       </View>
       <ChevronRight color="#fff" size={24} />
     </TouchableOpacity>
@@ -107,9 +76,9 @@ const ResultsView: React.FC = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={quizItems}
+        data={activeTab === "your" ? yourQuizzes : theirQuizzes}
         renderItem={renderQuizItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.quiz.id.toString() + item.theirIds.join()}
         style={styles.list}
       />
 
