@@ -10,8 +10,8 @@ const supabase = createClient(SupabaseUrl, SupabaseKey)
 
 export type FriendAnswer = {
   id: number
-  answererId: number
-  userItsAboutId: number
+  friendId: number
+  selfId: number
   questionId: number
   optionIndex: number
 }
@@ -19,7 +19,7 @@ export type FriendAnswer = {
 type FriendAnswerContextType = {
   friendAnswers: FriendAnswer[]
   addFriendAnswer: (
-    userItsAboutId: number,
+    selfId: number,
     questionId: number,
     optionIndex: number
   ) => Promise<string | undefined> // Return error message if failed
@@ -56,7 +56,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     const { data, error } = await supabase
       .from("FriendAnswer")
       .select("*")
-      .eq("answererId", user.id)
+      .eq("friendId", user.id)
 
     if (error) {
       console.error("Error fetching answers:", error)
@@ -69,15 +69,15 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   const addAnswer = async (
-    userItsAboutId: number,
+    selfId: number,
     questionId: number,
     optionIndex: number
   ) => {
     if (!user) return
 
     const newAnswer: Omit<FriendAnswer, "id"> = {
-      answererId: user.id,
-      userItsAboutId,
+      friendId: user.id,
+      selfId: selfId,
       questionId,
       optionIndex,
     }

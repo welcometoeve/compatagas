@@ -7,7 +7,6 @@ import {
 } from "react"
 import { createClient } from "@supabase/supabase-js"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { parse } from "@babel/core"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
 
 // Define types
@@ -19,6 +18,7 @@ export type UserProfile = {
 
 type UserContextType = {
   user: UserProfile | null
+  allUsers: UserProfile[]
   authenticating: boolean
   signingUp: boolean
   createUser: (phoneNumber: number, name: string) => Promise<UserProfile>
@@ -36,13 +36,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserProfile | null>(null)
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([])
   const [authenticating, setAuthenticating] = useState(true)
-  const [signingUp, setSigningIn] = useState(false)
+  const [signingUp, setSigningUp] = useState(false)
 
   const authenticate = async (
     phoneNumber: number
   ): Promise<UserProfile | null> => {
-    setSigningIn(true)
+    setSigningUp(true)
     try {
       const { data, error } = await supabase
         .from("User")
@@ -55,7 +56,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
       return data
     } finally {
-      setSigningIn(false)
+      setSigningUp(false)
     }
   }
 
@@ -63,7 +64,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     phoneNumber: number,
     name: string
   ): Promise<UserProfile> => {
-    setSigningIn(true)
+    setSigningUp(true)
     try {
       // First, try to fetch the user
       const { data: existingUser, error: fetchError } = await supabase
@@ -99,7 +100,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
       return newUser
     } finally {
-      setSigningIn(false)
+      setSigningUp(false)
+    }
+  }
+
+  const fetchAllUsers = async () => {
+    const { data, error } = await supabase.from("User").select("*")
+    if (error) {
+      console.error("Error fetching users:", error)
+    } else {
+      setAllUsers(data)
     }
   }
 
@@ -111,18 +121,37 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         if (storedPhoneNumber) {
           await authenticate(parseInt(storedPhoneNumber))
         }
+        await fetchAllUsers()
       } finally {
         setAuthenticating(false)
       }
     }
 
     initializeUser()
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel("public:User")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "User" },
+        (payload) => {
+          console.log("Change received!", payload)
+          fetchAllUsers() // Refetch all users when there's a change
+        }
+      )
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   return (
     <UserContext.Provider
       value={{
         user,
+        allUsers,
         authenticating,
         signingUp,
         createUser,

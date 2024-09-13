@@ -36,7 +36,7 @@ export default function App() {
       availableQuestions.some(
         (q) =>
           !friendAnswers.some(
-            (a) => a.userItsAboutId === friend.id && a.questionId === q.id
+            (a) => a.selfId === friend.id && a.questionId === q.id
           ) &&
           selfAnswers.some(
             (sa) => sa.userId === friend.id && sa.questionId === q.id
@@ -58,7 +58,7 @@ export default function App() {
     const unansweredQuestions = availableQuestions.filter(
       (q) =>
         !friendAnswers.some(
-          (a) => a.userItsAboutId === friendId && a.questionId === q.id
+          (a) => a.selfId === friendId && a.questionId === q.id
         ) &&
         selfAnswers.some(
           (sa) => sa.userId === friendId && sa.questionId === q.id
@@ -110,7 +110,7 @@ export default function App() {
   const isOutOfQuestions = useMemo(() => {
     return friends.every((friend) => {
       const answeredQuestionIds = friendAnswers
-        .filter((a) => a.userItsAboutId === friend.id)
+        .filter((a) => a.selfId === friend.id)
         .map((a) => a.questionId)
       return availableQuestions.every(
         (q) =>

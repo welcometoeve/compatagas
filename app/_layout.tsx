@@ -27,6 +27,7 @@ import {
   SelfAnswerProvider,
   useSelfAnswers,
 } from "@/contexts/SelfAnswerContext"
+import ResultsView from "./(tabs)/ResultsView"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -144,6 +145,8 @@ function RootLayout() {
             friends.length > 0 ? (
               <App />
             ) : null
+          ) : page === "results" ? (
+            <ResultsView />
           ) : (
             <QuizzesView />
           )}
