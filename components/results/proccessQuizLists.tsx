@@ -17,33 +17,31 @@ export default function processQuizLists(
   userId: number
 ): { yourQuizzes: QuizItem[]; theirQuizzes: QuizItem[] } {
   const selfQuizzes = collect(selfAnswers, ["quizId", "userId"]).map(
-    (answers) => ({ quizId: answers[0].quizId, userId: answers[0].userId })
+    (answers) => ({
+      quizId: answers[0].quizId,
+      userId: answers[0].userId,
+      numAnswers: answers.length,
+    })
   )
-
-  const quizCounts = collect(selfQuizzes, ["quizId"]).map((quiz) => ({
-    quizId: quiz[0].quizId,
-    count: quiz.length,
-  }))
 
   const friendQuizzes = collect(friendAnswers, [
     "quizId",
     "selfId",
     "friendId",
   ]).map((answers) => ({
-    quizId: answers[0].quizId,
-    selfId: answers[0].selfId,
-    friendId: answers[0].friendId,
+    quizId: answers[0]?.quizId,
+    selfId: answers[0]?.selfId,
+    friendId: answers[0]?.friendId,
+    numAnswers: answers.length,
   }))
 
   const completedSelfQuizzes = selfQuizzes.filter(
-    (q) =>
-      quizCounts.find((qc) => qc.quizId >= q.quizId)?.count ??
-      0 >= questions.filter((q) => q.quizId === q.quizId).length
+    (q1) =>
+      q1.numAnswers >= questions.filter((q2) => q1.quizId === q2.quizId).length
   )
   const completedFriendQuizzes = friendQuizzes.filter(
-    (q) =>
-      quizCounts.find((qc) => qc.quizId >= q.quizId)?.count ??
-      0 >= questions.filter((q) => q.quizId === q.quizId).length
+    (q1) =>
+      q1.numAnswers >= questions.filter((q2) => q1.quizId === q2.quizId).length
   )
 
   const quizzesYouCompletedAboutYourself = completedSelfQuizzes.filter(
@@ -68,11 +66,13 @@ export default function processQuizLists(
     }))
     .filter((q) => q.friendIds.length > 0)
 
-  const theirQuizzes = quizzesYouCompletedAboutYourFriends.map((q) => ({
-    quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
-    friendIds: [userId],
-    selfId: q.selfId,
-  }))
+  const theirQuizzes = quizzesYouCompletedAboutYourFriends
+    .map((q) => ({
+      quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
+      friendIds: [userId],
+      selfId: q.selfId,
+    }))
+    .filter((q) => completedSelfQuizzes.find((c) => c.quizId === q.quiz.id))
 
   return { yourQuizzes, theirQuizzes }
 }

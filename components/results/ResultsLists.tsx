@@ -1,5 +1,5 @@
 import { Quiz, quizzes, Question, questions } from "@/components/questions"
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import {
   View,
   Text,

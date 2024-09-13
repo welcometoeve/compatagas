@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
-import { createClient, PostgrestError } from "@supabase/supabase-js"
+import {
+  createClient,
+  PostgrestError,
+  RealtimeChannel,
+} from "@supabase/supabase-js"
 import { useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
@@ -44,8 +48,41 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const { friends } = useFriends()
 
   useEffect(() => {
+    let subscription: RealtimeChannel | null = null
+
     if (user) {
       fetchAnswers()
+
+      // Set up real-time subscription
+      subscription = supabase
+        .channel("FriendAnswer")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "FriendAnswer" },
+          (payload) => {
+            const newAnswer = payload.new as FriendAnswer
+            setAnswers((prevAnswers) => {
+              // Check if the answer already exists
+              const exists = prevAnswers.some(
+                (a) =>
+                  a.friendId === newAnswer.friendId &&
+                  a.selfId === newAnswer.selfId &&
+                  a.questionId === newAnswer.questionId
+              )
+              if (!exists) {
+                return [...prevAnswers, newAnswer]
+              }
+              return prevAnswers
+            })
+          }
+        )
+        .subscribe()
+    }
+
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription)
+      }
     }
   }, [user, friends])
 
@@ -58,8 +95,8 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     const { data, error } = await supabase.from("FriendAnswer").select("*")
 
     if (error) {
-      console.error("Error fetching answers:", error)
-      setFetchError("Error fetching answers")
+      console.error("Error fetching friend answers:", error)
+      setFetchError("Error fetching friend answers")
     } else {
       setAnswers(data)
     }
@@ -73,6 +110,18 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     optionIndex: number
   ) => {
     if (!user) return
+
+    // Check if the answer already exists
+    const exists = answers.some(
+      (a) =>
+        a.friendId === user.id &&
+        a.selfId === selfId &&
+        a.questionId === questionId
+    )
+
+    if (exists) {
+      return "Answer already exists for this friend and question"
+    }
 
     const newAnswer: Omit<FriendAnswer, "id"> = {
       friendId: user.id,
@@ -88,10 +137,10 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       .select()
 
     if (error) {
-      console.error("Error adding answer:", error)
-      return "Error adding answer"
+      console.error("Error adding friend answer:", error)
+      return "Error adding friend answer"
     } else if (data) {
-      setAnswers([...answers, data[0]])
+      // The new answer will be added by the subscription
     }
   }
 
@@ -113,7 +162,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useFriendAnswers = () => {
   const context = useContext(AnswerContext)
   if (context === undefined) {
-    throw new Error("useAnswers must be used within an AnswerProvider")
+    throw new Error("useFriendAnswers must be used within an AnswerProvider")
   }
   return context
 }
