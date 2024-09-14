@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons"
-import { PageType, usePage } from "@/contexts/PageContext"
 
 interface TabItem {
   name: string
@@ -13,7 +12,7 @@ interface TabItem {
     | keyof typeof Ionicons.glyphMap
     | keyof typeof AntDesign.glyphMap
     | keyof typeof FontAwesome.glyphMap
-  page: PageType
+  page: string
 }
 
 const tabs: TabItem[] = [
@@ -37,18 +36,19 @@ const tabs: TabItem[] = [
   },
 ]
 
-const NavBar: React.FC = () => {
-  const { page, setPage, setTakeCurQuizId } = usePage()
+interface NavBarProps {
+  page: string
+  setPage: (page: string) => void
+}
+
+const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
   return (
     <View style={styles.container}>
       {tabs.map((tab) => (
         <TouchableOpacity
           key={tab.name}
           style={styles.tabItem}
-          onPress={() => {
-            setPage(tab.page)
-            setTakeCurQuizId(null)
-          }}
+          onPress={() => setPage(tab.page)}
         >
           {tab.name === "Questions" ? (
             <AntDesign
