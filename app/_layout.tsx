@@ -28,6 +28,7 @@ import {
   useSelfAnswers,
 } from "@/contexts/SelfAnswerContext"
 import { ResultsView } from "./(tabs)/ResultsView"
+import { NotificationProvider } from "@/contexts/NotificationContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -198,13 +199,15 @@ const styles = StyleSheet.create({
 export default function ContextWrapper() {
   return (
     <UserProvider>
-      <FriendsProvider>
-        <SelfAnswerProvider>
-          <AnswerProvider>
-            <RootLayout />
-          </AnswerProvider>
-        </SelfAnswerProvider>
-      </FriendsProvider>
+      <NotificationProvider>
+        <FriendsProvider>
+          <SelfAnswerProvider>
+            <AnswerProvider>
+              <RootLayout />
+            </AnswerProvider>
+          </SelfAnswerProvider>
+        </FriendsProvider>
+      </NotificationProvider>
     </UserProvider>
   )
 }

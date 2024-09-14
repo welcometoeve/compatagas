@@ -54,10 +54,10 @@ const ResultsList: React.FC<ResultsListProps> = ({
         <Text style={styles.quizTitle}>{item.quiz.name}</Text>
         <Text style={styles.quizSubtitle}>
           {activeTab === "your"
-            ? `Taken By: ${item.friendIds
+            ? `Taken by ${item.friendIds
                 .map((id) => allUsers.find((user) => user.id === id)?.name)
                 .join(", ")}`
-            : `Taken For: ${
+            : `Taken for ${
                 allUsers.find((user) => user.id === item.selfId)?.name
               }`}
         </Text>
@@ -85,7 +85,9 @@ const ResultsList: React.FC<ResultsListProps> = ({
       <FlatList
         data={activeTab === "your" ? yourQuizzes : theirQuizzes}
         renderItem={renderQuizItem}
-        keyExtractor={(item) => item.quiz.id.toString() + item.friendIds.join()}
+        keyExtractor={(item) =>
+          item.quiz.id.toString() + item.friendIds.join() + item.selfId
+        }
         style={styles.list}
       />
 
