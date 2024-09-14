@@ -38,7 +38,7 @@ export const ResultsView: React.FC = () => {
       questions={questions.filter((q) => q.quizId === curQuizItem.quiz.id)}
       quizType={user?.id === curQuizItem.selfId ? "your" : "them"}
       friendIds={curQuizItem.friendIds}
-      selfId={curQuizItem.selfId}
+      selfId={curQuizItem.selfId ?? 0}
     />
   )
 }

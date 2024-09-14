@@ -180,7 +180,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             zIndex: 1,
           }}
         >
-          <ChevronLeft size={24} color="white" />
+          <ChevronLeft size={30} color="white" />
         </TouchableOpacity>
 
         <View style={{ marginBottom: 24, alignItems: "center" }}>

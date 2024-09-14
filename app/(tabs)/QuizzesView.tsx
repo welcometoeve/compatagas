@@ -6,14 +6,14 @@ import React, { useState } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { View } from "react-native"
 import QuizView from "@/components/quizzes/takeQuizView/TakeQuizView"
+import { usePage } from "@/contexts/PageContext"
 
 const QuizzesView: React.FC = () => {
-  const [curQuizId, setCurQuizId] = useState<number | null>(null)
-  const { selfAnswers } = useSelfAnswers()
+  const { curTakeQuizId, setTakeCurQuizId } = usePage()
 
-  const curQuiz = quizzes.find((quiz) => quiz.id === curQuizId)
+  const curQuiz = quizzes.find((quiz) => quiz.id === curTakeQuizId)
   const curQuestions = questions.filter(
-    (question) => question.quizId === curQuizId
+    (question) => question.quizId === curTakeQuizId
   )
   return (
     <View
@@ -22,14 +22,14 @@ const QuizzesView: React.FC = () => {
         flex: 1,
       }}
     >
-      {curQuizId !== null && curQuiz ? (
+      {curTakeQuizId !== null && curQuiz ? (
         <QuizView
           quiz={curQuiz}
           questions={curQuestions}
-          goBack={() => setCurQuizId(null)}
+          goBack={() => setTakeCurQuizId(null)}
         />
       ) : (
-        <QuizList setCurQuizId={setCurQuizId} />
+        <QuizList setCurQuizId={setTakeCurQuizId} />
       )}
     </View>
   )

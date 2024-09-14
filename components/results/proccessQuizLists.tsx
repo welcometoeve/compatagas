@@ -7,6 +7,7 @@ export interface QuizItem {
   quiz: Quiz
   friendIds: number[]
   selfId: number
+  takenBySelf: boolean
 }
 
 export default function processQuizLists(
@@ -15,7 +16,7 @@ export default function processQuizLists(
   quizzes: Quiz[],
   questions: Question[],
   userId: number
-): { yourQuizzes: QuizItem[]; theirQuizzes: QuizItem[] } {
+) {
   const selfQuizzes = collect(selfAnswers, ["quizId", "userId"]).map(
     (answers) => ({
       quizId: answers[0].quizId,
@@ -56,23 +57,42 @@ export default function processQuizLists(
     (q) => q.selfId === userId
   )
 
-  const yourQuizzes = quizzesYouCompletedAboutYourself
-    .map((q) => ({
-      quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
-      friendIds: quizzesYourFriendsCompletedAboutYou
-        .filter((f) => f.quizId === q.quizId)
-        .map((f) => f.friendId),
-      selfId: q.userId,
-    }))
-    .filter((q) => q.friendIds.length > 0)
+  const yourQuizzes = quizzesYouCompletedAboutYourself.map((q) => ({
+    quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
+    friendIds: quizzesYourFriendsCompletedAboutYou
+      .filter((f) => f.quizId === q.quizId)
+      .map((f) => f.friendId),
+    selfId: q.userId,
+    takenBySelf: true,
+  }))
 
-  const theirQuizzes = quizzesYouCompletedAboutYourFriends
-    .map((q) => ({
-      quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
-      friendIds: [userId],
-      selfId: q.selfId,
-    }))
-    .filter((q) => completedSelfQuizzes.find((c) => c.quizId === q.quiz.id))
+  const quizzesYourFriendCompletedAboutYouThatYouHaventCompleted =
+    quizzesYourFriendsCompletedAboutYou
+      .filter(
+        (q) =>
+          !quizzesYouCompletedAboutYourself.find((q2) => q2.quizId === q.quizId)
+      )
+      .map((q) => ({
+        quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
+        friendIds: [userId],
+        selfId: q.friendId,
+        takenBySelf: false,
+      }))
 
-  return { yourQuizzes, theirQuizzes }
+  const theirQuizzes = quizzesYouCompletedAboutYourFriends.map((q) => ({
+    quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
+    friendIds: [userId],
+    selfId: q.selfId,
+    takenBySelf: !!completedSelfQuizzes.find(
+      (q2) => q.quizId === q2.quizId && q2.userId === q.selfId
+    ),
+  }))
+
+  return {
+    yourQuizzes: [
+      ...yourQuizzes,
+      ...quizzesYourFriendCompletedAboutYouThatYouHaventCompleted,
+    ],
+    theirQuizzes,
+  }
 }

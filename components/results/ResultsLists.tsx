@@ -1,22 +1,18 @@
-import { Quiz, quizzes, Question, questions } from "@/components/questions"
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useMemo } from "react"
 import {
   View,
   Text,
-  Image,
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ListRenderItem,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { ChevronRight } from "lucide-react-native"
-import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
-import collect from "@/components/collect"
-import { act } from "react-test-renderer"
+import { quizzes, questions } from "@/components/questions"
 import processQuizLists, { QuizItem } from "./proccessQuizLists"
+import QuizListItem from "./QuizListItem"
 
 interface ResultsListProps {
   setQuizItem: (quizItem: QuizItem) => void
@@ -43,27 +39,11 @@ const ResultsList: React.FC<ResultsListProps> = ({
             questions,
             user?.id
           )
-        : { yourQuizzes: [], theirQuizzes: [] },
+        : {
+            yourQuizzes: [],
+            theirQuizzes: [],
+          },
     [selfAnswers, friendAnswers, quizzes, user]
-  )
-
-  const renderQuizItem: ListRenderItem<QuizItem> = ({ item }) => (
-    <TouchableOpacity style={styles.quizItem} onPress={() => setQuizItem(item)}>
-      <Image source={item.quiz.src} style={styles.quizImage} />
-      <View style={styles.quizInfo}>
-        <Text style={styles.quizTitle}>{item.quiz.name}</Text>
-        <Text style={styles.quizSubtitle}>
-          {activeTab === "your"
-            ? `Taken By: ${item.friendIds
-                .map((id) => allUsers.find((user) => user.id === id)?.name)
-                .join(", ")}`
-            : `Taken For: ${
-                allUsers.find((user) => user.id === item.selfId)?.name
-              }`}
-        </Text>
-      </View>
-      <ChevronRight color="#fff" size={24} />
-    </TouchableOpacity>
   )
 
   return (
@@ -84,16 +64,25 @@ const ResultsList: React.FC<ResultsListProps> = ({
       </View>
       <FlatList
         data={activeTab === "your" ? yourQuizzes : theirQuizzes}
-        renderItem={renderQuizItem}
-        keyExtractor={(item) => item.quiz.id.toString() + item.friendIds.join()}
+        renderItem={({ item }) => (
+          <QuizListItem
+            item={item}
+            activeTab={activeTab}
+            allUsers={allUsers}
+            onPress={setQuizItem}
+          />
+        )}
+        keyExtractor={(item) =>
+          item.quiz.id.toString() + item.friendIds.join() + item.selfId
+        }
         style={styles.list}
       />
 
       <View style={styles.bottomTextContainer}>
         <Text style={styles.bottomText}>
           {activeTab === "your"
-            ? "Quiz results will show up when someone else has taken them about you."
-            : "Quiz results will show up when you have taken them about someone else."}
+            ? "Take a quiz to see results here."
+            : "Fill out quizzes about your friends to see their results."}
         </Text>
       </View>
     </SafeAreaView>
@@ -103,12 +92,12 @@ const ResultsList: React.FC<ResultsListProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212", // Dark mode background color
+    backgroundColor: "#121212",
   },
   tabContainer: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#333", // Darker border color
+    borderBottomColor: "#333",
     paddingTop: 30,
   },
   tab: {
@@ -118,43 +107,15 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#fff", // White border for active tab
+    borderBottomColor: "#fff",
   },
   tabText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff", // White text color
+    color: "#fff",
   },
   list: {
     flex: 1,
-  },
-  quizItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333", // Darker border color
-    height: 100, // Increased height
-  },
-  quizImage: {
-    width: 60,
-    height: 60,
-    marginRight: 15,
-    borderRadius: 5, // Rounded corners
-  },
-  quizInfo: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  quizTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff", // White text color
-    marginBottom: 5, // Added space between title and subtitle
-  },
-  quizSubtitle: {
-    fontSize: 14,
-    color: "#aaa", // Light gray text color
   },
   bottomTextContainer: {
     paddingHorizontal: 40,

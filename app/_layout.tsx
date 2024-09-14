@@ -28,6 +28,8 @@ import {
   useSelfAnswers,
 } from "@/contexts/SelfAnswerContext"
 import { ResultsView } from "./(tabs)/ResultsView"
+import { NotificationProvider } from "@/contexts/NotificationContext"
+import { PageProvider, usePage } from "@/contexts/PageContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -49,7 +51,7 @@ function RootLayout() {
     useSelfAnswers()
 
   const [errorMessage, setErrorMessage] = useState<string>("")
-  const [page, setPage] = useState("questions")
+  const { page } = usePage()
 
   useEffect(() => {
     if (loaded) {
@@ -170,7 +172,7 @@ function RootLayout() {
           }
         />
       </View>
-      <NavBar page={page} setPage={setPage} />
+      <NavBar />
     </ThemeProvider>
   )
 }
@@ -197,14 +199,18 @@ const styles = StyleSheet.create({
 
 export default function ContextWrapper() {
   return (
-    <UserProvider>
-      <FriendsProvider>
-        <SelfAnswerProvider>
-          <AnswerProvider>
-            <RootLayout />
-          </AnswerProvider>
-        </SelfAnswerProvider>
-      </FriendsProvider>
-    </UserProvider>
+    <PageProvider>
+      <UserProvider>
+        <NotificationProvider>
+          <FriendsProvider>
+            <SelfAnswerProvider>
+              <AnswerProvider>
+                <RootLayout />
+              </AnswerProvider>
+            </SelfAnswerProvider>
+          </FriendsProvider>
+        </NotificationProvider>
+      </UserProvider>
+    </PageProvider>
   )
 }
