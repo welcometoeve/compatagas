@@ -157,7 +157,8 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
               friendAnswers={friendAnswers.filter(
                 (fa) =>
                   fa.questionId === question.id &&
-                  friendIds.includes(fa.friendId)
+                  friendIds.includes(fa.friendId) &&
+                  fa.selfId === user?.id
               )}
               lockedAnswers={new Set(questions.map((q) => q.id))}
               handleOptionSelect={handleOptionSelect}

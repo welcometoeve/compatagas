@@ -17,7 +17,7 @@ export const CustomAlert: React.FC<{
           : variant === "success"
           ? "#065f46"
           : variant === "friends"
-          ? "#1e40af"
+          ? "#4c1d95" // Changed to a purple color
           : "#1f2937",
       borderColor:
         variant === "warning"
@@ -25,7 +25,7 @@ export const CustomAlert: React.FC<{
           : variant === "success"
           ? "#10b981"
           : variant === "friends"
-          ? "#3b82f6"
+          ? "#8b5cf6" // Changed to a lighter purple for contrast
           : "#a78bfa",
       borderWidth: 1,
       marginTop: 16,

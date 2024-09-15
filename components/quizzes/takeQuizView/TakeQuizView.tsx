@@ -251,6 +251,17 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           <ResultSlider quiz={quiz} quizResult={quizResult} />
         )}
 
+        {friendsWhoTookQuiz.length > 0 && (
+          <CustomAlert
+            title="Some friends have taken this quiz for you!"
+            description=""
+            variant="friends"
+            friends={friendsWhoTookQuiz.map(
+              (f) => allUsers.find((u) => u.id === f)?.name ?? ""
+            )}
+          />
+        )}
+
         {quizResult === null ? (
           <TouchableOpacity
             onPress={handleSubmit}
@@ -306,23 +317,13 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             variant="warning"
           />
         )}
-        {submitSuccess && (
+        {/* {submitSuccess && (
           <CustomAlert
             title="Success"
             description="Your answers have been submitted successfully."
             variant="success"
           />
-        )}
-        {friendsWhoTookQuiz.length > 0 && (
-          <CustomAlert
-            title="Some friends have taken this quiz for you!"
-            description=""
-            variant="friends"
-            friends={friendsWhoTookQuiz.map(
-              (f) => allUsers.find((u) => u.id === f)?.name ?? ""
-            )}
-          />
-        )}
+        )} */}
       </ScrollView>
     </SafeAreaView>
   )
