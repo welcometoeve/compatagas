@@ -9,6 +9,7 @@ import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
 import { useSelfAnswers } from "./SelfAnswerContext"
 import { questions } from "@/components/questions"
+import { useNotification } from "./NotificationContext"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -46,6 +47,8 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
   const { friends } = useFriends()
+  const { notifications, fetchNotifications, addNotification } =
+    useNotification()
 
   useEffect(() => {
     let subscription: RealtimeChannel | null = null
@@ -130,7 +133,6 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       optionIndex,
       quizId: questions.find((q) => q.id === questionId)?.quizId || 0,
     }
-
     const { data, error } = await supabase
       .from("FriendAnswer")
       .insert(newAnswer)
@@ -140,7 +142,6 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error adding friend answer:", error)
       return "Error adding friend answer"
     } else if (data) {
-      // The new answer will be added by the subscription
     }
   }
 

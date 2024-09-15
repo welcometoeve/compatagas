@@ -11,6 +11,8 @@ import { useFriends } from "@/contexts/FriendsContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { useNotification } from "@/contexts/NotificationContext"
+import { addFriendAnswerInitiatedNotification } from "@/contexts/addNotification"
 
 export default function App() {
   const { friends } = useFriends()
@@ -21,6 +23,8 @@ export default function App() {
   const [currentFriendId, setCurrentFriendId] = useState<number | null>(null)
   const [addError, setAddError] = useState<string | undefined>()
   const { user } = useUser()
+  const { notifications, addNotification } = useNotification()
+  const { selfAnswers } = useSelfAnswers()
 
   // only offer questions that have been answered by another user
   const availableQuestions: Question[] = questions
@@ -92,8 +96,20 @@ export default function App() {
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
 
+    const quizId =
+      questions.find((q) => q.id === currentQuestionId)?.quizId || 0
+
     try {
       addFriendAnswer(currentFriendId, currentQuestionId, optionIndex)
+      user &&
+        addFriendAnswerInitiatedNotification(
+          friendAnswers,
+          selfAnswers,
+          quizId,
+          currentFriendId,
+          user?.id,
+          addNotification
+        )
       selectNewFriendAndQuestion()
     } catch (error) {
       setAddError(JSON.stringify(error))

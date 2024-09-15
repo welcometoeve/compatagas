@@ -207,4 +207,4 @@ export const hornyQuestions: Question[] = [
 ]
 
 export const quizzes: Quiz[] = [basicQuiz, hornyQuiz]
-export const questions: Question[] = [...basicQuestions, ...hornyQuestions]
+export const questions: Question[] = [...basicQuestions]

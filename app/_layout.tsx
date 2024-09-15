@@ -201,11 +201,11 @@ export default function ContextWrapper() {
     <UserProvider>
       <NotificationProvider>
         <FriendsProvider>
-          <SelfAnswerProvider>
-            <AnswerProvider>
+          <AnswerProvider>
+            <SelfAnswerProvider>
               <RootLayout />
-            </AnswerProvider>
-          </SelfAnswerProvider>
+            </SelfAnswerProvider>
+          </AnswerProvider>
         </FriendsProvider>
       </NotificationProvider>
     </UserProvider>

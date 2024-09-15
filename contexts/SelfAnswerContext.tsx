@@ -4,10 +4,13 @@ import {
   PostgrestError,
   RealtimeChannel,
 } from "@supabase/supabase-js"
-import { useUser } from "./UserContext"
+import { UserProfile, useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
 import { questions } from "@/components/questions"
+import { FriendAnswer, useFriendAnswers } from "./FriendAnswerContext"
+import collect from "@/components/collect"
+import { useNotification } from "./NotificationContext"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -43,6 +46,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
   const { friends } = useFriends()
+  const { addNotification } = useNotification()
 
   useEffect(() => {
     let subscription: RealtimeChannel | null = null
@@ -125,10 +129,8 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       .select()
 
     if (error) {
-      console.error("Error adding self answer:", error)
-      return "Error adding self answer"
+      throw new Error("Failed to add self answer")
     } else if (data) {
-      // The new answer will be added by the subscription
     }
   }
 

@@ -16,6 +16,9 @@ import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { CustomAlert } from "./CustomAlert"
 import QuestionView from "./QuestionView"
 import ResultSlider from "./ResultSlider"
+import { addSelfAnswerInitiatedNotification } from "@/contexts/addNotification"
+import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { useNotification } from "@/contexts/NotificationContext"
 
 export type SelfAnswer = {
   id: number
@@ -47,6 +50,8 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
 
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
   const { user } = useUser()
+  const { friendAnswers } = useFriendAnswers()
+  const { addNotification } = useNotification()
 
   useEffect(() => {
     if (user && selfAnswers) {
@@ -144,6 +149,13 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         ).filter((answer): answer is SelfAnswer => answer !== null)
 
         setSubmitSuccess(true)
+
+        addSelfAnswerInitiatedNotification(
+          quiz.id,
+          friendAnswers,
+          user,
+          addNotification
+        )
 
         // Combine existing and new self answers
         const allSelfAnswers = [

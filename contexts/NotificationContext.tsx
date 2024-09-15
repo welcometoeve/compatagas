@@ -14,7 +14,7 @@ import { useUser } from "./UserContext"
 const supabase: SupabaseClient = createClient(SupabaseUrl, SupabaseKey)
 
 // Define the shape of a notification
-export interface Notification {
+export interface CustomNotification {
   id: number
   createdAt: string
   quizId: number
@@ -26,11 +26,13 @@ export interface Notification {
 
 // Define the shape of the context
 interface NotificationContextType {
-  notifications: Notification[]
-  fetchNotifications: () => Promise<Notification[]>
+  notifications: CustomNotification[]
+  fetchNotifications: () => Promise<CustomNotification[]>
   addNotification: (
-    notification: Omit<Notification, "id" | "createdAt">
-  ) => Promise<Notification | null>
+    selfId: number,
+    friendId: number,
+    quizId: number
+  ) => Promise<CustomNotification | null>
   removeNotification: (id: number) => Promise<boolean>
   markAsOpened: (id: number, isSelf: boolean) => Promise<boolean>
 }
@@ -46,10 +48,12 @@ interface NotificationProviderProps {
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
 }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notifications, setNotifications] = useState<CustomNotification[]>([])
   const { user } = useUser()
 
-  const fetchNotifications = useCallback(async (): Promise<Notification[]> => {
+  const fetchNotifications = useCallback(async (): Promise<
+    CustomNotification[]
+  > => {
     if (!user) return []
 
     const { data, error } = await supabase
@@ -63,17 +67,19 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       return []
     }
 
-    setNotifications(data)
-    return data
+    setNotifications(data as CustomNotification[])
+    return data as CustomNotification[]
   }, [user])
 
   const addNotification = useCallback(
     async (
-      notification: Omit<Notification, "id" | "createdAt">
-    ): Promise<Notification | null> => {
+      selfId: number,
+      friendId: number,
+      quizId: number
+    ): Promise<CustomNotification | null> => {
       const { data, error } = await supabase
         .from("Notification")
-        .insert([notification])
+        .insert([{ selfId, friendId, quizId }])
         .select()
 
       if (error) {
@@ -81,7 +87,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         return null
       }
 
-      const newNotification = data[0] as Notification
+      const newNotification = data[0] as CustomNotification
       setNotifications((prevNotifications) => [
         ...prevNotifications,
         newNotification,
