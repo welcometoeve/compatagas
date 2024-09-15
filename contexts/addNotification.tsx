@@ -14,7 +14,8 @@ export async function addSelfAnswerInitiatedNotification(
     friendId: number,
     quizId: number
   ) => Promise<CustomNotification | null>
-) {
+): Promise<number[]> {
+  // friend ids
   const numQuestionsInThisQuiz = questions.filter(
     (q) => q.quizId === quizId
   ).length
@@ -39,9 +40,11 @@ export async function addSelfAnswerInitiatedNotification(
 
     await addNotification(selfId, friendId, quizId)
   })
+
+  return completedFriendQuizzes.map((q) => q.friendId)
 }
 
-export async function addFriendAnswerInitiatedNotification(
+export function addFriendAnswerInitiatedNotification(
   friendAnswers: FriendAnswer[],
   selfAnswers: SelfAnswer[],
   quizId: number,
@@ -52,7 +55,8 @@ export async function addFriendAnswerInitiatedNotification(
     friendId: number,
     quizId: number
   ) => Promise<CustomNotification | null>
-) {
+): number | undefined {
+  // selfId
   const numFriendAnswersForThisQuiz =
     friendAnswers.filter(
       (q) =>
@@ -70,6 +74,9 @@ export async function addFriendAnswerInitiatedNotification(
     numQuestionsInThisQuiz <= numFriendAnswersForThisQuiz &&
     numQuestionsInThisQuiz <= numSelfAnswers
   ) {
-    await addNotification(selfId, friendId, quizId)
+    addNotification(selfId, friendId, quizId)
+    return selfId
+  } else {
+    return undefined
   }
 }

@@ -17,6 +17,8 @@ import processQuizLists, { QuizItem } from "./proccessQuizLists"
 import { useNotification } from "@/contexts/NotificationContext"
 import { questions, quizzes } from "../questions"
 import NotificationDot from "./NotificationDot"
+import collect from "../collect"
+import * as Haptics from "expo-haptics"
 
 interface QuizItemComponentProps {
   item: QuizItem
@@ -35,7 +37,7 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
 }) => {
   const { notifications, markAsOpened } = useNotification()
 
-  const notification = notifications.find(
+  const relevantNs = notifications.filter(
     (n) =>
       (activeTab === "your" &&
         n.selfOpened === false &&
@@ -47,16 +49,29 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
         n.selfId === item.selfId)
   )
 
+  const triggerHaptic = async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    } catch (error) {
+      console.error("Failed to trigger haptic:", error)
+    }
+  }
+
   return (
     <TouchableOpacity
       style={styles.quizItem}
-      onPress={() => {
+      onPress={async () => {
         setQuizItem(item)
-        notification && markAsOpened(notification, activeTab === "your")
+        relevantNs.forEach((notification) =>
+          markAsOpened(notification, activeTab === "your")
+        )
+        relevantNs.length > 0 && (await triggerHaptic())
       }}
     >
       <View style={styles.notificationContainer}>
-        {notification && <NotificationDot count={1} showCount={false} />}
+        {relevantNs.length > 0 && (
+          <NotificationDot count={1} showCount={false} />
+        )}
       </View>
       <Image source={item.quiz.src} style={styles.quizImage} />
       <View style={styles.quizInfo}>
@@ -92,9 +107,12 @@ const ResultsList: React.FC<ResultsListProps> = ({
   const { user, allUsers } = useUser()
   const { notifications } = useNotification()
 
-  const numYourNotifications = notifications.filter(
-    (notification) =>
-      notification.selfId === user?.id && !notification.selfOpened
+  const numYourNotifications = collect(
+    notifications.filter(
+      (notification) =>
+        notification.selfId === user?.id && notification.selfOpened === false
+    ),
+    ["quizId"]
   ).length
 
   const numTheirNotifications = notifications.filter(

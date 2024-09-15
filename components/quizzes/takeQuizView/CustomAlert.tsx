@@ -1,11 +1,12 @@
-import { AlertTriangle, CheckCircle } from "lucide-react-native"
+import { AlertTriangle, CheckCircle, Users } from "lucide-react-native"
 import { View, Text } from "react-native"
 
 export const CustomAlert: React.FC<{
   title: string
   description: string
-  variant: "warning" | "info" | "success"
-}> = ({ title, description, variant }) => (
+  variant: "warning" | "info" | "success" | "friends"
+  friends?: string[]
+}> = ({ title, description, variant, friends }) => (
   <View
     style={{
       padding: 16,
@@ -15,12 +16,16 @@ export const CustomAlert: React.FC<{
           ? "#7c2d12"
           : variant === "success"
           ? "#065f46"
+          : variant === "friends"
+          ? "#1e40af"
           : "#1f2937",
       borderColor:
         variant === "warning"
           ? "#ca8a04"
           : variant === "success"
           ? "#10b981"
+          : variant === "friends"
+          ? "#3b82f6"
           : "#a78bfa",
       borderWidth: 1,
       marginTop: 16,
@@ -32,7 +37,19 @@ export const CustomAlert: React.FC<{
     {variant === "success" && (
       <CheckCircle size={16} color="white" style={{ marginBottom: 8 }} />
     )}
+    {variant === "friends" && (
+      <Users size={16} color="white" style={{ marginBottom: 8 }} />
+    )}
     <Text style={{ fontWeight: "bold", color: "white" }}>{title}</Text>
-    <Text style={{ color: "white" }}>{description}</Text>
+    {variant !== "friends" && (
+      <Text style={{ color: "white" }}>{description}</Text>
+    )}
+    {variant === "friends" && friends && friends.length > 0 && (
+      <View style={{ marginTop: 4 }}>
+        <Text style={{ color: "white" }}>
+          {friends.map((friend, index) => friend).join(", ")}
+        </Text>
+      </View>
+    )}
   </View>
 )

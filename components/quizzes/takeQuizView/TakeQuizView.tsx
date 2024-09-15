@@ -19,6 +19,7 @@ import ResultSlider from "./ResultSlider"
 import { addSelfAnswerInitiatedNotification } from "@/contexts/addNotification"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
+import * as Haptics from "expo-haptics"
 
 export type SelfAnswer = {
   id: number
@@ -49,9 +50,13 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   const [quizResult, setQuizResult] = useState<number | null>(null)
 
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
-  const { user } = useUser()
+  const { user, allUsers } = useUser()
   const { friendAnswers } = useFriendAnswers()
-  const { addNotification } = useNotification()
+  const { addNotification, notifications } = useNotification()
+
+  const friendsWhoTookQuiz = notifications
+    .filter((n) => n.selfId === user?.id && n.quizId === quiz.id)
+    .map((n) => n.friendId)
 
   useEffect(() => {
     if (user && selfAnswers) {
@@ -112,6 +117,14 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
     setQuizResult(averageScore)
   }
 
+  const triggerHaptic = async () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    } catch (error) {
+      console.error("Failed to trigger haptic:", error)
+    }
+  }
+
   const handleSubmit = async () => {
     if (allQuestionsAnswered && user) {
       setIsSubmitting(true)
@@ -148,14 +161,16 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           await Promise.all(newSelfAnswersPromises)
         ).filter((answer): answer is SelfAnswer => answer !== null)
 
-        setSubmitSuccess(true)
-
-        addSelfAnswerInitiatedNotification(
+        const fs = await addSelfAnswerInitiatedNotification(
           quiz.id,
           friendAnswers,
           user,
           addNotification
         )
+
+        triggerHaptic()
+
+        setSubmitSuccess(true)
 
         // Combine existing and new self answers
         const allSelfAnswers = [
@@ -181,7 +196,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 24, paddingBottom: 0 }}
+        contentContainerStyle={{ padding: 24, paddingBottom: 20 }}
       >
         <TouchableOpacity
           onPress={goBack}
@@ -293,6 +308,16 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             title="Success"
             description="Your answers have been submitted successfully."
             variant="success"
+          />
+        )}
+        {friendsWhoTookQuiz.length > 0 && (
+          <CustomAlert
+            title="Friends who took this quiz"
+            description=""
+            variant="friends"
+            friends={friendsWhoTookQuiz.map(
+              (f) => allUsers.find((u) => u.id === f)?.name ?? ""
+            )}
           />
         )}
       </ScrollView>

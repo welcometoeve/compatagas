@@ -85,18 +85,18 @@ export default function App() {
     }
   }, [friends, filteredFriendAnswers])
 
-  const triggerHaptic = async () => {
-    try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-    } catch (error) {
-      console.error("Failed to trigger haptic:", error)
-    }
-  }
+  // const triggerHaptic = async () => {
+  //   try {
+  //     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+  //   } catch (error) {
+  //     console.error("Failed to trigger haptic:", error)
+  //   }
+  // }
 
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
 
-    await triggerHaptic()
+    // await triggerHaptic()
 
     const quizId =
       questions.find((q) => q.id === currentQuestionId)?.quizId || 0

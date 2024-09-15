@@ -4,6 +4,7 @@ import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons"
 import NotificationDot from "@/components/results/NotificationDot"
 import { useNotification } from "@/contexts/NotificationContext"
 import { useUser } from "@/contexts/UserContext"
+import collect from "@/components/collect"
 
 interface TabItem {
   name: string
@@ -47,9 +48,12 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
   const { notifications } = useNotification()
   const { user } = useUser()
-  const numYourNotifications = notifications.filter(
-    (notification) =>
-      notification.selfId === user?.id && notification.selfOpened === false
+  const numYourNotifications = collect(
+    notifications.filter(
+      (notification) =>
+        notification.selfId === user?.id && notification.selfOpened === false
+    ),
+    ["quizId"]
   ).length
 
   const numTheirNotifications = notifications.filter(
