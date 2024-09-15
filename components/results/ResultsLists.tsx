@@ -79,10 +79,10 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
         <Text style={styles.quizSubtitle}>
           {activeTab === "your"
             ? `Taken by ${item.friendIds
-                .map((id) => allUsers.find((user) => user.id === id)?.name)
+                .map((id) => allUsers.find((user) => user?.id === id)?.name)
                 .join(", ")}`
             : `Taken for ${
-                allUsers.find((user) => user.id === item.selfId)?.name
+                allUsers.find((user) => user?.id === item.selfId)?.name
               }`}
         </Text>
       </View>
@@ -185,7 +185,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
         data={activeTab === "your" ? yourQuizzes : theirQuizzes}
         renderItem={renderQuizItem}
         keyExtractor={(item) =>
-          item.quiz.id.toString() + item.friendIds.join() + item.selfId
+          item.quiz?.id.toString() + item.friendIds.join() + item.selfId
         }
         style={styles.list}
       />

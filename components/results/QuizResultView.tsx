@@ -121,7 +121,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           (sa) => sa.userId === selfId && sa.quizId === quiz.id
         )
       : selfAnswers.filter(
-          (sa) => sa.quizId === quiz.id && friendIds.includes(sa.userId)
+          (sa) => sa.quizId === quiz.id && selfId === sa.userId
         )
   const userName =
     selfId === user?.id

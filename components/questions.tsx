@@ -11,6 +11,7 @@ export type Quiz = {
 export enum Side {
   LEFT,
   RIGHT,
+  NEITHER,
 }
 
 export type Question = {
@@ -21,209 +22,166 @@ export type Question = {
   quizId: number
 }
 
-export const basicQuiz: Quiz = {
-  id: 1,
-  name: "Basic Quiz",
-  src: require("../assets/images/basicQuiz.webp"),
+export const musicQuiz: Quiz = {
+  id: 3,
+  name: "How Basic is Your Music Taste?",
+  src: require("../assets/images/musicQuiz.webp"),
   leftLabel: "Not Basic",
   rightLabel: "Basic",
 }
 
-export const hornyQuiz: Quiz = {
-  id: 2,
-  name: "Horny Quiz",
-  src: require("../assets/images/hornyQuiz.webp"),
-  leftLabel: "Not Horny",
-  rightLabel: "Horny",
+export const chadQuiz: Quiz = {
+  id: 4,
+  name: "How Chad are You?",
+  src: require("../assets/images/chadQuiz.webp"),
+  leftLabel: "Not Chad",
+  rightLabel: "Chad",
 }
 
-const assignSide = (index: number, totalOptions: number): Side =>
-  index < Math.ceil(totalOptions / 2) ? Side.LEFT : Side.RIGHT
-
-export const basicQuestions: Question[] = [
+export const musicQuestions: Question[] = [
   {
-    id: 1,
-    secondPersonLabel: "What's your favorite season?",
-    thirdPersonLabel: "What's their favorite season?",
-    options: [
-      { label: "Spring 🌸", side: assignSide(0, 4) },
-      { label: "Summer ☀️", side: assignSide(1, 4) },
-      { label: "Fall 🍂", side: assignSide(2, 4) },
-      { label: "Winter ❄️", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-  {
-    id: 2,
-    secondPersonLabel: "Choose a hobby for yourself:",
-    thirdPersonLabel: "Choose a hobby for them:",
-    options: [
-      { label: "Reading 📚", side: assignSide(0, 4) },
-      { label: "Sports 🏀", side: assignSide(1, 4) },
-      { label: "Cooking 🍳", side: assignSide(2, 4) },
-      { label: "Painting 🎨", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-  {
-    id: 3,
-    secondPersonLabel: "Pick a superpower for yourself:",
-    thirdPersonLabel: "Pick a superpower for them:",
-    options: [
-      { label: "Flight ✈️", side: assignSide(0, 4) },
-      { label: "Invisibility 👻", side: assignSide(1, 4) },
-      { label: "Super strength 💪", side: assignSide(2, 4) },
-      { label: "Teleportation 🚀", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-  {
-    id: 4,
-    secondPersonLabel: "Your favorite type of music?",
-    thirdPersonLabel: "Their favorite type of music?",
-    options: [
-      { label: "Pop 🎵", side: assignSide(0, 4) },
-      { label: "Rock 🎸", side: assignSide(1, 4) },
-      { label: "Classical 🎻", side: assignSide(2, 4) },
-      { label: "Hip-hop 🎤", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-  {
-    id: 5,
-    secondPersonLabel: "What's your dream vacation?",
-    thirdPersonLabel: "What's their dream vacation?",
-    options: [
-      { label: "Beach getaway 🏖️", side: assignSide(0, 4) },
-      { label: "Mountain adventure 🏔️", side: assignSide(1, 4) },
-      { label: "City exploration 🏙️", side: assignSide(2, 4) },
-      { label: "Jungle expedition 🌴", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-  {
-    id: 6,
-    secondPersonLabel: "Choose a pet for yourself:",
-    thirdPersonLabel: "Choose a pet for them:",
-    options: [
-      { label: "Dog 🐕", side: assignSide(0, 4) },
-      { label: "Cat 🐈", side: assignSide(1, 4) },
-      { label: "Fish 🐠", side: assignSide(2, 4) },
-      { label: "Bird 🦜", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-  {
-    id: 7,
-    secondPersonLabel: "Your preferred mode of transportation?",
-    thirdPersonLabel: "Their preferred mode of transportation?",
-    options: [
-      { label: "Car 🚗", side: assignSide(0, 4) },
-      { label: "Bike 🚲", side: assignSide(1, 4) },
-      { label: "Public transit 🚌", side: assignSide(2, 4) },
-      { label: "Walking 👟", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-  {
-    id: 8,
-    secondPersonLabel: "Pick your ideal weekend activity:",
-    thirdPersonLabel: "Pick their ideal weekend activity:",
-    options: [
-      { label: "Movie marathon 🍿", side: assignSide(0, 4) },
-      { label: "Outdoor picnic 🧺", side: assignSide(1, 4) },
-      { label: "Video gaming 🎮", side: assignSide(2, 4) },
-      { label: "Spa day 💆", side: assignSide(3, 4) },
-    ],
-    quizId: 1,
-  },
-]
-
-export const hornyQuestions: Question[] = [
-  {
-    id: 9,
-    secondPersonLabel: "Perpetually horny or a nun or a perpetually horny nun?",
-    thirdPersonLabel: "Perpetually horny or nun or perpetually horny nun?",
-    options: [
-      { label: "Nun 🙏", side: assignSide(0, 3) },
-      { label: "Perpetually horny 😈", side: assignSide(1, 3) },
-      { label: "Perpetually horny nun 😇😈", side: assignSide(2, 3) },
-    ],
-    quizId: 2,
-  },
-  {
-    id: 10,
+    id: 17,
     secondPersonLabel:
-      "Eat a sandwich or get walked around on a leash like a dog?",
+      "Walking Spotify algorithm or still figuring out who Chapell Roan is?",
     thirdPersonLabel:
-      "Eat a sandwich or get walked around on a leash like a dog?",
+      "Walking Spotify algorithm or still figuring out who Chapell Roan is?",
     options: [
-      { label: "Eat a sandwich 🥪", side: assignSide(0, 2) },
-      { label: "Get walked on a leash 🐕", side: assignSide(1, 2) },
+      { label: "Walking Spotify algorithm 🎧", side: Side.LEFT },
+      { label: "Still figuring out who Chapell Roan is 🤔", side: Side.RIGHT },
     ],
-    quizId: 2,
+    quizId: 3,
   },
   {
-    id: 11,
-    secondPersonLabel: "From the front or from the back?",
-    thirdPersonLabel: "From the front or from the back?",
+    id: 18,
+    secondPersonLabel: "DJ of the friend group or banned from AUX?",
+    thirdPersonLabel: "DJ of the friend group or banned from AUX?",
     options: [
-      { label: "From the front 😊", side: assignSide(0, 2) },
-      { label: "From the back 😏", side: assignSide(1, 2) },
+      { label: "DJ of the friend group 🎉", side: Side.LEFT },
+      { label: "Banned from AUX 🚫", side: Side.RIGHT },
     ],
-    quizId: 2,
+    quizId: 3,
   },
   {
-    id: 12,
-    secondPersonLabel: "Church or dropping it like a thotty?",
-    thirdPersonLabel: "Church or dropping it like a thotty?",
+    id: 19,
+    secondPersonLabel:
+      "Connoisseur of niche artists, top 1% of Taylor Swift listeners, or somewhere in between?",
+    thirdPersonLabel:
+      "Connoisseur of niche artists, top 1% of Taylor Swift listeners, or somewhere in between?",
     options: [
-      { label: "Church 🙏", side: assignSide(0, 2) },
-      { label: "Dropping it like a thotty 💃", side: assignSide(1, 2) },
+      { label: "Connoisseur of niche artists 🎵", side: Side.LEFT },
+      { label: "Top 1% of Taylor Swift listeners 🎤", side: Side.RIGHT },
+      { label: "Somewhere in between 🤷", side: Side.NEITHER },
     ],
-    quizId: 2,
+    quizId: 3,
   },
   {
-    id: 13,
-    secondPersonLabel: "Classified camera roll or open book?",
-    thirdPersonLabel: "Classified camera roll or open book?",
+    id: 20,
+    secondPersonLabel: "Spotify Surfer or Tiktok top 100 ONLY?",
+    thirdPersonLabel: "Spotify Surfer or Tiktok top 100 ONLY?",
     options: [
-      { label: "Open book 📖", side: assignSide(0, 2) },
-      { label: "Classified camera roll 🔒", side: assignSide(1, 2) },
+      { label: "Spotify Surfer 🏄", side: Side.LEFT },
+      { label: "Tiktok top 100 ONLY 📱", side: Side.RIGHT },
     ],
-    quizId: 2,
+    quizId: 3,
   },
   {
-    id: 14,
-    secondPersonLabel: "Sex on the first date or leaving room for Jesus?",
-    thirdPersonLabel: "Sex on the first date or leave room for Jesus?",
+    id: 21,
+    secondPersonLabel: "Music experimentalist or sticks to what they know?",
+    thirdPersonLabel: "Music experimentalist or sticks to what they know?",
     options: [
-      { label: "Leave room for Jesus 🙏", side: assignSide(0, 2) },
-      { label: "Sex on the first date 😘", side: assignSide(1, 2) },
+      { label: "Music experimentalist 🧪", side: Side.LEFT },
+      { label: "Sticks to what they know 🔁", side: Side.RIGHT },
     ],
-    quizId: 2,
+    quizId: 3,
   },
   {
-    id: 15,
-    secondPersonLabel: "Do whips and chains excite you?",
-    thirdPersonLabel: "Do whips and chains excite you?",
+    id: 22,
+    secondPersonLabel: "What's your favorite genre?",
+    thirdPersonLabel: "What's their favorite genre?",
     options: [
-      { label: "No 🚫", side: assignSide(0, 2) },
-      { label: "Yes 🔗", side: assignSide(1, 2) },
+      { label: "Hip hop/Pop 🎤", side: Side.RIGHT },
+      { label: "Rock 🎸", side: Side.NEITHER },
+      { label: "EDM 🎛️", side: Side.NEITHER },
+      { label: "R&B 🎶", side: Side.NEITHER },
+      { label: "Indie 🎹", side: Side.NEITHER },
     ],
-    quizId: 2,
-  },
-  {
-    id: 16,
-    secondPersonLabel: "Sending selfies or sending feet pics?",
-    thirdPersonLabel: "Sending selfies or sending feet pics?",
-    options: [
-      { label: "Sending selfies 🤳", side: assignSide(0, 2) },
-      { label: "Sending feet pics 🦶", side: assignSide(1, 2) },
-    ],
-    quizId: 2,
+    quizId: 3,
   },
 ]
 
-export const quizzes: Quiz[] = [basicQuiz, hornyQuiz]
-export const questions: Question[] = [...basicQuestions, ...hornyQuestions]
+export const chadQuestions: Question[] = [
+  {
+    id: 23,
+    secondPersonLabel: "Casual mewer, pro mogger, or not a looksmaxxer?",
+    thirdPersonLabel: "Casual mewer, pro mogger, or not a looksmaxxer?",
+    options: [
+      { label: "Casual mewer 😼", side: Side.NEITHER },
+      { label: "Pro mogger 💪", side: Side.RIGHT },
+      { label: "Not a looksmaxxer 🤷", side: Side.LEFT },
+    ],
+    quizId: 4,
+  },
+  {
+    id: 24,
+    secondPersonLabel: "Gym rat or sofa sergeant?",
+    thirdPersonLabel: "Gym rat or sofa sergeant?",
+    options: [
+      { label: "Gym rat 🏋️", side: Side.RIGHT },
+      { label: "Sofa sergeant 🛋️", side: Side.LEFT },
+    ],
+    quizId: 4,
+  },
+  {
+    id: 25,
+    secondPersonLabel: "Beast mode or feast mode?",
+    thirdPersonLabel: "Beast mode or feast mode?",
+    options: [
+      { label: "Beast mode 💪", side: Side.RIGHT },
+      { label: "Feast mode 🍔", side: Side.LEFT },
+    ],
+    quizId: 4,
+  },
+  {
+    id: 26,
+    secondPersonLabel: "Social butterfly or keyboard warrior?",
+    thirdPersonLabel: "Social butterfly or keyboard warrior?",
+    options: [
+      { label: "Social butterfly 🦋", side: Side.RIGHT },
+      { label: "Keyboard warrior ⌨️", side: Side.LEFT },
+    ],
+    quizId: 4,
+  },
+  {
+    id: 27,
+    secondPersonLabel: "Rizz master or shy guy?",
+    thirdPersonLabel: "Rizz master or shy guy?",
+    options: [
+      { label: "Rizz master 😎", side: Side.RIGHT },
+      { label: "Shy guy 🙈", side: Side.LEFT },
+    ],
+    quizId: 4,
+  },
+  {
+    id: 28,
+    secondPersonLabel: "Sigma or simp?",
+    thirdPersonLabel: "Sigma or simp?",
+    options: [
+      { label: "Sigma 🐺", side: Side.RIGHT },
+      { label: "Simp 🥺", side: Side.LEFT },
+    ],
+    quizId: 4,
+  },
+  {
+    id: 29,
+    secondPersonLabel: "Which do you prefer on a Friday night?",
+    thirdPersonLabel: "Which do they prefer on a Friday night?",
+    options: [
+      { label: "Rager with da boyz 🎉", side: Side.RIGHT },
+      { label: "Quiet night in 🏠", side: Side.LEFT },
+    ],
+    quizId: 4,
+  },
+]
+
+export const quizzes: Quiz[] = [musicQuiz, chadQuiz]
+export const questions: Question[] = [...musicQuestions]

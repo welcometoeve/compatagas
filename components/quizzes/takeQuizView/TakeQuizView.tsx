@@ -109,7 +109,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
       if (selfAnswer) {
         const optionIndex = selfAnswer.optionIndex
         const side = question.options[optionIndex].side
-        const score = side === Side.LEFT ? -1 : 1
+        const score = side === Side.NEITHER ? 0 : Side.LEFT ? -1 : 1
         totalScore += score
       }
     })
