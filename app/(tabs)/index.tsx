@@ -5,8 +5,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Animated,
 } from "react-native"
-import * as Haptics from "expo-haptics"
 import { Question, questions, quizzes } from "../../components/questions"
 import { useFriends } from "@/contexts/FriendsContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
@@ -14,6 +14,7 @@ import { useUser } from "@/contexts/UserContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
 import { addFriendAnswerInitiatedNotification } from "@/contexts/addNotification"
+import * as Haptics from "expo-haptics"
 
 export default function App() {
   const { friends } = useFriends()
@@ -26,6 +27,11 @@ export default function App() {
   const { user } = useUser()
   const { notifications, addNotification } = useNotification()
   const { selfAnswers } = useSelfAnswers()
+  const [completedQuizFriendId, setCompletedQuizFriendId] = useState<
+    number | undefined
+  >(undefined)
+  const [completedQuizId, setCompletedQuizId] = useState<number | undefined>()
+  const [completionAnimation] = useState(new Animated.Value(0))
 
   const availableQuestions: Question[] = questions
 
@@ -85,38 +91,63 @@ export default function App() {
     }
   }, [friends, filteredFriendAnswers])
 
-  // const triggerHaptic = async () => {
-  //   try {
-  //     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-  //   } catch (error) {
-  //     console.error("Failed to trigger haptic:", error)
-  //   }
-  // }
+  const triggerHaptic = async (style: Haptics.ImpactFeedbackStyle) => {
+    try {
+      await Haptics.impactAsync(style)
+    } catch (error) {
+      console.error("Failed to trigger haptic:", error)
+    }
+  }
+
+  const startCompletionAnimation = () => {
+    Animated.timing(completionAnimation, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start()
+  }
+
+  useEffect(() => {
+    if (completedQuizFriendId !== undefined) {
+      startCompletionAnimation()
+    }
+  }, [completedQuizFriendId])
 
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
-
-    // await triggerHaptic()
 
     const quizId =
       questions.find((q) => q.id === currentQuestionId)?.quizId || 0
 
     try {
       addFriendAnswer(currentFriendId, currentQuestionId, optionIndex)
-      user &&
-        addFriendAnswerInitiatedNotification(
-          friendAnswers,
-          selfAnswers,
-          quizId,
-          currentFriendId,
-          user?.id,
-          addNotification
-        )
+      const result = addFriendAnswerInitiatedNotification(
+        friendAnswers,
+        selfAnswers,
+        quizId,
+        currentFriendId,
+        user ? user.id : 0,
+        addNotification
+      )
+      if (result !== undefined) {
+        await triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy)
+        setCompletedQuizFriendId(result.friendId)
+        setCompletedQuizId(result.quizId)
+      } else {
+        await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
+      }
+
       selectNewFriendAndQuestion()
     } catch (error) {
       setAddError(JSON.stringify(error))
       console.error("Failed to add answer:", error)
     }
+  }
+
+  const handleContinue = () => {
+    setCompletedQuizFriendId(undefined)
+    setCompletedQuizId(undefined)
+    selectNewFriendAndQuestion()
   }
 
   const currentQuestion = availableQuestions.find(
@@ -133,42 +164,89 @@ export default function App() {
     })
   }, [friends, filteredFriendAnswers])
 
-  if (isOutOfQuestions) {
+  const renderCompletionScreen = () => {
+    const completedFriend = friends.find((f) => f.id === completedQuizFriendId)
+    const completedQuiz = quizzes.find((q) => q.id === completedQuizId)
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.contentContainer}>
-          <Text style={styles.outOfQuestionsText}>
-            Out of questions for now!
+      <View style={styles.completionOverlay}>
+        <Animated.View
+          style={[
+            styles.completionContainer,
+            {
+              opacity: completionAnimation,
+              transform: [
+                {
+                  scale: completionAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.dismissButton}
+            onPress={() => setCompletedQuizFriendId(undefined)}
+          >
+            <Text style={styles.dismissButtonText}>×</Text>
+          </TouchableOpacity>
+          <Text style={styles.completionTitle}>Quiz Completed!</Text>
+          <Text style={styles.completionText}>
+            You've finished the {completedQuiz?.name} for{" "}
+            {completedFriend?.name}!
           </Text>
-        </View>
-      </SafeAreaView>
+          <TouchableOpacity
+            style={styles.continueButton}
+            onPress={handleContinue}
+          >
+            <Text style={styles.continueButtonText}>Continue</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
     )
   }
-
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.contentContainer}>
-        <Text style={styles.name}>{currentFriend?.name}</Text>
-        <Text style={styles.question}>{currentQuestion?.label}</Text>
-        {isLoading ? (
-          <Text style={styles.loadingText}>Loading...</Text>
-        ) : (
-          <>
-            {currentQuestion?.options.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.button}
-                onPress={() => {
-                  handleAnswer(index)
-                }}
-                disabled={isLoading}
-              >
-                <Text style={styles.buttonText}>{option.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </>
-        )}
-      </View>
+      {isOutOfQuestions ? (
+        <SafeAreaView style={styles.container}>
+          <View style={styles.contentContainer}>
+            <Text style={styles.outOfQuestionsText}>
+              Out of questions for now!
+            </Text>
+          </View>
+        </SafeAreaView>
+      ) : (
+        <View
+          style={[
+            styles.contentContainer,
+            { opacity: completedQuizFriendId !== undefined ? 0.5 : 1 },
+          ]}
+        >
+          <Text style={styles.name}>{currentFriend?.name}</Text>
+          <Text style={styles.question}>{currentQuestion?.label}</Text>
+          {isLoading ? (
+            <Text style={styles.loadingText}>Loading...</Text>
+          ) : (
+            <>
+              {currentQuestion?.options.map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.button}
+                  onPress={() => {
+                    handleAnswer(index)
+                  }}
+                  disabled={isLoading}
+                >
+                  <Text style={styles.buttonText}>{option.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+        </View>
+      )}
+
+      {completedQuizFriendId !== undefined && renderCompletionScreen()}
     </SafeAreaView>
   )
 }
@@ -180,10 +258,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "35%",
   },
   name: {
     fontSize: 24,
@@ -239,5 +316,59 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
+  },
+  completionOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  completionContainer: {
+    width: "80%",
+    aspectRatio: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    borderRadius: 15,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#666",
+  },
+  completionTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#BB86FC",
+    marginBottom: 10,
+  },
+  completionText: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  continueButton: {
+    backgroundColor: "#BB86FC",
+    padding: 12,
+    borderRadius: 8,
+  },
+  continueButtonText: {
+    color: "#000000",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  dismissButton: {
+    position: "absolute",
+    top: 5,
+    right: 10,
+    padding: 5,
+  },
+  dismissButtonText: {
+    color: "#999",
+    fontSize: 20,
+    fontWeight: "bold",
   },
 })

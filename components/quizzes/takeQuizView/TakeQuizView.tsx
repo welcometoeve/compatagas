@@ -130,6 +130,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
       setIsSubmitting(true)
       setSubmitError(null)
       setSubmitSuccess(false)
+      triggerHaptic()
 
       try {
         const newSelfAnswersPromises = questions.map(async (question) => {
@@ -168,7 +169,9 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           addNotification
         )
 
-        triggerHaptic()
+        if (fs.length > 0) {
+          triggerHaptic()
+        }
 
         setSubmitSuccess(true)
 
@@ -312,7 +315,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         )}
         {friendsWhoTookQuiz.length > 0 && (
           <CustomAlert
-            title="Friends who took this quiz"
+            title="Some friends have taken this quiz for you!"
             description=""
             variant="friends"
             friends={friendsWhoTookQuiz.map(

@@ -55,7 +55,7 @@ export function addFriendAnswerInitiatedNotification(
     friendId: number,
     quizId: number
   ) => Promise<CustomNotification | null>
-): number | undefined {
+): { friendId: number; quizId: number } | undefined {
   // selfId
   const numFriendAnswersForThisQuiz =
     friendAnswers.filter(
@@ -75,7 +75,7 @@ export function addFriendAnswerInitiatedNotification(
     numQuestionsInThisQuiz <= numSelfAnswers
   ) {
     addNotification(selfId, friendId, quizId)
-    return selfId
+    return { friendId: selfId, quizId }
   } else {
     return undefined
   }
