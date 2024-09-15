@@ -184,4 +184,4 @@ export const chadQuestions: Question[] = [
 ]
 
 export const quizzes: Quiz[] = [musicQuiz, chadQuiz]
-export const questions: Question[] = [...musicQuestions]
+export const questions: Question[] = [...musicQuestions, ...chadQuestions]
