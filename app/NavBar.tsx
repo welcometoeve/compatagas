@@ -1,6 +1,9 @@
-import React, { useState } from "react"
+import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons"
+import NotificationDot from "@/components/results/NotificationDot"
+import { useNotification } from "@/contexts/NotificationContext"
+import { useUser } from "@/contexts/UserContext"
 
 interface TabItem {
   name: string
@@ -42,6 +45,16 @@ interface NavBarProps {
 }
 
 const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
+  const { notifications } = useNotification()
+  const { user } = useUser()
+  const numYourNotifications = notifications.filter(
+    (notification) => notification.selfId === user?.id
+  ).length
+
+  const numTheirNotifications = notifications.filter(
+    (notification) => notification.friendId === user?.id
+  ).length
+
   return (
     <View style={styles.container}>
       {tabs.map((tab) => (
@@ -50,38 +63,46 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
           style={styles.tabItem}
           onPress={() => setPage(tab.page)}
         >
-          {tab.name === "Questions" ? (
-            <AntDesign
-              name={
-                (page === tab.page
-                  ? tab.activeIcon
-                  : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
-              }
-              size={24}
-              color={page === tab.page ? "white" : "#8E8E93"}
-            />
-          ) : tab.name === "Quizzes" ? (
-            <Ionicons
-              name={
-                (page === tab.page
-                  ? tab.activeIcon
-                  : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
-              }
-              size={28}
-              color={page === tab.page ? "white" : "#8E8E93"}
-            />
-          ) : (
-            <FontAwesome
-              name={
-                (page === tab.page
-                  ? tab.activeIcon
-                  : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
-              }
-              size={26}
-              color={page === tab.page ? "white" : "#8E8E93"}
-            />
-          )}
-
+          <View style={styles.iconContainer}>
+            {tab.name === "Questions" ? (
+              <AntDesign
+                name={
+                  (page === tab.page
+                    ? tab.activeIcon
+                    : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
+                }
+                size={24}
+                color={page === tab.page ? "white" : "#8E8E93"}
+              />
+            ) : tab.name === "Quizzes" ? (
+              <Ionicons
+                name={
+                  (page === tab.page
+                    ? tab.activeIcon
+                    : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
+                }
+                size={28}
+                color={page === tab.page ? "white" : "#8E8E93"}
+              />
+            ) : (
+              <FontAwesome
+                name={
+                  (page === tab.page
+                    ? tab.activeIcon
+                    : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
+                }
+                size={26}
+                color={page === tab.page ? "white" : "#8E8E93"}
+              />
+            )}
+            {tab.name === "Results" && (
+              <View style={styles.notificationDotContainer}>
+                <NotificationDot
+                  count={numTheirNotifications + numYourNotifications}
+                />
+              </View>
+            )}
+          </View>
           <Text
             style={[
               styles.tabText,
@@ -103,8 +124,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "black",
     paddingTop: 15,
-    // borderTopWidth: 1,
-    borderTopColor: "rgb(20, 20, 20)",
     paddingBottom: 45,
   },
   tabItem: {
@@ -113,6 +132,14 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 12,
     marginTop: 4,
+  },
+  iconContainer: {
+    position: "relative",
+  },
+  notificationDotContainer: {
+    position: "absolute",
+    top: -9,
+    left: -20,
   },
 })
 

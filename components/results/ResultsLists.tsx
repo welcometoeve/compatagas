@@ -1,5 +1,4 @@
-import { Quiz, quizzes, Question, questions } from "@/components/questions"
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo } from "react"
 import {
   View,
   Text,
@@ -11,44 +10,46 @@ import {
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronRight } from "lucide-react-native"
-import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
-import collect from "@/components/collect"
-import { act } from "react-test-renderer"
 import processQuizLists, { QuizItem } from "./proccessQuizLists"
+import { useNotification } from "@/contexts/NotificationContext"
+import { questions, quizzes } from "../questions"
+import NotificationDot from "./NotificationDot"
 
-interface ResultsListProps {
-  setQuizItem: (quizItem: QuizItem) => void
+interface QuizItemComponentProps {
+  item: QuizItem
+  onPress: (item: QuizItem) => void
   activeTab: "your" | "their"
-  setActiveTab: React.Dispatch<React.SetStateAction<"your" | "their">>
+  allUsers: any[] // Replace 'any' with the correct type for users
+  notifications: any[] // Replace 'any' with the correct type for notifications
+  user: any // Replace 'any' with the correct type for user
 }
 
-const ResultsList: React.FC<ResultsListProps> = ({
-  setQuizItem,
+const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
+  item,
+  onPress,
   activeTab,
-  setActiveTab,
+  allUsers,
+  notifications,
+  user,
 }) => {
-  const { selfAnswers } = useSelfAnswers()
-  const { friendAnswers } = useFriendAnswers()
-  const { user, allUsers } = useUser()
-
-  const { yourQuizzes, theirQuizzes } = useMemo(
-    () =>
-      user
-        ? processQuizLists(
-            friendAnswers,
-            selfAnswers,
-            quizzes,
-            questions,
-            user?.id
-          )
-        : { yourQuizzes: [], theirQuizzes: [] },
-    [selfAnswers, friendAnswers, quizzes, user]
+  const hasNotification = notifications.some(
+    (n) =>
+      (activeTab === "your" &&
+        n.selfId === user?.id &&
+        item.friendIds.includes(n.friendId)) ||
+      (activeTab === "their" &&
+        n.friendId === user?.id &&
+        n.selfId === item.selfId)
   )
 
-  const renderQuizItem: ListRenderItem<QuizItem> = ({ item }) => (
-    <TouchableOpacity style={styles.quizItem} onPress={() => setQuizItem(item)}>
+  return (
+    <TouchableOpacity style={styles.quizItem} onPress={() => onPress(item)}>
+      <View style={styles.notificationContainer}>
+        {hasNotification && <NotificationDot count={1} showCount={false} />}
+      </View>
       <Image source={item.quiz.src} style={styles.quizImage} />
       <View style={styles.quizInfo}>
         <Text style={styles.quizTitle}>{item.quiz.name}</Text>
@@ -65,6 +66,69 @@ const ResultsList: React.FC<ResultsListProps> = ({
       <ChevronRight color="#fff" size={24} />
     </TouchableOpacity>
   )
+}
+
+interface ResultsListProps {
+  setQuizItem: (quizItem: QuizItem) => void
+  activeTab: "your" | "their"
+  setActiveTab: React.Dispatch<React.SetStateAction<"your" | "their">>
+}
+
+const ResultsList: React.FC<ResultsListProps> = ({
+  setQuizItem,
+  activeTab,
+  setActiveTab,
+}) => {
+  const { selfAnswers } = useSelfAnswers()
+  const { friendAnswers } = useFriendAnswers()
+  const { user, allUsers } = useUser()
+  const { notifications } = useNotification()
+
+  const numYourNotifications = notifications.filter(
+    (notification) => notification.selfId === user?.id
+  ).length
+
+  const numTheirNotifications = notifications.filter(
+    (notification) => notification.friendId === user?.id
+  ).length
+
+  const { yourQuizzes, theirQuizzes } = useMemo(
+    () =>
+      user
+        ? processQuizLists(
+            friendAnswers,
+            selfAnswers,
+            quizzes,
+            questions,
+            user?.id
+          )
+        : { yourQuizzes: [], theirQuizzes: [] },
+    [selfAnswers, friendAnswers, quizzes, user]
+  )
+
+  const renderQuizItem: ListRenderItem<QuizItem> = ({ item }) => (
+    <QuizItemComponent
+      item={item}
+      onPress={setQuizItem}
+      activeTab={activeTab}
+      allUsers={allUsers}
+      notifications={notifications}
+      user={user}
+    />
+  )
+
+  const renderTabWithNotification = (
+    tabName: string,
+    isActive: boolean,
+    notificationCount: number
+  ) => (
+    <View style={styles.tabWithNotification}>
+      <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+        {tabName}
+      </Text>
+      <NotificationDot count={notificationCount} />
+    </View>
+  )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -73,13 +137,21 @@ const ResultsList: React.FC<ResultsListProps> = ({
           style={[styles.tab, activeTab === "your" && styles.activeTab]}
           onPress={() => setActiveTab("your")}
         >
-          <Text style={styles.tabText}>Your Quizzes</Text>
+          {renderTabWithNotification(
+            "Your Quizzes",
+            activeTab === "your",
+            numYourNotifications
+          )}
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "their" && styles.activeTab]}
           onPress={() => setActiveTab("their")}
         >
-          <Text style={styles.tabText}>Their Quizzes</Text>
+          {renderTabWithNotification(
+            "Their Quizzes",
+            activeTab === "their",
+            numTheirNotifications
+          )}
         </TouchableOpacity>
       </View>
       <FlatList
@@ -138,6 +210,13 @@ const styles = StyleSheet.create({
     borderBottomColor: "#333", // Darker border color
     height: 100, // Increased height
   },
+  notificationContainer: {
+    width: 20,
+    marginRight: 15,
+    marginLeft: -20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   quizImage: {
     width: 60,
     height: 60,
@@ -167,6 +246,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     lineHeight: 20,
+  },
+  tabWithNotification: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  activeTabText: {
+    color: "#fff", // White text color for active tab
   },
 })
 

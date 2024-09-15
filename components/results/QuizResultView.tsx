@@ -126,7 +126,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         contentContainerStyle={styles.contentContainer}
       >
         <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <ChevronLeft size={24} color="white" />
+          <ChevronLeft size={32} color="white" />
         </TouchableOpacity>
 
         <View style={styles.quizHeader}>
