@@ -20,35 +20,43 @@ import NotificationDot from "./NotificationDot"
 
 interface QuizItemComponentProps {
   item: QuizItem
-  onPress: (item: QuizItem) => void
+  setQuizItem: (item: QuizItem) => void
   activeTab: "your" | "their"
   allUsers: any[] // Replace 'any' with the correct type for users
-  notifications: any[] // Replace 'any' with the correct type for notifications
   user: any // Replace 'any' with the correct type for user
 }
 
 const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
   item,
-  onPress,
+  setQuizItem,
   activeTab,
   allUsers,
-  notifications,
   user,
 }) => {
-  const hasNotification = notifications.some(
+  const { notifications, markAsOpened } = useNotification()
+
+  const notification = notifications.find(
     (n) =>
       (activeTab === "your" &&
+        n.selfOpened === false &&
         n.selfId === user?.id &&
         item.friendIds.includes(n.friendId)) ||
       (activeTab === "their" &&
+        n.friendOpened === false &&
         n.friendId === user?.id &&
         n.selfId === item.selfId)
   )
 
   return (
-    <TouchableOpacity style={styles.quizItem} onPress={() => onPress(item)}>
+    <TouchableOpacity
+      style={styles.quizItem}
+      onPress={() => {
+        setQuizItem(item)
+        notification && markAsOpened(notification, activeTab === "your")
+      }}
+    >
       <View style={styles.notificationContainer}>
-        {hasNotification && <NotificationDot count={1} showCount={false} />}
+        {notification && <NotificationDot count={1} showCount={false} />}
       </View>
       <Image source={item.quiz.src} style={styles.quizImage} />
       <View style={styles.quizInfo}>
@@ -85,11 +93,13 @@ const ResultsList: React.FC<ResultsListProps> = ({
   const { notifications } = useNotification()
 
   const numYourNotifications = notifications.filter(
-    (notification) => notification.selfId === user?.id
+    (notification) =>
+      notification.selfId === user?.id && !notification.selfOpened
   ).length
 
   const numTheirNotifications = notifications.filter(
-    (notification) => notification.friendId === user?.id
+    (notification) =>
+      notification.friendId === user?.id && !notification.friendOpened
   ).length
 
   const { yourQuizzes, theirQuizzes } = useMemo(
@@ -109,10 +119,9 @@ const ResultsList: React.FC<ResultsListProps> = ({
   const renderQuizItem: ListRenderItem<QuizItem> = ({ item }) => (
     <QuizItemComponent
       item={item}
-      onPress={setQuizItem}
+      setQuizItem={setQuizItem}
       activeTab={activeTab}
       allUsers={allUsers}
-      notifications={notifications}
       user={user}
     />
   )

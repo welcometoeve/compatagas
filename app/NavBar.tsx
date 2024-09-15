@@ -48,11 +48,13 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
   const { notifications } = useNotification()
   const { user } = useUser()
   const numYourNotifications = notifications.filter(
-    (notification) => notification.selfId === user?.id
+    (notification) =>
+      notification.selfId === user?.id && notification.selfOpened === false
   ).length
 
   const numTheirNotifications = notifications.filter(
-    (notification) => notification.friendId === user?.id
+    (notification) =>
+      notification.friendId === user?.id && notification.friendOpened === false
   ).length
 
   return (

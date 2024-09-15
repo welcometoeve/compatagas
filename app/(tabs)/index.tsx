@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from "react-native"
+import * as Haptics from "expo-haptics"
 import { Question, questions, quizzes } from "../../components/questions"
 import { useFriends } from "@/contexts/FriendsContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
@@ -26,17 +27,8 @@ export default function App() {
   const { notifications, addNotification } = useNotification()
   const { selfAnswers } = useSelfAnswers()
 
-  // only offer questions that have been answered by another user
   const availableQuestions: Question[] = questions
-  // .filter(
-  //   (question) =>
-  //     !!selfAnswers.find(
-  //       (answer) =>
-  //         answer.questionId === question.id && answer.userId !== user?.id
-  //     )
-  // )
 
-  // only consider answers from the current user
   const filteredFriendAnswers = friendAnswers.filter(
     (answer) => answer.friendId === user?.id
   )
@@ -93,8 +85,18 @@ export default function App() {
     }
   }, [friends, filteredFriendAnswers])
 
+  const triggerHaptic = async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    } catch (error) {
+      console.error("Failed to trigger haptic:", error)
+    }
+  }
+
   const handleAnswer = async (optionIndex: number) => {
     if (currentFriendId === null || currentQuestionId === null) return
+
+    await triggerHaptic()
 
     const quizId =
       questions.find((q) => q.id === currentQuestionId)?.quizId || 0
@@ -164,17 +166,6 @@ export default function App() {
                 <Text style={styles.buttonText}>{option.label}</Text>
               </TouchableOpacity>
             ))}
-            {/* {addError && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{addError}</Text>
-                <TouchableOpacity
-                  style={styles.retryButton}
-                  onPress={() => handleAnswer(0)}
-                >
-                  <Text style={styles.retryButtonText}>Retry</Text>
-                </TouchableOpacity>
-              </View>
-            )} */}
           </>
         )}
       </View>

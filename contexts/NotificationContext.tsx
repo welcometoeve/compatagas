@@ -34,7 +34,10 @@ interface NotificationContextType {
     quizId: number
   ) => Promise<CustomNotification | null>
   removeNotification: (id: number) => Promise<boolean>
-  markAsOpened: (id: number, isSelf: boolean) => Promise<boolean>
+  markAsOpened: (
+    notification: CustomNotification,
+    isSelf: boolean
+  ) => Promise<boolean>
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -118,26 +121,49 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   )
 
   const markAsOpened = useCallback(
-    async (id: number, isSelf: boolean): Promise<boolean> => {
-      const field = isSelf ? "selfOpened" : "friendOpened"
-      const { error } = await supabase
-        .from("Notification")
-        .update({ [field]: true })
-        .match({ id })
+    async (
+      notification: CustomNotification,
+      isSelf: boolean
+    ): Promise<boolean> => {
+      const updateObject = isSelf
+        ? { selfOpened: true }
+        : { friendOpened: true }
 
-      if (error) {
-        console.error("Error marking notification as opened:", error)
+      try {
+        // Using upsert instead of update
+        const { data, error } = await supabase
+          .from("Notification")
+          .upsert({ ...notification, ...updateObject })
+          .select()
+
+        if (error) {
+          console.error("Error marking notification as opened:", error)
+          return false
+        }
+
+        if (data === null) {
+          console.error("Unexpected null data from Supabase")
+
+          return false
+        }
+
+        if (data && data.length > 0) {
+          setNotifications((prevNotifications) =>
+            prevNotifications.map((n) =>
+              n.id === notification.id
+                ? { ...notification, ...updateObject }
+                : notification
+            )
+          )
+          return true
+        } else {
+          console.error("No data returned from upsert operation")
+          return false
+        }
+      } catch (e) {
+        console.error("Unexpected error in markAsOpened:", e)
         return false
       }
-
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notification) =>
-          notification.id === id
-            ? { ...notification, [field]: true }
-            : notification
-        )
-      )
-      return true
     },
     []
   )
