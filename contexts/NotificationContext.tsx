@@ -145,6 +145,27 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   useEffect(() => {
     if (user) {
       fetchNotifications()
+
+      // Set up real-time subscription
+      const subscription = supabase
+        .channel("custom-all-channel")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "Notification",
+          },
+          (payload) => {
+            fetchNotifications()
+          }
+        )
+        .subscribe()
+
+      // Clean up subscription on unmount
+      return () => {
+        subscription.unsubscribe()
+      }
     }
   }, [fetchNotifications, user])
 
