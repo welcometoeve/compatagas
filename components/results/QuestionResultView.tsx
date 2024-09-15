@@ -7,7 +7,7 @@ import { useUser } from "@/contexts/UserContext"
 
 type QuestionViewProps = {
   question: Question
-  selfAnswer: SelfAnswer | undefined
+  selfAnswer: SelfAnswer
   friendAnswers: FriendAnswer[]
   lockedAnswers: Set<number>
   handleOptionSelect: (questionId: number, optionIndex: number) => void
@@ -51,7 +51,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.questionText}>{question.label}</Text>
+      <Text style={styles.questionText}>
+        {selfAnswer?.userId === user?.id
+          ? question.secondPersonLabel
+          : question.thirdPersonLabel}
+      </Text>
       <View style={styles.optionsContainer}>
         {question.options.map((option, optionIndex) => {
           const isSelected =

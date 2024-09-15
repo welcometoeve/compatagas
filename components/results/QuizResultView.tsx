@@ -145,7 +145,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         <View style={styles.spacer}></View>
 
         {questions.map((question) =>
-          selfAnswers.find(
+          selfAnswers.filter(
             (sa) => sa.userId === selfId && sa.questionId === question.id
           ) ? (
             <QuestionResultView
@@ -154,12 +154,20 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
               selfAnswer={
                 selfAnswers.find((sa) => sa.questionId === question.id)!
               }
-              friendAnswers={friendAnswers.filter(
-                (fa) =>
-                  fa.questionId === question.id &&
-                  friendIds.includes(fa.friendId) &&
-                  fa.selfId === user?.id
-              )}
+              friendAnswers={
+                selfId === user?.id
+                  ? friendAnswers.filter(
+                      (fa) =>
+                        fa.questionId === question.id &&
+                        friendIds.includes(fa.friendId) &&
+                        fa.selfId === user?.id
+                    )
+                  : friendAnswers.filter(
+                      (fa) =>
+                        fa.questionId === question.id &&
+                        friendIds.includes(fa.friendId)
+                    )
+              }
               lockedAnswers={new Set(questions.map((q) => q.id))}
               handleOptionSelect={handleOptionSelect}
               index={question.id}

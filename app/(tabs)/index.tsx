@@ -224,7 +224,9 @@ export default function App() {
           ]}
         >
           <Text style={styles.name}>{currentFriend?.name}</Text>
-          <Text style={styles.question}>{currentQuestion?.label}</Text>
+          <Text style={styles.question}>
+            {currentQuestion?.thirdPersonLabel}
+          </Text>
           {isLoading ? (
             <Text style={styles.loadingText}>Loading...</Text>
           ) : (

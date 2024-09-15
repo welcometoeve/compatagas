@@ -72,7 +72,11 @@ export default function processQuizLists(
       friendIds: [userId],
       selfId: q.selfId,
     }))
-    .filter((q) => completedSelfQuizzes.find((c) => c.quizId === q.quiz.id))
+    .filter((q) =>
+      completedSelfQuizzes.find(
+        (c) => c.quizId === q.quiz.id && c.userId === q.selfId
+      )
+    )
 
   return { yourQuizzes, theirQuizzes }
 }

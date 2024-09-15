@@ -29,7 +29,7 @@ export default function QuestionView({
           color: "white",
         }}
       >
-        {question.label}
+        {question.secondPersonLabel}
       </Text>
       <View>
         {question.options.map((option, optionIndex) => {
