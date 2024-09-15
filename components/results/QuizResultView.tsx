@@ -15,13 +15,14 @@ import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import ResultSlider from "./ResultResultSlider"
 import QuestionResultView from "./QuestionResultView"
+import collect from "../collect"
 
 type QuizResultsViewProps = {
   quiz: Quiz
   questions: Question[]
   goBack: () => void
   friendIds: number[]
-  quizType: string
+  quizType: "your" | "their"
   selfId: number
 }
 
@@ -114,10 +115,23 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
     console.log("Option selected:", questionId, optionIndex)
   }
 
+  const quizSelfAnswers =
+    quizType == "your"
+      ? selfAnswers.filter(
+          (sa) => sa.userId === selfId && sa.quizId === quiz.id
+        )
+      : selfAnswers.filter(
+          (sa) => sa.quizId === quiz.id && friendIds.includes(sa.userId)
+        )
   const userName =
     selfId === user?.id
       ? "Your"
       : `${allUsers.find((u) => u.id === selfId)?.name}'s` || "Friend"
+
+  const quizFriendAnswers = collect(
+    friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quiz.id),
+    ["questionId"]
+  )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -141,39 +155,23 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         </View>
 
         <ResultSlider quiz={quiz} results={results} />
-
         <View style={styles.spacer}></View>
-
-        {questions.map((question) =>
-          selfAnswers.filter(
-            (sa) => sa.userId === selfId && sa.questionId === question.id
-          ) ? (
-            <QuestionResultView
-              key={question.id}
-              question={question}
-              selfAnswer={
-                selfAnswers.find((sa) => sa.questionId === question.id)!
-              }
-              friendAnswers={
-                selfId === user?.id
-                  ? friendAnswers.filter(
-                      (fa) =>
-                        fa.questionId === question.id &&
-                        friendIds.includes(fa.friendId) &&
-                        fa.selfId === user?.id
-                    )
-                  : friendAnswers.filter(
-                      (fa) =>
-                        fa.questionId === question.id &&
-                        friendIds.includes(fa.friendId)
-                    )
-              }
-              lockedAnswers={new Set(questions.map((q) => q.id))}
-              handleOptionSelect={handleOptionSelect}
-              index={question.id}
-            />
-          ) : null
-        )}
+        {questions.map((question) => (
+          <QuestionResultView
+            key={question.id}
+            question={question}
+            selfAnswer={
+              quizSelfAnswers.find((sa) => sa.questionId === question.id)!
+            }
+            friendAnswers={
+              quizFriendAnswers.find((q) => q[0]?.questionId === question.id) ||
+              []
+            }
+            lockedAnswers={new Set(questions.map((q) => q.id))}
+            handleOptionSelect={handleOptionSelect}
+            index={question.id}
+          />
+        ))}
 
         <TouchableOpacity onPress={goBack} style={styles.backToQuizzesButton}>
           <ChevronLeft size={20} color="white" style={styles.backButtonIcon} />
