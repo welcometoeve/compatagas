@@ -12,6 +12,7 @@ type QuestionViewProps = {
   lockedAnswers: Set<number>
   handleOptionSelect: (questionId: number, optionIndex: number) => void
   index: number
+  quizType: "your" | "their"
 }
 
 const QuestionView: React.FC<QuestionViewProps> = ({
@@ -19,6 +20,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   selfAnswer,
   friendAnswers,
   lockedAnswers,
+  quizType,
 }) => {
   const isLocked = lockedAnswers.has(question.id)
   const { allUsers, user } = useUser()
@@ -52,7 +54,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.questionText}>
-        {selfAnswer?.userId === user?.id
+        {quizType === "your"
           ? question.secondPersonLabel
           : question.thirdPersonLabel}
       </Text>

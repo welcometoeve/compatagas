@@ -158,6 +158,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         <View style={styles.spacer}></View>
         {questions.map((question) => (
           <QuestionResultView
+            quizType={quizType}
             key={question.id}
             question={question}
             selfAnswer={
