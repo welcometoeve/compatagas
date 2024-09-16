@@ -73,7 +73,8 @@ export default function App() {
   const incompleteQuizUserCombos = useMemo(() => {
     return quizUserCombos.filter(({ quizId, selfId }) => {
       const relevantSelfAnswers = selfAnswers.filter(
-        (sa) => sa.quizId === quizId && sa.userId === selfId
+        (sa) =>
+          sa.quizId === quizId && sa.userId === selfId && sa.userId != user?.id
       )
       const relevantFriendAnswers = friendAnswers.filter(
         (fa) =>

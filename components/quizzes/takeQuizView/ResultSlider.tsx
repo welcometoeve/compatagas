@@ -29,7 +29,7 @@ export default function ResultSlider({
       <View
         style={{
           height: 20,
-          backgroundColor: "rgb(40, 40, 40)",
+          backgroundColor: "#262C34",
           borderRadius: 10,
           marginTop: 8,
         }}
@@ -42,7 +42,7 @@ export default function ResultSlider({
             marginTop: -4,
             width: 28,
             height: 28,
-            backgroundColor: "#8b5cf6",
+            backgroundColor: "#FF4457",
             borderRadius: 14,
           }}
         />

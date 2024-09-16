@@ -253,9 +253,9 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           />
         ))}
 
-        {/* {quizResult !== null && (
+        {quizResult !== null && (
           <ResultSlider quiz={quiz} quizResult={quizResult} />
-        )} */}
+        )}
 
         {submitSuccess && friendsWhoTookQuiz.length > 0 ? (
           <CustomAlert

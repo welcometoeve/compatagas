@@ -16,6 +16,7 @@ import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import ResultSlider from "./ResultResultSlider"
 import QuestionResultView from "./QuestionResultView"
 import collect from "../collect"
+import ResultResultSlider from "./ResultResultSlider"
 
 type QuizResultsViewProps = {
   quiz: Quiz
@@ -44,6 +45,71 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   const { user, allUsers } = useUser()
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
+
+  const [results, setResults] = useState<Result[]>([])
+
+  useEffect(() => {
+    if (user && selfAnswers && friendAnswers) {
+      const allResults: Result[] = []
+
+      const selfResult = calculateQuizResult(
+        selfAnswers.filter(
+          (sa) => sa.userId === selfId && sa.quizId === quiz.id
+        )
+      )
+
+      allResults.push({
+        id: selfId,
+        name:
+          user.id === selfId
+            ? "You"
+            : allUsers.find((u) => u.id === selfId)?.name || "Friend",
+        value: selfResult,
+        isSelf: true,
+      })
+
+      friendIds.forEach((friendId) => {
+        const friendResult = calculateQuizResult(
+          friendAnswers.filter(
+            (fa) => fa.friendId === friendId && fa.quizId === quiz.id
+          )
+        )
+        const friendName =
+          allUsers.find((u) => u.id === friendId)?.name || "Friend"
+        allResults.push({
+          id: friendId,
+          name: user.id === friendId ? "You" : friendName,
+          value: friendResult,
+          isSelf: false,
+        })
+      })
+
+      setResults(allResults)
+    }
+  }, [
+    user,
+    selfAnswers,
+    friendAnswers,
+    questions,
+    quiz.id,
+    friendIds,
+    allUsers,
+  ])
+
+  const calculateQuizResult = (answers: (SelfAnswer | FriendAnswer)[]) => {
+    let totalScore = 0
+    questions.forEach((question) => {
+      const answer = answers.find((a) => a.questionId === question.id)
+      if (answer) {
+        const optionIndex = answer.optionIndex
+        const side = question.options[optionIndex].side
+        const score = side === Side.LEFT ? -1 : 1
+        totalScore += score
+      }
+    })
+    const averageScore = totalScore / questions.length
+    return averageScore
+  }
 
   const correctnessScores = useMemo(() => {
     const relevantSelfAnswers = selfAnswers.filter(
@@ -113,6 +179,8 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
             style={styles.quizTitle}
           >{`${userName} ${quiz.name} Results`}</Text>
         </View>
+
+        <ResultResultSlider results={results} quiz={quiz} />
 
         <View style={styles.friendScores}>
           {correctnessScores.map((score) => {
@@ -202,6 +270,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     marginBottom: 24,
+    paddingTop: 32,
   },
   friendScore: {
     alignItems: "center",
