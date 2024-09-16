@@ -63,7 +63,8 @@ const QuizList: React.FC<QuizzesViewProps> = ({
     <>
       <Text style={styles.title}>Question Packs</Text>
       <Text style={styles.subtitle}>
-        Answer questions about yourself to see what your friends said.
+        Answer questions about yourself. Once your friends have answered those
+        questions in the stack, you can see what they said.
       </Text>
       <FlatList<Quiz>
         data={quizzes}
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#79818D",
     textAlign: "center",
     marginBottom: 40,

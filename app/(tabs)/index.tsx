@@ -283,6 +283,10 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={styles.explanationText}>
+        Answer questions about your friendsx to see what they said about
+        themselves.
+      </Text>
       {isOutOfQuestions ? (
         <SafeAreaView style={styles.container}>
           <View style={styles.contentContainer}>
@@ -295,7 +299,9 @@ export default function App() {
         <View
           style={[
             styles.contentContainer,
-            { opacity: completedQuizFriendId !== undefined ? 0.5 : 1 },
+            {
+              opacity: completedQuizFriendId !== undefined ? 0.5 : 1,
+            },
           ]}
         >
           <View style={styles.cardStack}>
@@ -339,6 +345,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#111419",
+    bottom: 30,
   },
   contentContainer: {
     flex: 1,
@@ -443,5 +450,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "white",
     fontWeight: "bold",
+  },
+  explanationText: {
+    fontSize: 16,
+    color: "#79818D",
+    textAlign: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    position: "absolute",
+    bottom: -20,
+    width: "100%",
   },
 })
