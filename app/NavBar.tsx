@@ -92,11 +92,13 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               ]}
             >
               {tab.page === "questions" ? (
-                page === tab.page ? (
-                  <RectangleStackIconSolid color={"white"} size={24} />
-                ) : (
-                  <RectangleStackIconOutline color={"#656D7A"} size={24} />
-                )
+                <View style={styles.flippedIcon}>
+                  {page === tab.page ? (
+                    <RectangleStackIconSolid color={"white"} size={24} />
+                  ) : (
+                    <RectangleStackIconOutline color={"#656D7A"} size={24} />
+                  )}
+                </View>
               ) : // <AntDesign
               //   name={
               //     (page === tab.page
@@ -193,6 +195,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -9,
     left: -20,
+  },
+  flippedIcon: {
+    transform: [{ rotate: "180deg" }],
   },
 })
 

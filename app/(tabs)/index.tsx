@@ -182,29 +182,33 @@ export default function App() {
             { opacity: completedQuizFriendId !== undefined ? 0.5 : 1 },
           ]}
         >
-          <View style={styles.cardContainer}>
-            <Text style={styles.name}>{currentFriend?.name}</Text>
-            <Text style={styles.question}>
-              {currentQuestion?.thirdPersonLabel}
-            </Text>
-            {isLoading ? (
-              <Text style={styles.loadingText}>Loading...</Text>
-            ) : (
-              <>
-                {currentQuestion?.options.map((option, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.button}
-                    onPress={() => {
-                      handleAnswer(index)
-                    }}
-                    disabled={isLoading}
-                  >
-                    <Text style={styles.buttonText}>{option.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </>
-            )}
+          <View style={styles.cardStack}>
+            <View style={[styles.stackedCard, styles.bottomCard]} />
+            <View style={[styles.stackedCard, styles.middleCard]} />
+            <View style={styles.cardContainer}>
+              <Text style={styles.name}>{currentFriend?.name}</Text>
+              <Text style={styles.question}>
+                {currentQuestion?.thirdPersonLabel}
+              </Text>
+              {isLoading ? (
+                <Text style={styles.loadingText}>Loading...</Text>
+              ) : (
+                <>
+                  {currentQuestion?.options.map((option, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.button}
+                      onPress={() => {
+                        handleAnswer(index)
+                      }}
+                      disabled={isLoading}
+                    >
+                      <Text style={styles.buttonText}>{option.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </>
+              )}
+            </View>
           </View>
         </View>
       )}
@@ -237,6 +241,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
+  cardStack: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
+  stackedCard: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    borderWidth: 1,
+    borderColor: "#656D7A",
+    borderRadius: 30,
+    backgroundColor: "#111419",
+  },
+  bottomCard: {
+    top: 50,
+    transform: [{ scale: 0.8 }],
+  },
+  middleCard: {
+    top: 25,
+    transform: [{ scale: 0.9 }],
+  },
   cardContainer: {
     width: "100%",
     flexDirection: "column",
@@ -247,6 +273,8 @@ const styles = StyleSheet.create({
     padding: 30,
     borderRadius: 30,
     paddingHorizontal: 20,
+    backgroundColor: "#111419",
+    zIndex: 3,
   },
   name: {
     fontSize: 24,
