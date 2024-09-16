@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useMemo, useRef } from "react"
 import {
   View,
-  Text,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   Animated,
   Dimensions,
-  Image,
 } from "react-native"
 import { Question, questions, quizzes } from "../../components/questions"
 import { useFriends } from "@/contexts/FriendsContext"
@@ -17,7 +14,13 @@ import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
 import { addFriendAnswerInitiatedNotification } from "@/contexts/addNotification"
 import * as Haptics from "expo-haptics"
-import CompletionScreen from "@/components/stack/CompletionPopup"
+import {
+  CardContents,
+  CardStack,
+  CompletionScreen,
+  ExplanationText,
+  OutOfQuestionsView,
+} from "@/components/stack/StackComponents"
 
 const { width } = Dimensions.get("window")
 
@@ -38,8 +41,8 @@ export default function App() {
     nextQuestionId: null,
   })
   const [addError, setAddError] = useState<string | undefined>()
-  const { user } = useUser()
-  const { notifications, addNotification } = useNotification()
+  const { user, allUsers } = useUser()
+  const { addNotification, notifications } = useNotification()
   const { selfAnswers } = useSelfAnswers()
   const [completedQuizFriendId, setCompletedQuizFriendId] = useState<
     number | undefined
@@ -48,12 +51,50 @@ export default function App() {
   const [completionAnimation] = useState(new Animated.Value(0))
   const slideAnimation = useRef(new Animated.Value(0)).current
   const fadeAnimation = useRef(new Animated.Value(1)).current
+  const [currentQuizUserCombo, setCurrentQuizUserCombo] = useState<{
+    quizId: number
+    selfId: number
+  } | null>(null)
 
   const availableQuestions: Question[] = questions
 
   const filteredFriendAnswers = friendAnswers.filter(
     (answer) => answer.friendId === user?.id
   )
+
+  const quizUserCombos = useMemo(() => {
+    return quizzes.flatMap((quiz) => {
+      return allUsers.map((user) => {
+        return { quizId: quiz.id, selfId: user.id }
+      })
+    })
+  }, [quizzes, allUsers])
+
+  const incompleteQuizUserCombos = useMemo(() => {
+    return quizUserCombos.filter(({ quizId, selfId }) => {
+      const relevantSelfAnswers = selfAnswers.filter(
+        (sa) => sa.quizId === quizId && sa.userId === selfId
+      )
+      const relevantFriendAnswers = friendAnswers.filter(
+        (fa) =>
+          fa.quizId === quizId &&
+          fa.selfId === selfId &&
+          fa.friendId === user?.id
+      )
+      const relevantQuestions = questions.filter((q) => q.quizId === quizId)
+      return (
+        relevantQuestions.length <= relevantSelfAnswers.length &&
+        relevantQuestions.length > relevantFriendAnswers.length
+      )
+    })
+  }, [quizUserCombos, selfAnswers, friendAnswers, questions, user])
+
+  const selectNextQuizUserCombo = () => {
+    if (incompleteQuizUserCombos.length > 0) {
+      return incompleteQuizUserCombos[0]
+    }
+    return null
+  }
 
   const selectRandomFriend = () => {
     const availableFriends = friends.filter((friend) =>
@@ -72,7 +113,7 @@ export default function App() {
     return null
   }
 
-  const selectRandomQuestion = (
+  const selectQuestion = (
     friendId: number,
     currentQuestionId: number | null
   ) => {
@@ -80,19 +121,51 @@ export default function App() {
       (q) =>
         !filteredFriendAnswers.some(
           (a) => a.selfId === friendId && a.questionId === q.id
-        ) && q.id !== currentQuestionId
+        ) &&
+        q.id !== currentQuestionId &&
+        (currentQuizUserCombo ? q.quizId === currentQuizUserCombo.quizId : true)
     )
     if (unansweredQuestions.length > 0) {
-      const randomIndex = Math.floor(Math.random() * unansweredQuestions.length)
-      return unansweredQuestions[randomIndex].id
+      return unansweredQuestions[0].id
     }
     return null
   }
 
   const selectNewFriendAndQuestion = () => {
+    if (!currentQuizUserCombo) {
+      const newCombo = selectNextQuizUserCombo()
+      if (newCombo) {
+        setCurrentQuizUserCombo(newCombo)
+        const newQuestionId = selectQuestion(newCombo.selfId, null)
+        return { newFriendId: newCombo.selfId, newQuestionId }
+      }
+    }
+
+    if (currentQuizUserCombo) {
+      const newQuestionId = selectQuestion(
+        currentQuizUserCombo.selfId,
+        cardState.currentQuestionId
+      )
+      if (newQuestionId) {
+        return {
+          newFriendId: currentQuizUserCombo.selfId,
+          newQuestionId,
+        }
+      } else {
+        // Current quiz is completed, move to the next one
+        const newCombo = selectNextQuizUserCombo()
+        if (newCombo) {
+          setCurrentQuizUserCombo(newCombo)
+          const newQuestionId = selectQuestion(newCombo.selfId, null)
+          return { newFriendId: newCombo.selfId, newQuestionId }
+        }
+      }
+    }
+
+    // If no incomplete quizzes, fall back to random selection
     const newFriendId = selectRandomFriend()
     if (newFriendId !== null) {
-      const newQuestionId = selectRandomQuestion(
+      const newQuestionId = selectQuestion(
         newFriendId,
         cardState.currentQuestionId
       )
@@ -190,6 +263,7 @@ export default function App() {
         quizId,
         cardState.currentFriendId,
         user ? user.id : 0,
+        notifications,
         addNotification
       )
       if (result !== undefined) {
@@ -250,49 +324,21 @@ export default function App() {
     const quiz = quizzes.find((q) => q.id === question?.quizId)
 
     return (
-      <>
-        <Text style={styles.name}>{friend?.name}</Text>
-        <Text style={styles.question}>{question?.thirdPersonLabel}</Text>
-        {isLoading ? (
-          <Text style={styles.loadingText}>Loading...</Text>
-        ) : (
-          <View style={{ width: "100%", paddingHorizontal: 20 }}>
-            {question?.options.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.button}
-                onPress={() => handleAnswer(index)}
-                disabled={isLoading}
-              >
-                <Text style={styles.buttonText}>{option.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-        {quiz && (
-          <View style={styles.quizInfoContainer}>
-            <Image source={quiz.src} style={styles.quizImage} />
-            <Text style={styles.quizName}>{`From the ${quiz.name}`}</Text>
-          </View>
-        )}
-      </>
+      <CardContents
+        friend={friend}
+        question={question}
+        quiz={quiz}
+        isLoading={isLoading}
+        handleAnswer={handleAnswer}
+      />
     )
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.explanationText}>
-        Answer questions about your friendsx to see what they said about
-        themselves.
-      </Text>
+      <ExplanationText />
       {isOutOfQuestions ? (
-        <SafeAreaView style={styles.container}>
-          <View style={styles.contentContainer}>
-            <Text style={styles.outOfQuestionsText}>
-              Out of questions for now!
-            </Text>
-          </View>
-        </SafeAreaView>
+        <OutOfQuestionsView />
       ) : (
         <View
           style={[
@@ -302,23 +348,10 @@ export default function App() {
             },
           ]}
         >
-          <View style={styles.cardStack}>
-            <View style={[styles.stackedCard, styles.bottomCard]} />
-            <View style={[styles.stackedCard, styles.middleCard]} />
-            <View style={[styles.cardContainer, { position: "absolute" }]}>
-              {renderCardContents(false)}
-            </View>
-            <Animated.View
-              style={[
-                styles.cardContainer,
-                {
-                  transform: [{ translateX: slideAnimation }],
-                },
-              ]}
-            >
-              {renderCardContents(true)}
-            </Animated.View>
-          </View>
+          <CardStack
+            renderCardContents={renderCardContents}
+            slideAnimation={slideAnimation}
+          />
         </View>
       )}
 
@@ -350,113 +383,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-  },
-  cardStack: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
-  stackedCard: {
-    position: "absolute",
-    width: "100%",
-    height: "90%",
-    borderWidth: 3,
-    borderColor: "#111419",
-    borderRadius: 30,
-    backgroundColor: "#262C34",
-  },
-  bottomCard: {
-    top: 50,
-    width: "90%",
-  },
-  middleCard: {
-    top: 40,
-    width: "95%",
-  },
-  cardContainer: {
-    width: "100%",
-    height: "90%",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#111419",
-    padding: 0,
-    borderRadius: 30,
-    paddingHorizontal: 0,
-    backgroundColor: "#262C34",
-    zIndex: 3,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "white",
-  },
-  question: {
-    fontSize: 18,
-    textAlign: "center",
-    marginBottom: 20,
-    color: "white",
-    width: "100%",
-  },
-  button: {
-    backgroundColor: "#FF4457",
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 5,
-    width: "100%",
-  },
-  buttonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  outOfQuestionsText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    textAlign: "center",
-  },
-  loadingText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  quizInfoContainer: {
-    position: "absolute",
-    bottom: 20,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 0,
-    borderTopColor: "#111419",
-    borderTopWidth: 2,
-    width: "100%",
-    paddingTop: 15,
-  },
-  quizImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-  quizName: {
-    fontSize: 16,
-    color: "white",
-    fontWeight: "bold",
-  },
-  explanationText: {
-    fontSize: 16,
-    color: "#79818D",
-    textAlign: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    position: "absolute",
-    bottom: -20,
-    width: "100%",
   },
 })
