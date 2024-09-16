@@ -16,7 +16,7 @@ import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
 import { act } from "react-test-renderer"
-import ResultsList from "@/components/results/ResultsLists"
+import ResultsList from "@/components/results/resultsList/ResultsLists"
 import QuizResultsView from "@/components/results/QuizResultView"
 import { QuizItem } from "@/components/results/proccessQuizLists"
 

@@ -27,7 +27,6 @@ const ResultSlider: React.FC<ResultSliderProps> = ({ quiz, results }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Quiz Results</Text>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{quiz.leftLabel}</Text>
         <Text style={styles.label}>{quiz.rightLabel}</Text>

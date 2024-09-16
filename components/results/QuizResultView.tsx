@@ -176,7 +176,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
         <TouchableOpacity onPress={goBack} style={styles.backToQuizzesButton}>
           <ChevronLeft size={20} color="white" style={styles.backButtonIcon} />
-          <Text style={styles.backButtonText}>Back to Quizzes</Text>
+          <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
