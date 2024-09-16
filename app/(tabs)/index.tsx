@@ -256,7 +256,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: "#111419",
   },
   contentContainer: {
     flex: 1,
@@ -277,16 +277,17 @@ const styles = StyleSheet.create({
     color: "#E0E0E0",
   },
   button: {
-    backgroundColor: "#BB86FC",
+    backgroundColor: "#FF4457",
     padding: 10,
     borderRadius: 5,
     marginVertical: 5,
     width: "100%",
   },
   buttonText: {
-    color: "#000000",
+    color: "white",
     textAlign: "center",
     fontSize: 16,
+    fontWeight: "bold",
   },
   outOfQuestionsText: {
     fontSize: 24,

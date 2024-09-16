@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    borderBottomColor: "#3C444F",
     height: 100,
   },
   notificationContainer: {
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   },
   quizSubtitle: {
     fontSize: 14,
-    color: "#aaa",
+    color: "#79818D",
   },
 })
 
