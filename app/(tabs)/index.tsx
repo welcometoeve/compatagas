@@ -17,7 +17,7 @@ import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
 import { addFriendAnswerInitiatedNotification } from "@/contexts/addNotification"
 import * as Haptics from "expo-haptics"
-import CompletionScreen from "@/components/questionStack/CompletionPopup"
+import CompletionScreen from "@/components/stack/CompletionPopup"
 
 const { width } = Dimensions.get("window")
 
@@ -228,8 +228,6 @@ export default function App() {
       }))
     }
   }
-
-  const currentFriend = friends.find((f) => f.id === cardState.currentFriendId)
 
   const isOutOfQuestions = useMemo(() => {
     return friends.every((friend) => {
