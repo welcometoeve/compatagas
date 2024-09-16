@@ -15,6 +15,7 @@ import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
 import { addFriendAnswerInitiatedNotification } from "@/contexts/addNotification"
 import * as Haptics from "expo-haptics"
+import CompletionScreen from "@/components/questionStack/CompletionPopup"
 
 export default function App() {
   const { friends } = useFriends()
@@ -164,48 +165,6 @@ export default function App() {
     })
   }, [friends, filteredFriendAnswers])
 
-  const renderCompletionScreen = () => {
-    const completedFriend = friends.find((f) => f.id === completedQuizFriendId)
-    const completedQuiz = quizzes.find((q) => q.id === completedQuizId)
-    return (
-      <View style={styles.completionOverlay}>
-        <Animated.View
-          style={[
-            styles.completionContainer,
-            {
-              opacity: completionAnimation,
-              transform: [
-                {
-                  scale: completionAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.5, 1],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.dismissButton}
-            onPress={() => setCompletedQuizFriendId(undefined)}
-          >
-            <Text style={styles.dismissButtonText}>×</Text>
-          </TouchableOpacity>
-          <Text style={styles.completionTitle}>Pack Completed!</Text>
-          <Text style={styles.completionText}>
-            You've finished the {completedQuiz?.name} for{" "}
-            {completedFriend?.name}!
-          </Text>
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    )
-  }
   return (
     <SafeAreaView style={styles.container}>
       {isOutOfQuestions ? (
@@ -223,32 +182,46 @@ export default function App() {
             { opacity: completedQuizFriendId !== undefined ? 0.5 : 1 },
           ]}
         >
-          <Text style={styles.name}>{currentFriend?.name}</Text>
-          <Text style={styles.question}>
-            {currentQuestion?.thirdPersonLabel}
-          </Text>
-          {isLoading ? (
-            <Text style={styles.loadingText}>Loading...</Text>
-          ) : (
-            <>
-              {currentQuestion?.options.map((option, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.button}
-                  onPress={() => {
-                    handleAnswer(index)
-                  }}
-                  disabled={isLoading}
-                >
-                  <Text style={styles.buttonText}>{option.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </>
-          )}
+          <View style={styles.cardContainer}>
+            <Text style={styles.name}>{currentFriend?.name}</Text>
+            <Text style={styles.question}>
+              {currentQuestion?.thirdPersonLabel}
+            </Text>
+            {isLoading ? (
+              <Text style={styles.loadingText}>Loading...</Text>
+            ) : (
+              <>
+                {currentQuestion?.options.map((option, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.button}
+                    onPress={() => {
+                      handleAnswer(index)
+                    }}
+                    disabled={isLoading}
+                  >
+                    <Text style={styles.buttonText}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </>
+            )}
+          </View>
         </View>
       )}
 
-      {completedQuizFriendId !== undefined && renderCompletionScreen()}
+      {completedQuizFriendId !== undefined && (
+        <CompletionScreen
+          completionAnimation={completionAnimation}
+          completedQuizName={
+            quizzes.find((q) => q.id === completedQuizId)?.name || ""
+          }
+          completedFriendName={
+            friends.find((f) => f.id === completedQuizFriendId)?.name || ""
+          }
+          onDismiss={() => setCompletedQuizFriendId(undefined)}
+          onContinue={handleContinue}
+        />
+      )}
     </SafeAreaView>
   )
 }
@@ -264,17 +237,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
+  cardContainer: {
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#656D7A",
+    padding: 30,
+    borderRadius: 30,
+    paddingHorizontal: 20,
+  },
   name: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#FFFFFF",
+    color: "white",
   },
   question: {
     fontSize: 18,
     textAlign: "center",
     marginBottom: 20,
-    color: "#E0E0E0",
+    color: "white",
+    width: "100%",
   },
   button: {
     backgroundColor: "#FF4457",
@@ -295,83 +280,9 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     textAlign: "center",
   },
-  errorContainer: {
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  errorText: {
-    color: "#FF6B6B",
-    fontSize: 16,
-    textAlign: "center",
-    marginBottom: 10,
-  },
   loadingText: {
     color: "#FFFFFF",
     fontSize: 16,
     textAlign: "center",
-  },
-  retryButton: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 5,
-  },
-  retryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-  },
-  completionOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(17, 20, 25, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  completionContainer: {
-    width: "80%",
-    aspectRatio: 1,
-    backgroundColor: "#111419",
-    borderRadius: 15,
-    padding: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#656D7A",
-  },
-  completionTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FF4457",
-    marginBottom: 10,
-  },
-  completionText: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  continueButton: {
-    backgroundColor: "#FF4457",
-    padding: 12,
-    borderRadius: 8,
-  },
-  continueButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  dismissButton: {
-    position: "absolute",
-    top: 5,
-    right: 10,
-    padding: 5,
-  },
-  dismissButtonText: {
-    color: "#999",
-    fontSize: 20,
-    fontWeight: "bold",
   },
 })

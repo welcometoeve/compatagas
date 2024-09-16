@@ -80,11 +80,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
                 justifyContent: "space-between",
                 alignItems: "center",
                 borderWidth: 1,
-                borderColor: !isLocked
-                  ? "transparent"
-                  : isSelected
-                  ? "#FF4457"
-                  : "#3C444F",
+                borderColor: isSelectedByFriend ? "white" : "transparent",
               }}
             >
               <Text style={{ color: "#FFFFFF", flex: 1 }}>{option.label}</Text>
