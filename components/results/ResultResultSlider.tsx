@@ -14,7 +14,7 @@ type ResultSliderProps = {
   results: Result[]
 }
 
-const ResultSlider: React.FC<ResultSliderProps> = ({ quiz, results }) => {
+const ResultResultSlider: React.FC<ResultSliderProps> = ({ quiz, results }) => {
   // Group results by their value
   const groupedResults = results.reduce((acc, result) => {
     const key = result.value.toString()
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     height: 20,
-    backgroundColor: "rgb(40, 40, 40)",
+    backgroundColor: "#262C34",
     borderRadius: 20,
     position: "relative",
   },
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     marginTop: -4,
   },
   selfDot: {
-    backgroundColor: "#8b5cf6",
+    backgroundColor: "#FF4457",
     zIndex: 2,
   },
   friendDot: {
@@ -123,4 +123,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default ResultSlider
+export default ResultResultSlider
