@@ -61,7 +61,10 @@ const QuizList: React.FC<QuizzesViewProps> = ({
 
   return (
     <>
-      <Text style={styles.title}>Quizzes for You</Text>
+      <Text style={styles.title}>Question Packs</Text>
+      <Text style={styles.subtitle}>
+        Answer questions about yourself to see what your friends said.
+      </Text>
       <FlatList<Quiz>
         data={quizzes}
         renderItem={renderItem}
@@ -89,7 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1E1E1E",
     borderRadius: 8,
     overflow: "hidden",
-    position: "relative", // Add this to position the overlay correctly
+    position: "relative",
   },
   quizImage: {
     width: columnWidth,
@@ -97,12 +100,19 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   title: {
-    marginTop: 50,
+    marginTop: 80,
     fontSize: 38,
     fontWeight: "bold",
     color: "#FFFFFF",
     textAlign: "center",
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: "#CCCCCC",
+    textAlign: "center",
     marginBottom: 40,
+    paddingHorizontal: 20,
   },
   doneOverlay: {
     position: "absolute",

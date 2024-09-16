@@ -281,7 +281,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               <ActivityIndicator color="white" />
             ) : (
               <Text style={{ color: "white", fontWeight: "bold" }}>
-                Submit Quiz
+                Submit Pack
               </Text>
             )}
           </TouchableOpacity>

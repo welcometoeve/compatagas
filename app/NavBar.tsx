@@ -5,6 +5,8 @@ import NotificationDot from "@/components/results/NotificationDot"
 import { useNotification } from "@/contexts/NotificationContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
+import { RectangleStackIcon as RectangleStackIconOutline } from "react-native-heroicons/outline"
+import { RectangleStackIcon as RectangleStackIconSolid } from "react-native-heroicons/solid"
 
 interface TabItem {
   name: string
@@ -21,13 +23,13 @@ interface TabItem {
 
 const tabs: TabItem[] = [
   {
-    name: "Questions About You",
+    name: "Question Packs",
     page: "quizzes",
     activeIcon: "document-text",
     inactiveIcon: "document-text-outline",
   },
   {
-    name: "Questions About Friends",
+    name: "Question Stack",
     page: "questions",
     activeIcon: "questioncircle",
     inactiveIcon: "questioncircleo",
@@ -77,7 +79,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
                   tab.page === "results"
                     ? 5
                     : tab.page === "questions"
-                    ? 15
+                    ? 17
                     : 20,
               },
             ]}
@@ -90,16 +92,21 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               ]}
             >
               {tab.page === "questions" ? (
-                <AntDesign
-                  name={
-                    (page === tab.page
-                      ? tab.activeIcon
-                      : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
-                  }
-                  size={24}
-                  color={page === tab.page ? "white" : "#8E8E93"}
-                />
-              ) : tab.page === "quizzes" ? (
+                page === tab.page ? (
+                  <RectangleStackIconSolid color={"white"} size={24} />
+                ) : (
+                  <RectangleStackIconOutline color={"#8E8E93"} size={24} />
+                )
+              ) : // <AntDesign
+              //   name={
+              //     (page === tab.page
+              //       ? tab.activeIcon
+              //       : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
+              //   }
+              //   size={24}
+              //   color={page === tab.page ? "white" : "#8E8E93"}
+              // />
+              tab.page === "quizzes" ? (
                 <Ionicons
                   name={
                     (page === tab.page

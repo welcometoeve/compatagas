@@ -165,7 +165,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
           onPress={() => setActiveTab("your")}
         >
           {renderTabWithNotification(
-            "Your Quizzes",
+            "Packs About You",
             activeTab === "your",
             numYourNotifications
           )}
@@ -175,7 +175,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
           onPress={() => setActiveTab("their")}
         >
           {renderTabWithNotification(
-            "Their Quizzes",
+            "Packs About Friends",
             activeTab === "their",
             numTheirNotifications
           )}
@@ -216,6 +216,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",
+    paddingHorizontal: 30,
   },
   activeTab: {
     borderBottomWidth: 2,
@@ -225,6 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#fff", // White text color
+    textAlign: "center",
   },
   list: {
     flex: 1,
