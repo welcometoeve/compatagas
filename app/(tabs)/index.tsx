@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react"
+import React, { useEffect, useState, useMemo, useRef } from "react"
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   StyleSheet,
   SafeAreaView,
   Animated,
+  Dimensions,
+  Image,
 } from "react-native"
 import { Question, questions, quizzes } from "../../components/questions"
 import { useFriends } from "@/contexts/FriendsContext"
@@ -17,13 +19,24 @@ import { addFriendAnswerInitiatedNotification } from "@/contexts/addNotification
 import * as Haptics from "expo-haptics"
 import CompletionScreen from "@/components/questionStack/CompletionPopup"
 
+const { width } = Dimensions.get("window")
+
+interface CardState {
+  currentFriendId: number | null
+  currentQuestionId: number | null
+  nextFriendId: number | null
+  nextQuestionId: number | null
+}
+
 export default function App() {
   const { friends } = useFriends()
   const { friendAnswers, addFriendAnswer, isLoading } = useFriendAnswers()
-  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(
-    null
-  )
-  const [currentFriendId, setCurrentFriendId] = useState<number | null>(null)
+  const [cardState, setCardState] = useState<CardState>({
+    currentFriendId: null,
+    currentQuestionId: null,
+    nextFriendId: null,
+    nextQuestionId: null,
+  })
   const [addError, setAddError] = useState<string | undefined>()
   const { user } = useUser()
   const { notifications, addNotification } = useNotification()
@@ -33,6 +46,8 @@ export default function App() {
   >(undefined)
   const [completedQuizId, setCompletedQuizId] = useState<number | undefined>()
   const [completionAnimation] = useState(new Animated.Value(0))
+  const slideAnimation = useRef(new Animated.Value(0)).current
+  const fadeAnimation = useRef(new Animated.Value(1)).current
 
   const availableQuestions: Question[] = questions
 
@@ -76,19 +91,30 @@ export default function App() {
 
   const selectNewFriendAndQuestion = () => {
     const newFriendId = selectRandomFriend()
-    setCurrentFriendId(newFriendId)
     if (newFriendId !== null) {
-      const newQuestionId = selectRandomQuestion(newFriendId, currentQuestionId)
-      setCurrentQuestionId(newQuestionId)
+      const newQuestionId = selectRandomQuestion(
+        newFriendId,
+        cardState.currentQuestionId
+      )
+      return { newFriendId, newQuestionId }
     }
+    return null
   }
 
   useEffect(() => {
     if (
       friends.length > 0 &&
-      (currentFriendId === null || currentQuestionId === null)
+      (cardState.currentFriendId === null ||
+        cardState.currentQuestionId === null)
     ) {
-      selectNewFriendAndQuestion()
+      const newState = selectNewFriendAndQuestion()
+      if (newState) {
+        setCardState((prevState) => ({
+          ...prevState,
+          currentFriendId: newState.newFriendId,
+          currentQuestionId: newState.newQuestionId,
+        }))
+      }
     }
   }, [friends, filteredFriendAnswers])
 
@@ -114,19 +140,55 @@ export default function App() {
     }
   }, [completedQuizFriendId])
 
+  const animateCardAway = () => {
+    const newState = selectNewFriendAndQuestion()
+
+    Animated.parallel([
+      Animated.timing(slideAnimation, {
+        toValue: -width,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnimation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      slideAnimation.setValue(0)
+      fadeAnimation.setValue(1)
+      if (newState) {
+        setCardState((prevState) => ({
+          currentFriendId: prevState.nextFriendId,
+          currentQuestionId: prevState.nextQuestionId,
+          nextFriendId: newState.newFriendId,
+          nextQuestionId: newState.newQuestionId,
+        }))
+      }
+    })
+  }
+
   const handleAnswer = async (optionIndex: number) => {
-    if (currentFriendId === null || currentQuestionId === null) return
+    if (
+      cardState.currentFriendId === null ||
+      cardState.currentQuestionId === null
+    )
+      return
 
     const quizId =
-      questions.find((q) => q.id === currentQuestionId)?.quizId || 0
+      questions.find((q) => q.id === cardState.currentQuestionId)?.quizId || 0
 
     try {
-      addFriendAnswer(currentFriendId, currentQuestionId, optionIndex)
+      addFriendAnswer(
+        cardState.currentFriendId,
+        cardState.currentQuestionId,
+        optionIndex
+      )
       const result = addFriendAnswerInitiatedNotification(
         friendAnswers,
         selfAnswers,
         quizId,
-        currentFriendId,
+        cardState.currentFriendId,
         user ? user.id : 0,
         addNotification
       )
@@ -138,7 +200,16 @@ export default function App() {
         await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
       }
 
-      selectNewFriendAndQuestion()
+      const newState = selectNewFriendAndQuestion()
+      if (newState) {
+        setCardState((prevState) => ({
+          ...prevState,
+          nextFriendId: newState.newFriendId,
+          nextQuestionId: newState.newQuestionId,
+        }))
+      }
+
+      animateCardAway()
     } catch (error) {
       setAddError(JSON.stringify(error))
       console.error("Failed to add answer:", error)
@@ -148,13 +219,17 @@ export default function App() {
   const handleContinue = () => {
     setCompletedQuizFriendId(undefined)
     setCompletedQuizId(undefined)
-    selectNewFriendAndQuestion()
+    const newState = selectNewFriendAndQuestion()
+    if (newState) {
+      setCardState((prevState) => ({
+        ...prevState,
+        nextFriendId: newState.newFriendId,
+        nextQuestionId: newState.newQuestionId,
+      }))
+    }
   }
 
-  const currentQuestion = availableQuestions.find(
-    (q) => q.id === currentQuestionId
-  )
-  const currentFriend = friends.find((f) => f.id === currentFriendId)
+  const currentFriend = friends.find((f) => f.id === cardState.currentFriendId)
 
   const isOutOfQuestions = useMemo(() => {
     return friends.every((friend) => {
@@ -164,6 +239,47 @@ export default function App() {
       return availableQuestions.every((q) => answeredQuestionIds.includes(q.id))
     })
   }, [friends, filteredFriendAnswers])
+
+  const renderCardContents = (current: boolean) => {
+    const friendId = current
+      ? cardState.currentFriendId
+      : cardState.nextFriendId
+    const questionId = current
+      ? cardState.currentQuestionId
+      : cardState.nextQuestionId
+    const friend = friends.find((f) => f.id === friendId)
+    const question = questions.find((q) => q.id === questionId)
+    const quiz = quizzes.find((q) => q.id === question?.quizId)
+
+    return (
+      <>
+        <Text style={styles.name}>{friend?.name}</Text>
+        <Text style={styles.question}>{question?.thirdPersonLabel}</Text>
+        {isLoading ? (
+          <Text style={styles.loadingText}>Loading...</Text>
+        ) : (
+          <View style={{ width: "100%", paddingHorizontal: 20 }}>
+            {question?.options.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.button}
+                onPress={() => handleAnswer(index)}
+                disabled={isLoading}
+              >
+                <Text style={styles.buttonText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+        {quiz && (
+          <View style={styles.quizInfoContainer}>
+            <Image source={quiz.src} style={styles.quizImage} />
+            <Text style={styles.quizName}>{`From the ${quiz.name}`}</Text>
+          </View>
+        )}
+      </>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -185,30 +301,19 @@ export default function App() {
           <View style={styles.cardStack}>
             <View style={[styles.stackedCard, styles.bottomCard]} />
             <View style={[styles.stackedCard, styles.middleCard]} />
-            <View style={styles.cardContainer}>
-              <Text style={styles.name}>{currentFriend?.name}</Text>
-              <Text style={styles.question}>
-                {currentQuestion?.thirdPersonLabel}
-              </Text>
-              {isLoading ? (
-                <Text style={styles.loadingText}>Loading...</Text>
-              ) : (
-                <>
-                  {currentQuestion?.options.map((option, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.button}
-                      onPress={() => {
-                        handleAnswer(index)
-                      }}
-                      disabled={isLoading}
-                    >
-                      <Text style={styles.buttonText}>{option.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </>
-              )}
+            <View style={[styles.cardContainer, { position: "absolute" }]}>
+              {renderCardContents(false)}
             </View>
+            <Animated.View
+              style={[
+                styles.cardContainer,
+                {
+                  transform: [{ translateX: slideAnimation }],
+                },
+              ]}
+            >
+              {renderCardContents(true)}
+            </Animated.View>
           </View>
         </View>
       )}
@@ -249,7 +354,7 @@ const styles = StyleSheet.create({
   stackedCard: {
     position: "absolute",
     width: "100%",
-    height: "100%",
+    height: "90%",
     borderWidth: 1,
     borderColor: "#656D7A",
     borderRadius: 30,
@@ -257,22 +362,23 @@ const styles = StyleSheet.create({
   },
   bottomCard: {
     top: 50,
-    transform: [{ scale: 0.8 }],
+    width: "90%",
   },
   middleCard: {
-    top: 25,
-    transform: [{ scale: 0.9 }],
+    top: 40,
+    width: "95%",
   },
   cardContainer: {
     width: "100%",
+    height: "90%",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#656D7A",
-    padding: 30,
+    padding: 0,
     borderRadius: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
     backgroundColor: "#111419",
     zIndex: 3,
   },
@@ -312,5 +418,30 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     textAlign: "center",
+  },
+  quizInfoContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 0,
+    borderTopColor: "#656D7A",
+    borderTopWidth: 1,
+    width: "100%",
+    paddingTop: 15,
+  },
+  quizImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  quizName: {
+    fontSize: 16,
+    color: "white",
+    fontWeight: "bold",
   },
 })
