@@ -18,7 +18,7 @@ const QuizzesView: React.FC = () => {
   return (
     <View
       style={{
-        backgroundColor: "#121212", // Dark background for the entire list
+        backgroundColor: "#111419", // Dark background for the entire list
         flex: 1,
       }}
     >

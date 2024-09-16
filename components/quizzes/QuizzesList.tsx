@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     padding: 5,
-    backgroundColor: "#121212",
+    backgroundColor: "#111419", // Dark background for the entire list
   },
   row: {
     justifyContent: "space-between",
@@ -109,10 +109,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: "#CCCCCC",
+    color: "#79818D",
     textAlign: "center",
     marginBottom: 40,
     paddingHorizontal: 20,
+    fontWeight: "bold",
   },
   doneOverlay: {
     position: "absolute",

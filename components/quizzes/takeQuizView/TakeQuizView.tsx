@@ -20,6 +20,7 @@ import { addSelfAnswerInitiatedNotification } from "@/contexts/addNotification"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
 import * as Haptics from "expo-haptics"
+import collect from "@/components/collect"
 
 export type SelfAnswer = {
   id: number
@@ -54,9 +55,14 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   const { friendAnswers } = useFriendAnswers()
   const { addNotification, notifications } = useNotification()
 
-  const friendsWhoTookQuiz = notifications
-    .filter((n) => n.selfId === user?.id && n.quizId === quiz.id)
-    .map((n) => n.friendId)
+  const friendsWhoTookQuiz = collect(
+    friendAnswers.filter(
+      (fa) => fa.selfId === user?.id && fa.quizId === quiz.id
+    ),
+    ["friendId"]
+  )
+    .filter((g) => g.length >= questions.length)
+    .map((g) => g[0].friendId)
 
   useEffect(() => {
     if (user && selfAnswers) {
@@ -196,7 +202,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#111419" }}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 24, paddingBottom: 20 }}
@@ -210,7 +216,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             zIndex: 1,
           }}
         >
-          <ChevronLeft size={32} color="white" />
+          <ChevronLeft size={32} color="#FFFFFF" />
         </TouchableOpacity>
 
         <View style={{ marginBottom: 24, alignItems: "center" }}>
@@ -228,7 +234,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             style={{
               fontSize: 32,
               fontWeight: "bold",
-              color: "white",
+              color: "#FFFFFF",
               textAlign: "center",
             }}
           >
@@ -247,15 +253,24 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           />
         ))}
 
-        {quizResult !== null && (
+        {/* {quizResult !== null && (
           <ResultSlider quiz={quiz} quizResult={quizResult} />
-        )}
+        )} */}
 
-        {friendsWhoTookQuiz.length > 0 && (
+        {friendsWhoTookQuiz.length > 0 ? (
           <CustomAlert
-            title="Some friends have taken this quiz for you!"
+            title="Some friends have taken this pack! Go to results to see how they compare."
             description=""
             variant="friends"
+            friends={friendsWhoTookQuiz.map(
+              (f) => allUsers.find((u) => u.id === f)?.name ?? ""
+            )}
+          />
+        ) : (
+          <CustomAlert
+            title="What for friends to take this pack to see how you compare."
+            description=""
+            variant="wait"
             friends={friendsWhoTookQuiz.map(
               (f) => allUsers.find((u) => u.id === f)?.name ?? ""
             )}
@@ -269,18 +284,18 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             style={{
               marginTop: 24,
               backgroundColor:
-                allQuestionsAnswered && !isSubmitting
-                  ? "#8b5cf6"
-                  : "rgb(50, 50, 50)",
+                allQuestionsAnswered && !isSubmitting ? "#FF4457" : "#3C444F",
               padding: 12,
               borderRadius: 8,
               alignItems: "center",
             }}
           >
             {isSubmitting ? (
-              <ActivityIndicator color="white" />
+              <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={{ color: "white", fontWeight: "bold" }}>Submit</Text>
+              <Text style={{ color: "#FFFFFF", fontWeight: "bold" }}>
+                Submit
+              </Text>
             )}
           </TouchableOpacity>
         ) : (
@@ -288,7 +303,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             onPress={goBack}
             style={{
               marginTop: 24,
-              backgroundColor: "rgb(40, 40, 40)",
+              backgroundColor: "#3C444F",
               padding: 12,
               borderRadius: 8,
               flexDirection: "row",
@@ -296,8 +311,8 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               justifyContent: "center",
             }}
           >
-            <ChevronLeft size={20} color="white" style={{ marginRight: 8 }} />
-            <Text style={{ color: "white", fontWeight: "bold" }}>Back</Text>
+            <ChevronLeft size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={{ color: "#FFFFFF", fontWeight: "bold" }}>Back</Text>
           </TouchableOpacity>
         )}
 
@@ -315,13 +330,6 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             variant="warning"
           />
         )}
-        {/* {submitSuccess && (
-          <CustomAlert
-            title="Success"
-            description="Your answers have been submitted successfully."
-            variant="success"
-          />
-        )} */}
       </ScrollView>
     </SafeAreaView>
   )

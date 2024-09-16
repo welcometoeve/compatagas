@@ -97,7 +97,7 @@ const { height } = Dimensions.get("window")
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#111419",
   },
   scrollContent: {
     flexGrow: 1,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   formContainer: {
-    backgroundColor: "#000",
+    backgroundColor: "#111419",
     borderRadius: 20, // Increased border radius
     padding: 24,
     width: "100%",
@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#111",
-    borderColor: "#333",
+    backgroundColor: "#111419",
+    borderColor: "#3C444F",
     borderWidth: 1,
     borderRadius: 12, // Increased border radius
     padding: 16, // Increased padding
@@ -141,7 +141,6 @@ const styles = StyleSheet.create({
     height: 60, // Increased height
   },
   button: {
-    backgroundColor: "#000",
     borderColor: "#fff",
     borderWidth: 1,
     borderRadius: 12, // Increased border radius
@@ -158,7 +157,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   errorContainer: {
-    backgroundColor: "#000",
     borderColor: "#e53e3e",
     borderWidth: 1,
     borderRadius: 12, // Increased border radius
@@ -176,8 +174,6 @@ const styles = StyleSheet.create({
     fontSize: 14, // Increased font size
   },
   successContainer: {
-    backgroundColor: "#000",
-    borderColor: "#38a169",
     borderWidth: 1,
     borderRadius: 12, // Increased border radius
     padding: 16, // Increased padding

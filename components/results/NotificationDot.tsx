@@ -26,7 +26,7 @@ const NotificationDot: React.FC<NotificationDotProps> = ({
 
 const styles = StyleSheet.create({
   notificationDot: {
-    backgroundColor: "#8b5cf6", // Purple color
+    backgroundColor: "#FF4457", // Purple color
     borderRadius: 10,
     width: 20,
     height: 20,

@@ -140,7 +140,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         contentContainerStyle={styles.contentContainer}
       >
         <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <ChevronLeft size={32} color="white" />
+          <ChevronLeft size={32} color="#FFFFFF" />
         </TouchableOpacity>
 
         <View style={styles.quizHeader}>
@@ -154,8 +154,6 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           >{`${userName} ${quiz.name} Results`}</Text>
         </View>
 
-        <ResultSlider quiz={quiz} results={results} />
-        <View style={styles.spacer}></View>
         {questions.map((question) => (
           <QuestionResultView
             quizType={quizType}
@@ -175,7 +173,11 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         ))}
 
         <TouchableOpacity onPress={goBack} style={styles.backToQuizzesButton}>
-          <ChevronLeft size={20} color="white" style={styles.backButtonIcon} />
+          <ChevronLeft
+            size={20}
+            color="#FFFFFF"
+            style={styles.backButtonIcon}
+          />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -186,14 +188,14 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: "#111419",
   },
   scrollView: {
     flex: 1,
   },
   contentContainer: {
     padding: 24,
-    paddingBottom: 0,
+    paddingBottom: 20,
   },
   backButton: {
     position: "absolute",
@@ -212,18 +214,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   quizTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
-    color: "white",
+    color: "#FFFFFF",
     textAlign: "center",
-  },
-  spacer: {
-    height: 50,
   },
   backToQuizzesButton: {
     marginTop: 24,
-    marginBottom: 24,
-    backgroundColor: "rgb(40, 40, 40)",
+    backgroundColor: "#3C444F",
     padding: 12,
     borderRadius: 8,
     flexDirection: "row",
@@ -234,7 +232,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   backButtonText: {
-    color: "white",
+    color: "#FFFFFF",
     fontWeight: "bold",
   },
 })

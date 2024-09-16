@@ -179,7 +179,7 @@ function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#111419",
   },
   debugButtonContainer: {
     position: "absolute",

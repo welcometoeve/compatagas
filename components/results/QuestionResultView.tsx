@@ -62,11 +62,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         {question.options.map((option, optionIndex) => {
           const isSelected =
             selfAnswer && selfAnswer.optionIndex === optionIndex
-
           const isSelectedByFriend = friendAnswers.some(
             (answer) => answer.optionIndex === optionIndex
           )
-
           const usersWhoSelected = getUsersForOption(optionIndex)
 
           return (
@@ -76,24 +74,24 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               style={{
                 padding: 12,
                 borderRadius: 8,
-                backgroundColor: isSelected ? "#8b5cf6" : "rgb(40, 40, 40)",
+                backgroundColor: isSelected ? "#FF4457" : "#262C34",
                 marginBottom: 8,
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
                 borderWidth: 1,
-                borderColor: isSelectedByFriend
-                  ? "white"
+                borderColor: !isLocked
+                  ? "transparent"
                   : isSelected
-                  ? "#8b5cf6"
-                  : "rgb(80, 80, 80)",
+                  ? "#FF4457"
+                  : "#3C444F",
               }}
             >
-              <Text style={{ color: "white", flex: 1 }}>{option.label}</Text>
+              <Text style={{ color: "#FFFFFF", flex: 1 }}>{option.label}</Text>
               {usersWhoSelected && (
                 <Text
                   style={{
-                    color: "white",
+                    color: "#FFFFFF",
                     marginLeft: 8,
                     textAlign: "right",
                     flex: 1,
@@ -116,9 +114,9 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 12,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    marginBottom: 8,
   },
   optionsContainer: {
     flexDirection: "column",

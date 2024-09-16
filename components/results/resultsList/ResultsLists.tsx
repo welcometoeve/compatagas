@@ -83,14 +83,18 @@ const ResultsList: React.FC<ResultsListProps> = ({
       <Ionicons
         name={isActive ? (iconName.replace("-outline", "") as any) : iconName}
         size={30}
-        color={isActive ? "#fff" : "#999"}
+        color={isActive ? "#fff" : "#79818D"}
       />
-      <View style={{ paddingTop: 10 }}>
+      <View
+        style={{ paddingTop: 10, flexDirection: "row", alignItems: "center" }}
+      >
         <Text style={[styles.tabText, isActive && styles.activeTabText]}>
           {tabName}
         </Text>
+        <View style={{ paddingTop: 5 }}>
+          <NotificationDot count={notificationCount} />
+        </View>
       </View>
-      <NotificationDot count={notificationCount} />
     </View>
   )
 
@@ -147,12 +151,12 @@ const ResultsList: React.FC<ResultsListProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: "#111419", // Dark background for the entire list
   },
   tabContainer: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    borderBottomColor: "#3C444F",
     paddingTop: 30,
   },
   tab: {
@@ -165,9 +169,9 @@ const styles = StyleSheet.create({
     borderBottomColor: "#fff",
   },
   tabText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#999",
+    color: "#79818D",
     textAlign: "center",
     marginTop: 5,
   },
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyListText: {
-    color: "gray",
+    color: "#79818D",
     textAlign: "center",
     fontSize: 20,
   },
