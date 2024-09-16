@@ -191,7 +191,7 @@ export default function App() {
           >
             <Text style={styles.dismissButtonText}>×</Text>
           </TouchableOpacity>
-          <Text style={styles.completionTitle}>Quiz Completed!</Text>
+          <Text style={styles.completionTitle}>Pack Completed!</Text>
           <Text style={styles.completionText}>
             You've finished the {completedQuiz?.name} for{" "}
             {completedFriend?.name}!
@@ -326,25 +326,25 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(17, 20, 25, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
   completionContainer: {
     width: "80%",
     aspectRatio: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    backgroundColor: "#111419",
     borderRadius: 15,
     padding: 20,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#666",
+    borderColor: "#656D7A",
   },
   completionTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#BB86FC",
+    color: "#FF4457",
     marginBottom: 10,
   },
   completionText: {
@@ -354,12 +354,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   continueButton: {
-    backgroundColor: "#BB86FC",
+    backgroundColor: "#FF4457",
     padding: 12,
     borderRadius: 8,
   },
   continueButtonText: {
-    color: "#000000",
+    color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },

@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#fff",
   },
   tabText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#79818D",
     textAlign: "center",

@@ -4,7 +4,7 @@ import { View, Text } from "react-native"
 export const CustomAlert: React.FC<{
   title: string
   description: string
-  variant: "warning" | "info" | "success" | "friends"
+  variant: "warning" | "info" | "success" | "friends" | "wait"
   friends?: string[]
 }> = ({ title, description, variant, friends }) => (
   <View
@@ -17,16 +17,16 @@ export const CustomAlert: React.FC<{
           : variant === "success"
           ? "#065f46"
           : variant === "friends"
-          ? "#4c1d95" // Changed to a purple color
-          : "#1f2937",
+          ? "#FF4457" // Changed to a purple color
+          : "#262C34",
       borderColor:
         variant === "warning"
           ? "#ca8a04"
           : variant === "success"
           ? "#10b981"
           : variant === "friends"
-          ? "#8b5cf6" // Changed to a lighter purple for contrast
-          : "#a78bfa",
+          ? "#FF4457" // Changed to a lighter purple for contrast
+          : "#79818D",
       borderWidth: 1,
       marginTop: 16,
     }}

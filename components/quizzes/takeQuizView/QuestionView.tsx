@@ -26,7 +26,7 @@ export default function QuestionView({
           fontSize: 18,
           fontWeight: "600",
           marginBottom: 8,
-          color: "white",
+          color: "#FFFFFF",
         }}
       >
         {question.secondPersonLabel}
@@ -50,10 +50,10 @@ export default function QuestionView({
                 borderRadius: 8,
                 backgroundColor:
                   isSelected && !isLocked
-                    ? "#7c3aed"
+                    ? "#FF4457"
                     : isSelected
-                    ? "#8b5cf6"
-                    : "rgb(40, 40, 40)",
+                    ? "#FF4457"
+                    : "#262C34",
                 marginBottom: 8,
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -62,11 +62,11 @@ export default function QuestionView({
                 borderColor: !isLocked
                   ? "transparent"
                   : isSelected
-                  ? "#8b5cf6"
-                  : "rgb(80, 80, 80)",
+                  ? "#FF4457"
+                  : "#3C444F",
               }}
             >
-              <Text style={{ color: "white" }}>{option.label}</Text>
+              <Text style={{ color: "#FFFFFF" }}>{option.label}</Text>
             </TouchableOpacity>
           )
         })}
