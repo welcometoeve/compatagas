@@ -61,7 +61,12 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         .channel("FriendAnswer")
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "FriendAnswer" },
+          {
+            event: "*",
+            schema: "public",
+            table: "FriendAnswer",
+            filter: "deleted=eq.false",
+          },
           (payload) => {
             const newAnswer = payload.new as FriendAnswer
             setAnswers((prevAnswers) => {
@@ -95,7 +100,11 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase.from("FriendAnswer").select("*")
+    const { data, error } = await supabase
+      .from("FriendAnswer")
+      .select("*")
+      .eq("deleted", false)
+
 
     if (error) {
       console.error("Error fetching friend answers:", error)

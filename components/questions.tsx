@@ -24,7 +24,7 @@ export type Question = {
 
 export const musicQuiz: Quiz = {
   id: 3,
-  name: "How Basic is Your Music Taste?",
+  name: "Music Pack",
   src: require("../assets/images/musicQuiz.webp"),
   leftLabel: "Not Basic",
   rightLabel: "Basic",
@@ -32,7 +32,7 @@ export const musicQuiz: Quiz = {
 
 export const chadQuiz: Quiz = {
   id: 4,
-  name: "How Chad are You?",
+  name: "Chad Pack",
   src: require("../assets/images/chadQuiz.webp"),
   leftLabel: "Not Chad",
   rightLabel: "Chad",

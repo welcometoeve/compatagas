@@ -105,7 +105,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   const fetchAllUsers = async () => {
-    const { data, error } = await supabase.from("User").select("*")
+    const { data, error } = await supabase
+      .from("User")
+      .select("*")
+      .eq("deleted", false)
+
     if (error) {
       console.error("Error fetching users:", error)
     } else {

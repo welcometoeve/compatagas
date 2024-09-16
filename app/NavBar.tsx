@@ -21,13 +21,13 @@ interface TabItem {
 
 const tabs: TabItem[] = [
   {
-    name: "Quizzes",
+    name: "Questions About You",
     page: "quizzes",
     activeIcon: "document-text",
     inactiveIcon: "document-text-outline",
   },
   {
-    name: "Questions",
+    name: "Questions About Friends",
     page: "questions",
     activeIcon: "questioncircle",
     inactiveIcon: "questioncircleo",
@@ -62,78 +62,118 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
   ).length
 
   return (
-    <View style={styles.container}>
-      {tabs.map((tab) => (
-        <TouchableOpacity
-          key={tab.name}
-          style={styles.tabItem}
-          onPress={() => setPage(tab.page)}
-        >
-          <View style={styles.iconContainer}>
-            {tab.name === "Questions" ? (
-              <AntDesign
-                name={
-                  (page === tab.page
-                    ? tab.activeIcon
-                    : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
-                }
-                size={24}
-                color={page === tab.page ? "white" : "#8E8E93"}
-              />
-            ) : tab.name === "Quizzes" ? (
-              <Ionicons
-                name={
-                  (page === tab.page
-                    ? tab.activeIcon
-                    : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
-                }
-                size={28}
-                color={page === tab.page ? "white" : "#8E8E93"}
-              />
-            ) : (
-              <FontAwesome
-                name={
-                  (page === tab.page
-                    ? tab.activeIcon
-                    : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
-                }
-                size={26}
-                color={page === tab.page ? "white" : "#8E8E93"}
-              />
-            )}
-            {tab.name === "Results" && (
-              <View style={styles.notificationDotContainer}>
-                <NotificationDot
-                  count={numTheirNotifications + numYourNotifications}
-                />
-              </View>
-            )}
-          </View>
-          <Text
+    <View style={[styles.container]}>
+      <View style={[styles.tabContainer]}>
+        {tabs.map((tab, index) => (
+          <TouchableOpacity
+            key={tab.name}
             style={[
-              styles.tabText,
-              { color: page === tab.page ? "white" : "#8E8E93" },
+              styles.tabItem,
+              index === 0 && styles.leftTabItem,
+              index === 1 && styles.centerTabItem,
+              index === 2 && styles.rightTabItem,
+              {
+                paddingTop:
+                  tab.page === "results"
+                    ? 5
+                    : tab.page === "questions"
+                    ? 15
+                    : 20,
+              },
             ]}
+            onPress={() => setPage(tab.page)}
           >
-            {tab.name}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <View
+              style={[
+                styles.iconContainer,
+                { marginTop: tab.page === "results" ? -15 : 0 },
+              ]}
+            >
+              {tab.page === "questions" ? (
+                <AntDesign
+                  name={
+                    (page === tab.page
+                      ? tab.activeIcon
+                      : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
+                  }
+                  size={24}
+                  color={page === tab.page ? "white" : "#8E8E93"}
+                />
+              ) : tab.page === "quizzes" ? (
+                <Ionicons
+                  name={
+                    (page === tab.page
+                      ? tab.activeIcon
+                      : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
+                  }
+                  size={28}
+                  color={page === tab.page ? "white" : "#8E8E93"}
+                />
+              ) : (
+                <FontAwesome
+                  name={
+                    (page === tab.page
+                      ? tab.activeIcon
+                      : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
+                  }
+                  size={26}
+                  color={page === tab.page ? "white" : "#8E8E93"}
+                />
+              )}
+              {tab.page === "results" && (
+                <View style={styles.notificationDotContainer}>
+                  <NotificationDot
+                    count={numTheirNotifications + numYourNotifications}
+                  />
+                </View>
+              )}
+            </View>
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: page === tab.page ? "white" : "#8E8E93",
+                  width: 80,
+                  textAlign: "center",
+                },
+              ]}
+            >
+              {tab.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
     backgroundColor: "black",
     paddingTop: 15,
     paddingBottom: 45,
   },
+  tabContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    height: 50, // Adjust this value as needed
+  },
   tabItem: {
     alignItems: "center",
+    justifyContent: "center",
+  },
+  leftTabItem: {
+    position: "absolute",
+    left: 20,
+  },
+  centerTabItem: {
+    // Center tab doesn't need additional styling
+  },
+  rightTabItem: {
+    position: "absolute",
+    right: 20,
   },
   tabText: {
     fontSize: 12,

@@ -21,6 +21,7 @@ export type SelfAnswer = {
   questionId: number
   optionIndex: number
   quizId: number
+  deleted: boolean
 }
 
 type SelfAnswerContextType = {
@@ -59,21 +60,41 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         .channel("SelfAnswer")
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "SelfAnswer" },
+          {
+            event: "*",
+            schema: "public",
+            table: "SelfAnswer",
+            filter: "deleted=eq.false",
+          },
           (payload) => {
             const newAnswer = payload.new as SelfAnswer
-            setAnswers((prevAnswers) => {
-              // Check if the answer already exists
-              const exists = prevAnswers.some(
-                (a) =>
-                  a.userId === newAnswer.userId &&
-                  a.questionId === newAnswer.questionId
+            if (
+              payload.eventType === "INSERT" ||
+              payload.eventType === "UPDATE"
+            ) {
+              setAnswers((prevAnswers) => {
+                const index = prevAnswers.findIndex(
+                  (a) =>
+                    a.userId === newAnswer.userId &&
+                    a.questionId === newAnswer.questionId
+                )
+                if (index === -1) {
+                  return [...prevAnswers, newAnswer]
+                } else {
+                  const updatedAnswers = [...prevAnswers]
+                  updatedAnswers[index] = newAnswer
+                  return updatedAnswers
+                }
+              })
+            } else if (payload.eventType === "DELETE") {
+              setAnswers((prevAnswers) =>
+                prevAnswers.filter(
+                  (a) =>
+                    a.userId !== newAnswer.userId ||
+                    a.questionId !== newAnswer.questionId
+                )
               )
-              if (!exists) {
-                return [...prevAnswers, newAnswer]
-              }
-              return prevAnswers
-            })
+            }
           }
         )
         .subscribe()
@@ -92,7 +113,10 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase.from("SelfAnswer").select("*")
+    const { data, error } = await supabase
+      .from("SelfAnswer")
+      .select("*")
+      .eq("deleted", false)
 
     if (error) {
       console.error("Error fetching self answers:", error)
@@ -116,7 +140,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       return "Answer already exists for this user and question"
     }
 
-    const newAnswer: Omit<SelfAnswer, "id"> = {
+    const newAnswer: Omit<SelfAnswer, "id" | "deleted"> = {
       userId: user.id,
       questionId,
       optionIndex,
@@ -125,12 +149,13 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const { data, error } = await supabase
       .from("SelfAnswer")
-      .insert(newAnswer)
+      .insert({ ...newAnswer, deleted: false })
       .select()
 
     if (error) {
       throw new Error("Failed to add self answer")
     } else if (data) {
+      // Handle successful insertion if needed
     }
   }
 

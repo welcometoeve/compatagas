@@ -181,6 +181,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             event: "*",
             schema: "public",
             table: "Notification",
+            filter: "deleted=eq.false",
           },
           (payload) => {
             fetchNotifications()

@@ -41,6 +41,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
         .from("User")
         .select("*")
         .neq("id", user.id)
+        .eq("deleted", false)
 
       if (error) throw error
 
