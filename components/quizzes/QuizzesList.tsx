@@ -1,20 +1,20 @@
-import { questions, Quiz, quizzes } from "@/components/questions"
-import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import { useUser } from "@/contexts/UserContext"
 import React from "react"
 import {
   View,
   Text,
   Image,
-  FlatList,
+  ScrollView,
   StyleSheet,
   Dimensions,
-  ListRenderItem,
   TouchableOpacity,
 } from "react-native"
+import { questions, Quiz, quizzes } from "@/components/questions"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { useUser } from "@/contexts/UserContext"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const { width } = Dimensions.get("window")
-const columnWidth = width / 2 - 15 // 15 is the total horizontal padding
+const columnWidth = width / 2 - 20
 
 type QuizItemProps = {
   item: Quiz
@@ -33,7 +33,7 @@ const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
   )
   return (
     <TouchableOpacity style={styles.quizItem} onPress={onPress}>
-      <Image source={item.src} style={[styles.quizImage]} />
+      <Image source={item.src} style={styles.quizImage} />
       <Text style={styles.quizTitle}>{item.name}</Text>
       {answered && (
         <View style={styles.doneOverlay}>
@@ -48,50 +48,58 @@ type QuizzesViewProps = {
   setCurQuizId: (id: number) => void
 }
 
-const QuizList: React.FC<QuizzesViewProps> = ({
-  setCurQuizId,
-}: QuizzesViewProps) => {
-  const renderItem: ListRenderItem<Quiz> = ({ item }) => (
-    <QuizItem
-      item={item}
-      onPress={() => {
-        setCurQuizId(item.id)
-      }}
-    />
-  )
-
+const QuizList: React.FC<QuizzesViewProps> = ({ setCurQuizId }) => {
   return (
-    <>
-      <Text style={styles.title}>Question Packs</Text>
-      <Text style={styles.subtitle}>
-        Answer questions about yourself. Once your friends have answered those
-        questions in the stack, you can see what they said.
-      </Text>
-      <FlatList<Quiz>
-        data={quizzes}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.list}
-      />
-    </>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>Question Packs</Text>
+        <Text style={styles.subtitle}>
+          Answer questions about yourself. Once your friends have answered those
+          questions in the stack, you can see what they said.
+        </Text>
+      </View>
+      <View style={styles.quizGrid}>
+        {quizzes.map((quiz) => (
+          <QuizItem
+            key={quiz.id}
+            item={quiz}
+            onPress={() => setCurQuizId(quiz.id)}
+          />
+        ))}
+      </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  list: {
+  container: {
     flex: 1,
-    padding: 5,
-    backgroundColor: "#111419", // Dark background for the entire list
+    backgroundColor: "#FFFFFF",
   },
-  row: {
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
+  header: {
+    padding: 20,
+  },
+  quizGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
+    paddingHorizontal: 10,
   },
   quizItem: {
     width: columnWidth,
-    marginBottom: 10,
-    backgroundColor: "#1E1E1E",
+    marginBottom: 20,
+    backgroundColor: "#F0F0F0",
     borderRadius: 8,
     overflow: "hidden",
     position: "relative",
@@ -102,26 +110,25 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   quizTitle: {
-    color: "#FFFFFF",
+    color: "#333333",
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
     padding: 8,
   },
   title: {
-    marginTop: 80,
+    marginTop: 60,
     fontSize: 38,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "black",
     textAlign: "center",
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: "#79818D",
+    color: "gray",
     textAlign: "center",
-    marginBottom: 40,
-    paddingHorizontal: 20,
+    marginBottom: 20,
     fontWeight: "bold",
   },
   doneOverlay: {
@@ -135,7 +142,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
   doneText: {
-    color: "#FFFFFF",
+    color: "white",
     fontSize: 24,
     fontWeight: "bold",
   },

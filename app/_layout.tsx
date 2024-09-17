@@ -29,6 +29,7 @@ import {
 } from "@/contexts/SelfAnswerContext"
 import { ResultsView } from "./(tabs)/ResultsView"
 import { NotificationProvider } from "@/contexts/NotificationContext"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 SplashScreen.preventAutoHideAsync()
 
