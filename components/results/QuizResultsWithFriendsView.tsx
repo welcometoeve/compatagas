@@ -27,6 +27,16 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
     ? quiz.resultLabels[getResultLabel(quizResult)]
     : null
 
+  // Group results by their value
+  const groupedResults = results.reduce((acc, result) => {
+    const key = result.value.toString()
+    if (!acc[key]) {
+      acc[key] = []
+    }
+    acc[key].push(result)
+    return acc
+  }, {} as Record<string, Result[]>)
+
   return (
     <View style={styles.container}>
       <View style={styles.resultContainer}>
@@ -46,18 +56,29 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
             end={{ x: 1, y: 0 }}
             style={styles.sliderBackground}
           />
-          <View style={[styles.sliderThumb, { left: `${sliderPosition}%` }]} />
-          {results.map((result) => {
-            const friendPosition = ((result.value + 1) / 2) * 100
+          <View style={[{ left: `${sliderPosition}%` }]} />
+          {Object.entries(groupedResults).map(([value, groupResults]) => {
+            const friendPosition = ((parseFloat(value) + 1) / 2) * 100
+            const names = groupResults.map((r) => r.name).join(", ")
+
             return (
-              <View
-                key={result.id}
-                style={[
-                  styles.friendDot,
-                  { left: `${friendPosition}%` },
-                  result.isSelf ? styles.selfDot : null,
-                ]}
-              />
+              <React.Fragment key={value}>
+                {groupResults.map((result) => (
+                  <View
+                    key={result.id}
+                    style={[
+                      styles.friendDot,
+                      { left: `${friendPosition}%` },
+                      // result.isSelf ? styles.selfDot : null,
+                    ]}
+                  />
+                ))}
+                <Text
+                  style={[styles.resultName, { left: `${friendPosition}%` }]}
+                >
+                  {names}
+                </Text>
+              </React.Fragment>
             )
           })}
         </View>
@@ -142,22 +163,22 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 12,
   },
-  sliderThumb: {
-    position: "absolute",
-    top: -4,
-    transform: [{ translateX: -16 }],
-    width: 32,
-    height: 32,
-    backgroundColor: "#1E90FF",
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 3,
-  },
+  // sliderThumb: {
+  //   position: "absolute",
+  //   top: -4,
+  //   transform: [{ translateX: -16 }],
+  //   width: 32,
+  //   height: 32,
+  //   backgroundColor: "#1E90FF",
+  //   borderRadius: 16,
+  //   borderWidth: 2,
+  //   borderColor: "#FFFFFF",
+  //   shadowColor: "#000",
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.1,
+  //   shadowRadius: 3.84,
+  //   elevation: 3,
+  // },
   friendDot: {
     position: "absolute",
     top: 0,
@@ -171,6 +192,15 @@ const styles = StyleSheet.create({
     zIndex: 2,
     borderWidth: 2,
     borderColor: "#FFFFFF",
+  },
+  resultName: {
+    position: "absolute",
+    top: 24,
+    color: "#333333",
+    fontSize: 12,
+    marginLeft: -50,
+    textAlign: "center",
+    width: 100,
   },
   friendsResultContainer: {
     marginTop: 24,
