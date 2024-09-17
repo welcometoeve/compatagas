@@ -87,7 +87,7 @@ export const musicQuiz: Quiz = {
   id: 3,
   name: "Music Pack",
   subtitle: "Are your music tastes basic?",
-  src: require("../assets/images/musicQuiz.webp"),
+  src: require("../assets/images/musicQuiz.jpeg"),
   leftLabel: "Not Basic",
   rightLabel: "Basic",
   resultLabels: [

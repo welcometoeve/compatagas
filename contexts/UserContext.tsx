@@ -8,12 +8,15 @@ import {
 import { createClient } from "@supabase/supabase-js"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { SupabaseKey, SupabaseUrl } from "@/constants"
+import * as Notifications from "expo-notifications"
+import { Alert } from "react-native"
 
 // Define types
 export type UserProfile = {
   id: number
   phoneNumber: number
   name: string | null
+  notificationToken?: string
 }
 
 type UserContextType = {
@@ -23,6 +26,7 @@ type UserContextType = {
   signingUp: boolean
   createUser: (phoneNumber: number, name: string) => Promise<UserProfile>
   clearUser: () => void
+  requestNotificationPermission: () => Promise<void>
 }
 
 // Create Supabase client
@@ -66,7 +70,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   ): Promise<UserProfile> => {
     setSigningUp(true)
     try {
-      // First, try to fetch the user
       const { data: existingUser, error: fetchError } = await supabase
         .from("User")
         .select("*")
@@ -74,18 +77,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         .single()
 
       if (fetchError && fetchError.code !== "PGRST116") {
-        // PGRST116 is the error code for "Results contain 0 rows"
         throw new Error("Failed to check for existing user")
       }
 
       if (existingUser) {
-        // User already exists, return the existing user
         setUser(existingUser)
         await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
         return existingUser
       }
 
-      // User doesn't exist, insert a new user
       const { data: newUser, error: insertError } = await supabase
         .from("User")
         .insert({ phoneNumber: phoneNumber, name: name })
@@ -117,6 +117,38 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
   }
 
+  const requestNotificationPermission = async () => {
+    console.log("Requesting notification permission")
+    const { status: existingStatus } = await Notifications.getPermissionsAsync()
+    let finalStatus = existingStatus
+
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync()
+      finalStatus = status
+    }
+
+    if (finalStatus !== "granted") {
+      Alert.alert("Failed to get push notification permissions")
+      return
+    }
+
+    const token = (await Notifications.getExpoPushTokenAsync()).data
+
+    if (user) {
+      const { error } = await supabase
+        .from("User")
+        .update({ notificationToken: token })
+        .eq("id", user.id)
+
+      if (error) {
+        console.error("Error saving notification token:", error)
+        Alert.alert("Failed to save notification token")
+      } else {
+        setUser({ ...user, notificationToken: token })
+      }
+    }
+  }
+
   useEffect(() => {
     const initializeUser = async () => {
       setAuthenticating(true)
@@ -133,14 +165,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
     initializeUser()
 
-    // Set up real-time subscription
     const subscription = supabase
       .channel("public:User")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "User" },
         (payload) => {
-          fetchAllUsers() // Refetch all users when there's a change
+          fetchAllUsers()
         }
       )
       .subscribe()
@@ -159,6 +190,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         signingUp,
         createUser,
         clearUser: () => setUser(null),
+        requestNotificationPermission,
       }}
     >
       {children}

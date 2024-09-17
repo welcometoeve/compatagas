@@ -32,7 +32,7 @@ export const CardContents: React.FC<CardContentsProps> = ({
     {isLoading ? (
       <Text style={styles.loadingText}>Loading...</Text>
     ) : (
-      <View style={{ width: "100%", paddingHorizontal: 20 }}>
+      <View style={{ width: "100%", paddingHorizontal: 5 }}>
         {question?.options.map((option, index) => (
           <TouchableOpacity
             key={index}
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: "#333333",
     width: "100%",
-    paddingHorizontal: 30,
+    paddingHorizontal: 5,
     fontWeight: "bold",
   },
   button: {

@@ -13,8 +13,11 @@
       "backgroundColor": "white"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.maayanalbert.compatagas"
+      "supportsTablet": false,
+      "bundleIdentifier": "com.maayanalbert.compatagas",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -29,7 +32,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#ffffff"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

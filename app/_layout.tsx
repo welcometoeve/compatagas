@@ -7,7 +7,7 @@ import {
 import { useFonts } from "expo-font"
 import * as SplashScreen from "expo-splash-screen"
 import "react-native-reanimated"
-import { View, Button, AppState, StyleSheet } from "react-native"
+import { View, Button, AppState, StyleSheet, Alert } from "react-native"
 import * as Updates from "expo-updates"
 import { StatusBar } from "expo-status-bar"
 
@@ -43,7 +43,8 @@ function RootLayout() {
   const [isDebugVisible, setIsDebugVisible] = useState<boolean>(false)
   const [update, setUpdate] = useState<Updates.UpdateCheckResult | null>(null)
   const [updateString, setUpdateString] = useState<string>("")
-  const { user, authenticating, signingUp } = useUser()
+  const { user, authenticating, signingUp, requestNotificationPermission } =
+    useUser()
   const { refreshFriends, error: friendsError, friends } = useFriends()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchFriendAnswers } =
@@ -80,10 +81,17 @@ function RootLayout() {
   }, [])
 
   useEffect(() => {
-    if (user && !authenticating && !signingUp) {
+    if (!!user && !authenticating && !signingUp) {
       refreshFriends()
+      requestNotificationPermission().catch((error) => {
+        console.error("Error requesting notification permission:", error)
+        Alert.alert(
+          "Notification Permission",
+          "We couldn't enable notifications. You can enable them in your device settings if you'd like to receive updates."
+        )
+      })
     }
-  }, [user, authenticating, signingUp])
+  }, [!!user, authenticating, signingUp])
 
   useEffect(() => {
     if (friendsError || fetchAnswersError || fetchSelfAnswersError) {
