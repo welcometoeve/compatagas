@@ -257,7 +257,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           <ResultSlider quiz={quiz} quizResult={quizResult} />
         )}
 
-        {submitSuccess && friendsWhoTookQuiz.length > 0 ? (
+        {quizResult && friendsWhoTookQuiz.length > 0 ? (
           <CustomAlert
             title="Some friends have taken this pack! Go to results to see how they compare."
             description=""
@@ -266,7 +266,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               (f) => allUsers.find((u) => u.id === f)?.name ?? ""
             )}
           />
-        ) : submitSuccess ? (
+        ) : quizResult ? (
           <CustomAlert
             title="Wait for your friends to take this pack to see how you compare."
             description=""
