@@ -27,11 +27,13 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
       (activeTab === "your" &&
         n.selfOpened === false &&
         n.selfId === user?.id &&
-        item.friendIds.includes(n.friendId)) ||
+        item.friendIds.includes(n.friendId) &&
+        n.quizId === item.quiz.id) ||
       (activeTab === "their" &&
         n.friendOpened === false &&
         n.friendId === user?.id &&
-        n.selfId === item.selfId)
+        n.selfId === item.selfId &&
+        n.quizId === item.quiz.id)
   )
 
   const triggerHaptic = async () => {
@@ -50,28 +52,35 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
         relevantNs.forEach((notification) =>
           markAsOpened(notification, activeTab === "your")
         )
-        relevantNs.length > 0 && (await triggerHaptic())
+        // relevantNs.length > 0 && (await triggerHaptic())
       }}
     >
-      <View style={styles.notificationContainer}>
+      <View style={styles.imageContainer}>
+        <Image source={item.quiz.src} style={styles.quizImage} />
         {relevantNs.length > 0 && (
-          <NotificationDot count={1} showCount={false} />
+          <View style={styles.notificationContainer}>
+            <NotificationDot count={1} showCount={false} />
+          </View>
         )}
       </View>
-      <Image source={item.quiz.src} style={styles.quizImage} />
-      <View style={styles.quizInfo}>
-        <Text style={styles.quizTitle}>{item.quiz.name}</Text>
-        <Text style={styles.quizSubtitle}>
-          {activeTab === "your"
-            ? `Taken by ${item.friendIds
-                .map((id) => allUsers.find((user) => user?.id === id)?.name)
-                .join(", ")}`
-            : `Taken for ${
-                allUsers.find((user) => user?.id === item.selfId)?.name
-              }`}
-        </Text>
+
+      <View style={styles.contentContainer}>
+        <View style={styles.quizInfo}>
+          <Text style={styles.quizTitle}>{item.quiz.name}</Text>
+          <Text style={styles.quizSubtitle}>
+            {activeTab === "your"
+              ? `Taken by ${item.friendIds
+                  .map((id) => allUsers.find((user) => user?.id === id)?.name)
+                  .join(", ")}`
+              : `Taken for ${
+                  allUsers.find((user) => user?.id === item.selfId)?.name
+                }`}
+          </Text>
+        </View>
+        <View style={styles.chevronContainer}>
+          <ChevronRight color="#000" size={24} />
+        </View>
       </View>
-      <ChevronRight color="#fff" size={24} />
     </TouchableOpacity>
   )
 }
@@ -80,37 +89,58 @@ const styles = StyleSheet.create({
   quizItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#3C444F",
-    height: 100,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: "#FFFFFF",
+    marginVertical: 5,
+    height: 120, // Fixed height for consistent sizing
   },
-  notificationContainer: {
-    width: 20,
-    marginRight: 15,
-    marginLeft: -20,
-    alignItems: "center",
+  imageContainer: {
+    width: 100,
+    height: 100,
     justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
   },
   quizImage: {
-    width: 60,
-    height: 60,
-    marginRight: 15,
+    width: 90,
+    height: 90,
     borderRadius: 5,
+  },
+  contentContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingLeft: 0,
+    borderBottomWidth: 1,
+    height: 130,
+    borderBottomColor: "#E0E0E0",
   },
   quizInfo: {
     flex: 1,
     justifyContent: "center",
   },
   quizTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#000",
     marginBottom: 5,
   },
   quizSubtitle: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#79818D",
+  },
+  chevronContainer: {
+    width: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notificationContainer: {
+    position: "absolute",
+    top: 40,
+    right: -7,
   },
 })
 

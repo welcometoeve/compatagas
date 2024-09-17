@@ -16,7 +16,8 @@ const NotificationDot: React.FC<NotificationDotProps> = ({
     <View
       style={[
         styles.notificationDot,
-        !showCount ? { width: 17, height: 17 } : {},
+        !showCount ? { width: 25, height: 25 } : {},
+        !showCount ? { borderColor: "white", borderWidth: 3 } : {},
       ]}
     >
       {showCount && <Text style={styles.notificationText}>{count}</Text>}
@@ -26,8 +27,8 @@ const NotificationDot: React.FC<NotificationDotProps> = ({
 
 const styles = StyleSheet.create({
   notificationDot: {
-    backgroundColor: "#FF4457", // Purple color
-    borderRadius: 10,
+    backgroundColor: "#FF4457",
+    borderRadius: 30,
     width: 20,
     height: 20,
     justifyContent: "center",

@@ -77,10 +77,10 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               {
                 paddingTop:
                   tab.page === "results"
-                    ? 5
+                    ? 2
                     : tab.page === "questions"
                     ? 17
-                    : 20,
+                    : 5,
               },
             ]}
             onPress={() => setPage(tab.page)}
@@ -94,9 +94,9 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               {tab.page === "questions" ? (
                 <View style={styles.flippedIcon}>
                   {page === tab.page ? (
-                    <RectangleStackIconSolid color={"#007AFF"} size={24} />
+                    <RectangleStackIconSolid color={"#007AFF"} size={28} />
                   ) : (
-                    <RectangleStackIconOutline color={"#8E8E93"} size={24} />
+                    <RectangleStackIconOutline color={"#8E8E93"} size={28} />
                   )}
                 </View>
               ) : tab.page === "quizzes" ? (
@@ -149,9 +149,11 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F2F2F7",
-    paddingTop: 15,
+    backgroundColor: "rgba(255, 255, 255)",
+    paddingTop: 25,
     paddingBottom: 45,
+    borderTopColor: "#E0E0E0",
+    borderTopWidth: 1,
   },
   tabContainer: {
     flexDirection: "row",

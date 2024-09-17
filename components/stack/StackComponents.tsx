@@ -40,7 +40,8 @@ export const CardContents: React.FC<CardContentsProps> = ({
             onPress={() => handleAnswer(index)}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>{option.label}</Text>
+            <Text style={styles.buttonText}>{`${option.emoji}`}</Text>
+            <Text style={styles.buttonText}> {option.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -64,8 +65,6 @@ export const CardStack: React.FC<CardStackProps> = ({
   slideAnimation,
 }) => (
   <View style={styles.cardStack}>
-    <View style={[styles.stackedCard, styles.bottomCard]} />
-    <View style={[styles.stackedCard, styles.middleCard]} />
     <View style={[styles.cardContainer, { position: "absolute" }]}>
       {renderCardContents(false)}
     </View>
@@ -104,24 +103,34 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   question: {
-    fontSize: 18,
-    textAlign: "center",
+    fontSize: 20,
+    textAlign: "left",
     marginBottom: 20,
     color: "#333333",
     width: "100%",
+    paddingHorizontal: 30,
+    fontWeight: "bold",
   },
   button: {
-    backgroundColor: "#FF4457",
     padding: 10,
-    borderRadius: 5,
-    marginVertical: 5,
+    borderRadius: 16,
+    marginVertical: 7,
     width: "100%",
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E0E0E0",
+    borderWidth: 1.5,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.15,
+    // shadowRadius: 3,
+    // elevation: 5,
   },
   buttonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
+    color: "black",
+    textAlign: "left",
+    fontSize: 20,
+    paddingVertical: 5,
   },
   loadingText: {
     color: "#666666",
@@ -181,17 +190,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 3,
     borderColor: "#E0E0E0",
     padding: 0,
     borderRadius: 30,
     paddingHorizontal: 0,
     backgroundColor: "#FFFFFF",
     zIndex: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 3,
   },
   contentContainer: {
@@ -208,12 +212,12 @@ const styles = StyleSheet.create({
   },
   explanationText: {
     fontSize: 16,
-    color: "#666666",
+    color: "rgb(150, 150, 150)",
     textAlign: "center",
     paddingVertical: 10,
     paddingHorizontal: 20,
     position: "absolute",
-    bottom: -20,
+    bottom: -10,
     width: "100%",
   },
 })

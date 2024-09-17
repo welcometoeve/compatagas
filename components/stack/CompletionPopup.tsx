@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons"
 import React from "react"
 import {
   View,
@@ -48,7 +49,8 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
           You've finished the {completedQuizName} for {completedFriendName}!
         </Text>
         <TouchableOpacity style={styles.continueButton} onPress={onContinue}>
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <Text style={styles.continueButtonText}>View Results</Text>
+          <Ionicons name="chevron-forward" size={24} color="white" />
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -85,7 +87,7 @@ const styles = StyleSheet.create({
   completionTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FF4457",
+    color: "black",
     marginBottom: 10,
   },
   completionText: {
@@ -98,6 +100,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF4457",
     padding: 12,
     borderRadius: 8,
+    flexDirection: "row",
   },
   continueButtonText: {
     color: "white",
