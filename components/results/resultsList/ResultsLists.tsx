@@ -99,7 +99,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
   )
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, activeTab === "your" && styles.activeTab]}
@@ -144,7 +144,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
           </Text>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
-    paddingTop: 30,
+    paddingTop: 20,
     marginBottom: 20,
   },
   tab: {

@@ -20,6 +20,7 @@ import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
 import * as Haptics from "expo-haptics"
 import collect from "@/components/collect"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 export type SelfAnswer = {
   id: number
@@ -201,7 +202,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 24, paddingBottom: 20 }}
@@ -327,7 +328,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           />
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   )
 }
 

@@ -17,6 +17,7 @@ import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import QuestionResultView from "./QuestionResultView"
 import collect from "../collect"
 import QuizResultsWithFriendsView from "./QuizResultsWithFriendsView"
+import convertSecondToThirdPerson from "../covertSecondToThirdPerson"
 
 type QuizResultsViewProps = {
   quiz: Quiz
@@ -32,6 +33,7 @@ type Result = {
   name: string
   value: number
   isSelf: boolean
+  correctPercentage?: number
 }
 
 const QuizResultsView: React.FC<QuizResultsViewProps> = ({
@@ -136,10 +138,17 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
     })
   }, [selfAnswers, friendAnswers, quiz.id, selfId])
 
-  const handleOptionSelect = (questionId: number, optionIndex: number) => {
-    // This function is now a no-op since answers are locked in the results view
-    console.log("Option selected:", questionId, optionIndex)
-  }
+  const resultsWithCorrectness = results.map((result) => {
+    const correctnessScore = correctnessScores.find(
+      (score) => score.friendId === result.id
+    )
+    return {
+      ...result,
+      correctPercentage: correctnessScore
+        ? correctnessScore.score * 100
+        : undefined,
+    }
+  })
 
   const quizSelfAnswers =
     quizType == "your"
@@ -154,13 +163,18 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
       ? "Your"
       : `${allUsers.find((u) => u.id === selfId)?.name}'s` || "Friend"
 
+  const plainUserName =
+    selfId === user?.id
+      ? "you"
+      : `${allUsers.find((u) => u.id === selfId)?.name}` || "Friend"
+
   const quizFriendAnswers = collect(
     friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quiz.id),
     ["questionId"]
   )
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
@@ -175,33 +189,19 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
             style={styles.quizImage}
             resizeMode="cover"
           />
-          <Text style={styles.quizTitle}>{quiz.name}</Text>
-          <Text style={styles.quizSubtitle}>{quiz.subtitle}</Text>
+          <Text style={styles.quizTitle}>{`${userName} ${quiz.name}`}</Text>
+          <Text style={styles.quizSubtitle}>
+            {quizType === "your"
+              ? quiz.subtitle
+              : convertSecondToThirdPerson(quiz.subtitle, plainUserName)}
+          </Text>
         </View>
 
         <QuizResultsWithFriendsView
           quiz={quiz}
-          results={results}
-          quizResult={results.find((r) => r.isSelf)?.value || 0}
+          results={resultsWithCorrectness}
+          quizResult={resultsWithCorrectness.find((r) => r.isSelf)?.value || 0}
         />
-
-        <View style={styles.friendScores}>
-          {correctnessScores.map((score) => {
-            const friend = allUsers.find((u) => u.id === score.friendId)
-            const title =
-              score.friendId === user?.id
-                ? "Your Score:"
-                : `${friend?.name || "Unknown"}'s Score:`
-            return (
-              <View key={score.friendId} style={styles.friendScore}>
-                <Text style={styles.friendName}>{title}</Text>
-                <Text style={styles.friendScoreValue}>{`${(
-                  score.score * 100
-                ).toFixed(0)}%`}</Text>
-              </View>
-            )
-          })}
-        </View>
 
         {questions.map((question) => (
           <QuestionResultView
@@ -228,7 +228,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -271,31 +271,6 @@ const styles = StyleSheet.create({
     color: "#666666",
     textAlign: "center",
     marginTop: 8,
-  },
-  friendScores: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginBottom: 24,
-    marginTop: 24,
-  },
-  friendScore: {
-    alignItems: "center",
-    margin: 8,
-    backgroundColor: "#F0F0F0",
-    padding: 16,
-    borderRadius: 8,
-  },
-  friendName: {
-    color: "#000000",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  friendScoreValue: {
-    color: "#007AFF",
-    fontSize: 18,
-    fontWeight: "bold",
   },
   backToQuizzesButton: {
     marginTop: 24,

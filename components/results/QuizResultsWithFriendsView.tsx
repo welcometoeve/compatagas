@@ -66,11 +66,16 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
         {results.map((result) => (
           <View key={result.id} style={styles.friendResult}>
             <Text style={styles.friendName}>{result.name}</Text>
-            {result.correctPercentage !== undefined && (
-              <Text style={styles.friendScore}>
-                {`${result.correctPercentage.toFixed(0)}% correct`}
+            <View style={styles.scoreContainer}>
+              {result.correctPercentage !== undefined && (
+                <Text style={styles.friendScore}>
+                  {`${result.correctPercentage.toFixed(0)}% correct`}
+                </Text>
+              )}
+              <Text style={styles.friendValue}>
+                {`${(((result.value + 1) / 2) * 100).toFixed(0)}%`}
               </Text>
-            )}
+            </View>
           </View>
         ))}
       </View>
@@ -180,7 +185,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333333",
   },
+  scoreContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   friendScore: {
+    fontSize: 14,
+    color: "#666666",
+    marginRight: 8,
+  },
+  friendValue: {
     fontSize: 16,
     color: "#FF4457",
     fontWeight: "bold",

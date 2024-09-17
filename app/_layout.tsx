@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     top: 50,
     right: 10,
     zIndex: 1000,
-    // opacity: 0, // Removed to make debug button visible
+    opacity: 0, // Removed to make debug button visible
   },
   fullPageView: {
     ...StyleSheet.absoluteFillObject,

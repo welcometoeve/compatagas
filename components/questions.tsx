@@ -39,7 +39,7 @@ export const styleQuiz: Quiz = {
   id: 5,
   name: "Style Pack",
   subtitle: "How stylish are you?",
-  src: require("../assets/images/stylePack.png"),
+  src: require("../assets/images/stylePack.jpg"),
   leftLabel: "Casual",
   rightLabel: "Fashionista",
   resultLabels: [
