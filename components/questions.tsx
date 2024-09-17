@@ -1,11 +1,18 @@
 import { ImageSourcePropType } from "react-native"
 
+export type ResultLabel = {
+  label: string
+  emoji: string
+}
+
 export type Quiz = {
   id: number
   name: string
   src: ImageSourcePropType
   leftLabel: string
   rightLabel: string
+  subtitle: string
+  resultLabels?: ResultLabel[]
 }
 
 export enum Side {
@@ -31,14 +38,23 @@ export type Question = {
 export const styleQuiz: Quiz = {
   id: 5,
   name: "Style Pack",
+  subtitle: "How stylish are you?",
   src: require("../assets/images/stylePack.png"),
   leftLabel: "Casual",
   rightLabel: "Fashionista",
+  resultLabels: [
+    { label: "Comfort First", emoji: "🛋️" },
+    { label: "Casual Chic", emoji: "😎" },
+    { label: "A Style Enthusiast", emoji: "🎨" },
+    { label: "A Trendsetter", emoji: "🌟" },
+    { label: "A Fashion Icon", emoji: "👑" },
+  ],
 }
 
 export const badPersonQuiz: Quiz = {
   id: 6,
   name: "Bad Person Pack",
+  subtitle: "Are you a bad person?",
   src: require("../assets/images/badPersonPack.webp"),
   leftLabel: "Saint",
   rightLabel: "Sinner",
@@ -47,6 +63,7 @@ export const badPersonQuiz: Quiz = {
 export const goodStudentQuiz: Quiz = {
   id: 7,
   name: "Good Student Pack",
+  subtitle: "Let's be honest",
   src: require("../assets/images/goodStudentPack.png"),
   leftLabel: "Slacker",
   rightLabel: "Overachiever",
@@ -55,6 +72,7 @@ export const goodStudentQuiz: Quiz = {
 export const musicQuiz: Quiz = {
   id: 3,
   name: "Music Pack",
+  subtitle: "Are your music tastes basic?",
   src: require("../assets/images/musicQuiz.webp"),
   leftLabel: "Not Basic",
   rightLabel: "Basic",
@@ -63,6 +81,7 @@ export const musicQuiz: Quiz = {
 export const chadQuiz: Quiz = {
   id: 4,
   name: "Chad Pack",
+  subtitle: "Are you a chad?",
   src: require("../assets/images/chadQuiz.webp"),
   leftLabel: "Not Chad",
   rightLabel: "Chad",

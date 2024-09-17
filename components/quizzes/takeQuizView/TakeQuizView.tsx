@@ -9,9 +9,9 @@ import {
   Image,
   ImageSourcePropType,
 } from "react-native"
-import { ChevronLeft } from "lucide-react-native"
+import { ChevronLeft, ChevronRight } from "lucide-react-native"
 import { Question, Quiz, Side } from "@/components/questions"
-import { useUser } from "@/contexts/UserContext"
+import { UserProfile, useUser } from "@/contexts/UserContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { CustomAlert } from "./CustomAlert"
 import QuestionView from "./QuestionView"
@@ -202,7 +202,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#111419" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 24, paddingBottom: 20 }}
@@ -216,7 +216,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             zIndex: 1,
           }}
         >
-          <ChevronLeft size={32} color="#FFFFFF" />
+          <ChevronLeft size={32} color="#000000" />
         </TouchableOpacity>
 
         <View style={{ marginBottom: 24, alignItems: "center" }}>
@@ -234,11 +234,21 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             style={{
               fontSize: 32,
               fontWeight: "bold",
-              color: "#FFFFFF",
+              color: "#000000",
               textAlign: "center",
             }}
           >
             {quiz.name}
+          </Text>
+          <Text
+            style={{
+              fontSize: 18,
+              color: "#666666",
+              textAlign: "center",
+              marginTop: 8,
+            }}
+          >
+            {quiz.subtitle}
           </Text>
         </View>
 
@@ -254,37 +264,24 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         ))}
 
         {quizResult !== null && (
-          <ResultSlider quiz={quiz} quizResult={quizResult} />
+          <ResultSlider
+            quiz={quiz}
+            quizResult={quizResult}
+            friendsWhoTookQuiz={friendsWhoTookQuiz}
+            allUsers={allUsers}
+            onPress={() => undefined}
+          />
         )}
-
-        {quizResult && friendsWhoTookQuiz.length > 0 ? (
-          <CustomAlert
-            title="Some friends have taken this pack! Go to results to see how they compare."
-            description=""
-            variant="friends"
-            friends={friendsWhoTookQuiz.map(
-              (f) => allUsers.find((u) => u.id === f)?.name ?? ""
-            )}
-          />
-        ) : quizResult ? (
-          <CustomAlert
-            title="Wait for your friends to take this pack to see how you compare."
-            description=""
-            variant="wait"
-            friends={friendsWhoTookQuiz.map(
-              (f) => allUsers.find((u) => u.id === f)?.name ?? ""
-            )}
-          />
-        ) : null}
 
         {quizResult === null ? (
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={!allQuestionsAnswered || isSubmitting}
             style={{
-              marginTop: 24,
+              marginTop: 0,
+              marginBottom: 15,
               backgroundColor:
-                allQuestionsAnswered && !isSubmitting ? "#FF4457" : "#3C444F",
+                allQuestionsAnswered && !isSubmitting ? "#007AFF" : "#E0E0E0",
               padding: 12,
               borderRadius: 8,
               alignItems: "center",
@@ -302,8 +299,8 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           <TouchableOpacity
             onPress={goBack}
             style={{
-              marginTop: 24,
-              backgroundColor: "#3C444F",
+              marginTop: 10,
+              backgroundColor: "#E0E0E0",
               padding: 12,
               borderRadius: 8,
               flexDirection: "row",
@@ -311,8 +308,8 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               justifyContent: "center",
             }}
           >
-            <ChevronLeft size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-            <Text style={{ color: "#FFFFFF", fontWeight: "bold" }}>Back</Text>
+            <ChevronLeft size={20} color="#000000" style={{ marginRight: 8 }} />
+            <Text style={{ color: "#000000", fontWeight: "bold" }}>Back</Text>
           </TouchableOpacity>
         )}
 
