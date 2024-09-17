@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   Image,
   ImageSourcePropType,
@@ -15,7 +14,7 @@ import { UserProfile, useUser } from "@/contexts/UserContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { CustomAlert } from "./CustomAlert"
 import QuestionView from "./QuestionView"
-import ResultSlider from "./ResultSlider"
+import ResultSlider from "./QuizResultsWithoutFriendsView"
 import { addSelfAnswerInitiatedNotification } from "@/contexts/addNotification"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/NotificationContext"
@@ -202,7 +201,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 24, paddingBottom: 20 }}
@@ -328,7 +327,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           />
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

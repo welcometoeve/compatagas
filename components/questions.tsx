@@ -58,6 +58,13 @@ export const badPersonQuiz: Quiz = {
   src: require("../assets/images/badPersonPack.webp"),
   leftLabel: "Saint",
   rightLabel: "Sinner",
+  resultLabels: [
+    { label: "Angel in Disguise", emoji: "😇" },
+    { label: "Mostly Good", emoji: "🤗" },
+    { label: "Morally Gray", emoji: "🤔" },
+    { label: "Troublemaker", emoji: "😈" },
+    { label: "Certified Villain", emoji: "🦹" },
+  ],
 }
 
 export const goodStudentQuiz: Quiz = {
@@ -67,6 +74,13 @@ export const goodStudentQuiz: Quiz = {
   src: require("../assets/images/goodStudentPack.png"),
   leftLabel: "Slacker",
   rightLabel: "Overachiever",
+  resultLabels: [
+    { label: "Professional Procrastinator", emoji: "😴" },
+    { label: "Casual Learner", emoji: "🙂" },
+    { label: "Balanced Student", emoji: "📚" },
+    { label: "Dedicated Scholar", emoji: "🤓" },
+    { label: "Academic Superstar", emoji: "🌟" },
+  ],
 }
 
 export const musicQuiz: Quiz = {
@@ -76,6 +90,13 @@ export const musicQuiz: Quiz = {
   src: require("../assets/images/musicQuiz.webp"),
   leftLabel: "Not Basic",
   rightLabel: "Basic",
+  resultLabels: [
+    { label: "Underground Music Aficionado", emoji: "🎧" },
+    { label: "Eclectic Listener", emoji: "🎵" },
+    { label: "Mainstream with a Twist", emoji: "🎶" },
+    { label: "Top 40 Enthusiast", emoji: "📻" },
+    { label: "Unapologetically Pop", emoji: "🎤" },
+  ],
 }
 
 export const chadQuiz: Quiz = {
@@ -85,6 +106,13 @@ export const chadQuiz: Quiz = {
   src: require("../assets/images/chadQuiz.webp"),
   leftLabel: "Not Chad",
   rightLabel: "Chad",
+  resultLabels: [
+    { label: "Definitely Not Chad", emoji: "🤓" },
+    { label: "Chad-Curious", emoji: "🤔" },
+    { label: "Chad in Training", emoji: "💪" },
+    { label: "Almost Chad", emoji: "😎" },
+    { label: "Ultimate Chad", emoji: "🏋️" },
+  ],
 }
 
 export const musicQuestions: Question[] = [

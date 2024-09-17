@@ -1,21 +1,19 @@
 import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { Question, Side } from "@/components/questions"
+import { Question } from "@/components/questions"
 import { SelfAnswer } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 
-type QuestionViewProps = {
+type QuestionResultViewProps = {
   question: Question
   selfAnswer: SelfAnswer
   friendAnswers: FriendAnswer[]
   lockedAnswers: Set<number>
-  handleOptionSelect: (questionId: number, optionIndex: number) => void
-  index: number
   quizType: "your" | "their"
 }
 
-const QuestionView: React.FC<QuestionViewProps> = ({
+const QuestionResultView: React.FC<QuestionResultViewProps> = ({
   question,
   selfAnswer,
   friendAnswers,
@@ -71,27 +69,26 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <TouchableOpacity
               key={`${question.id}-${optionIndex}`}
               disabled={isLocked}
-              style={{
-                padding: 12,
-                borderRadius: 8,
-                backgroundColor: isSelected ? "#FF4457" : "#262C34",
-                marginBottom: 8,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderWidth: 1,
-                borderColor: isSelectedByFriend ? "white" : "transparent",
-              }}
+              style={[
+                styles.optionButton,
+                isSelected && styles.selectedOption,
+                isSelectedByFriend && styles.selectedByFriendOption,
+              ]}
             >
-              <Text style={{ color: "#FFFFFF", flex: 1 }}>{option.label}</Text>
+              <Text
+                style={[
+                  styles.optionText,
+                  isSelected && styles.selectedOptionText,
+                ]}
+              >
+                {option.label}
+              </Text>
               {usersWhoSelected && (
                 <Text
-                  style={{
-                    color: "#FFFFFF",
-                    marginLeft: 8,
-                    textAlign: "right",
-                    flex: 1,
-                  }}
+                  style={[
+                    styles.usersText,
+                    isSelected && styles.selectedOptionText,
+                  ]}
                 >
                   {usersWhoSelected}
                 </Text>
@@ -107,16 +104,50 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 24,
+    backgroundColor: "#FFFFFF",
   },
   questionText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: "#333333",
     marginBottom: 8,
   },
   optionsContainer: {
     flexDirection: "column",
   },
+  optionButton: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#F0F0F0",
+    marginBottom: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  selectedOption: {
+    backgroundColor: "#75B7FF",
+    borderColor: "#75B7FF",
+    borderWidth: 2,
+  },
+  selectedByFriendOption: {
+    borderColor: "#007AFF",
+    borderWidth: 2,
+  },
+  optionText: {
+    color: "#333333",
+    flex: 1,
+  },
+  usersText: {
+    color: "#666666",
+    marginLeft: 8,
+    textAlign: "right",
+    flex: 1,
+  },
+  selectedOptionText: {
+    color: "#333333",
+  },
 })
 
-export default QuestionView
+export default QuestionResultView

@@ -217,7 +217,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     position: "absolute",
-    bottom: -10,
+    bottom: 0,
     width: "100%",
+    paddingBottom: 30,
   },
 })

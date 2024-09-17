@@ -1,31 +1,27 @@
 import React from "react"
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { ChevronRight } from "lucide-react"
+import { View, Text, StyleSheet } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
-import { UserProfile } from "@/contexts/UserContext"
 import { Quiz } from "@/components/questions"
 
-interface QuizResultsProps {
-  friendsWhoTookQuiz: number[]
-  allUsers: UserProfile[]
-  onPress: () => void
+type Result = {
+  id: number
+  name: string
+  value: number
+  isSelf: boolean
+  correctPercentage?: number
+}
+
+type QuizResultsWithFriendsViewProps = {
   quiz: Quiz
+  results: Result[]
   quizResult: number
 }
 
-const QuizResults: React.FC<QuizResultsProps> = ({
-  friendsWhoTookQuiz,
-  allUsers,
-  onPress,
+const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
   quiz,
+  results,
   quizResult,
 }) => {
-  const friendNames = friendsWhoTookQuiz
-    .map((f) => allUsers.find((u) => u.id === f)?.name ?? "")
-    .filter(Boolean)
-    .join(", ")
-  const verb = friendsWhoTookQuiz.length === 1 ? "has" : "have"
-
   const sliderPosition = ((quizResult + 1) / 2) * 100
   const resultLabel = quiz.resultLabels
     ? quiz.resultLabels[getResultLabel(quizResult)]
@@ -51,22 +47,33 @@ const QuizResults: React.FC<QuizResultsProps> = ({
             style={styles.sliderBackground}
           />
           <View style={[styles.sliderThumb, { left: `${sliderPosition}%` }]} />
+          {results.map((result) => {
+            const friendPosition = ((result.value + 1) / 2) * 100
+            return (
+              <View
+                key={result.id}
+                style={[
+                  styles.friendDot,
+                  { left: `${friendPosition}%` },
+                  result.isSelf ? styles.selfDot : null,
+                ]}
+              />
+            )
+          })}
         </View>
       </View>
-      {friendsWhoTookQuiz.length > 0 ? (
-        <>
-          <Text style={styles.friendsText}>
-            {friendNames} {verb} taken this quiz about you!
-          </Text>
-          <TouchableOpacity onPress={onPress} style={styles.button}>
-            <Text style={styles.buttonText}>Compare Results</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <Text style={[styles.friendsText, { color: "gray" }]}>
-          Wait for your friends to take the quiz to compare results
-        </Text>
-      )}
+      <View style={styles.friendsResultContainer}>
+        {results.map((result) => (
+          <View key={result.id} style={styles.friendResult}>
+            <Text style={styles.friendName}>{result.name}</Text>
+            {result.correctPercentage !== undefined && (
+              <Text style={styles.friendScore}>
+                {`${result.correctPercentage.toFixed(0)}% correct`}
+              </Text>
+            )}
+          </View>
+        ))}
+      </View>
     </View>
   )
 }
@@ -90,14 +97,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#E0E0E0",
-  },
-  friendsText: {
-    color: "#FF4457",
-    fontWeight: "bold",
-    fontSize: 18,
-    textAlign: "center",
-    marginBottom: 16,
-    paddingTop: 16,
   },
   resultContainer: {
     marginBottom: 16,
@@ -154,20 +153,38 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 3,
   },
-  button: {
+  friendDot: {
+    position: "absolute",
+    top: 0,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: "#FF4457",
-    borderRadius: 8,
-    padding: 16,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    transform: [{ translateX: -12 }],
   },
-  buttonText: {
-    color: "white",
+  selfDot: {
+    zIndex: 2,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+  friendsResultContainer: {
+    marginTop: 24,
+  },
+  friendResult: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  friendName: {
+    fontSize: 16,
+    color: "#333333",
+  },
+  friendScore: {
+    fontSize: 16,
+    color: "#FF4457",
     fontWeight: "bold",
-    fontSize: 18,
-    marginRight: 8,
   },
 })
 
-export default QuizResults
+export default QuizResultsWithFriendsView

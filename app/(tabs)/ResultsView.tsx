@@ -9,7 +9,6 @@ import {
   StyleSheet,
   ListRenderItem,
 } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronRight } from "lucide-react-native"
 import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"

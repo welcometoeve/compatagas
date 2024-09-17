@@ -11,7 +11,6 @@ import {
 import { questions, Quiz, quizzes } from "@/components/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
-import { SafeAreaView } from "react-native-safe-area-context"
 
 const { width } = Dimensions.get("window")
 const columnWidth = width / 2 - 20

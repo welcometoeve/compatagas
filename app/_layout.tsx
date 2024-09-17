@@ -9,6 +9,7 @@ import * as SplashScreen from "expo-splash-screen"
 import "react-native-reanimated"
 import { View, Button, AppState, StyleSheet } from "react-native"
 import * as Updates from "expo-updates"
+import { StatusBar } from "expo-status-bar"
 
 import { useColorScheme } from "@/hooks/useColorScheme"
 import App from "./(tabs)"
@@ -137,7 +138,13 @@ function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <View style={styles.container}>
+      <StatusBar style={"dark"} />
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: colorScheme === "dark" ? "black" : "white" },
+        ]}
+      >
         <View style={styles.debugButtonContainer}>
           <Button title="Debug" onPress={() => setIsDebugVisible(true)} />
         </View>
@@ -171,7 +178,7 @@ function RootLayout() {
               : fetchSelfAnswers
           }
         />
-      </View>
+      </SafeAreaView>
       <NavBar page={page} setPage={setPage} />
     </ThemeProvider>
   )
@@ -180,14 +187,13 @@ function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
   },
   debugButtonContainer: {
     position: "absolute",
     top: 50,
     right: 10,
     zIndex: 1000,
-    opacity: 0,
+    // opacity: 0, // Removed to make debug button visible
   },
   fullPageView: {
     ...StyleSheet.absoluteFillObject,
