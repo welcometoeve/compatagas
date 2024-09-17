@@ -34,6 +34,7 @@ const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
   return (
     <TouchableOpacity style={styles.quizItem} onPress={onPress}>
       <Image source={item.src} style={[styles.quizImage]} />
+      <Text style={styles.quizTitle}>{item.name}</Text>
       {answered && (
         <View style={styles.doneOverlay}>
           <Text style={styles.doneText}>Done!</Text>
@@ -99,6 +100,13 @@ const styles = StyleSheet.create({
     width: columnWidth,
     height: columnWidth,
     resizeMode: "cover",
+  },
+  quizTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 8,
   },
   title: {
     marginTop: 80,
