@@ -45,12 +45,12 @@ export const CardContents: React.FC<CardContentsProps> = ({
         ))}
       </View>
     )}
-    {quiz && (
+    {/* {quiz && (
       <View style={styles.quizInfoContainer}>
         <Image source={quiz.src} style={styles.quizImage} />
         <Text style={styles.quizName}>{`From the ${quiz.name}`}</Text>
       </View>
-    )}
+    )} */}
   </>
 )
 
