@@ -40,7 +40,8 @@ export const CardContents: React.FC<CardContentsProps> = ({
             onPress={() => handleAnswer(index)}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>{option.label}</Text>
+            <Text style={styles.buttonText}>{`${option.emoji}`}</Text>
+            <Text style={styles.buttonText}> {option.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -64,8 +65,6 @@ export const CardStack: React.FC<CardStackProps> = ({
   slideAnimation,
 }) => (
   <View style={styles.cardStack}>
-    <View style={[styles.stackedCard, styles.bottomCard]} />
-    <View style={[styles.stackedCard, styles.middleCard]} />
     <View style={[styles.cardContainer, { position: "absolute" }]}>
       {renderCardContents(false)}
     </View>
@@ -101,30 +100,40 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "white",
+    color: "#333333",
   },
   question: {
-    fontSize: 18,
-    textAlign: "center",
+    fontSize: 20,
+    textAlign: "left",
     marginBottom: 20,
-    color: "white",
+    color: "#333333",
     width: "100%",
-  },
-  button: {
-    backgroundColor: "#FF4457",
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 5,
-    width: "100%",
-  },
-  buttonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: 16,
+    paddingHorizontal: 30,
     fontWeight: "bold",
   },
+  button: {
+    padding: 10,
+    borderRadius: 16,
+    marginVertical: 7,
+    width: "100%",
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E0E0E0",
+    borderWidth: 1.5,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.15,
+    // shadowRadius: 3,
+    // elevation: 5,
+  },
+  buttonText: {
+    color: "black",
+    textAlign: "left",
+    fontSize: 20,
+    paddingVertical: 5,
+  },
   loadingText: {
-    color: "#FFFFFF",
+    color: "#666666",
     fontSize: 16,
     textAlign: "center",
   },
@@ -137,7 +146,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 0,
-    borderTopColor: "#111419",
+    borderTopColor: "#E0E0E0",
     borderTopWidth: 2,
     width: "100%",
     paddingTop: 15,
@@ -150,7 +159,7 @@ const styles = StyleSheet.create({
   },
   quizName: {
     fontSize: 16,
-    color: "white",
+    color: "#333333",
     fontWeight: "bold",
   },
   cardStack: {
@@ -163,9 +172,9 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "90%",
     borderWidth: 3,
-    borderColor: "#111419",
+    borderColor: "#E0E0E0",
     borderRadius: 30,
-    backgroundColor: "#262C34",
+    backgroundColor: "#F5F5F5",
   },
   bottomCard: {
     top: 50,
@@ -181,13 +190,13 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#111419",
+    borderColor: "#E0E0E0",
     padding: 0,
     borderRadius: 30,
     paddingHorizontal: 0,
-    backgroundColor: "#262C34",
+    backgroundColor: "#FFFFFF",
     zIndex: 3,
+    elevation: 3,
   },
   contentContainer: {
     flex: 1,
@@ -198,17 +207,18 @@ const styles = StyleSheet.create({
   outOfQuestionsText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "#333333",
     textAlign: "center",
   },
   explanationText: {
     fontSize: 16,
-    color: "#79818D",
+    color: "rgb(150, 150, 150)",
     textAlign: "center",
     paddingVertical: 10,
     paddingHorizontal: 20,
     position: "absolute",
-    bottom: -20,
+    bottom: 0,
     width: "100%",
+    paddingBottom: 30,
   },
 })

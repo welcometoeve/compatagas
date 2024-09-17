@@ -336,7 +336,7 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ExplanationText />
       {isOutOfQuestions ? (
         <OutOfQuestionsView />
@@ -369,15 +369,14 @@ export default function App() {
           onContinue={handleContinue}
         />
       )}
-    </SafeAreaView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111419",
-    bottom: 30,
+    backgroundColor: "#FFFFFF",
   },
   contentContainer: {
     flex: 1,

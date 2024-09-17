@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons"
 import React from "react"
 import {
   View,
@@ -48,7 +49,8 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
           You've finished the {completedQuizName} for {completedFriendName}!
         </Text>
         <TouchableOpacity style={styles.continueButton} onPress={onContinue}>
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <Text style={styles.continueButtonText}>View Results</Text>
+          <Ionicons name="chevron-forward" size={24} color="white" />
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -62,30 +64,35 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(17, 20, 25, 0.5)",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
   completionContainer: {
     width: "80%",
     aspectRatio: 1,
-    backgroundColor: "#111419",
+    backgroundColor: "#FFFFFF",
     borderRadius: 15,
     padding: 20,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#656D7A",
+    borderColor: "#E0E0E0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   completionTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FF4457",
+    color: "black",
     marginBottom: 10,
   },
   completionText: {
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#333333",
     textAlign: "center",
     marginBottom: 20,
   },
@@ -93,6 +100,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF4457",
     padding: 12,
     borderRadius: 8,
+    flexDirection: "row",
   },
   continueButtonText: {
     color: "white",

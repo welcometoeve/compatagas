@@ -7,16 +7,17 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
+  ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft } from "lucide-react-native"
 import { Question, Quiz, Side } from "@/components/questions"
 import { useUser } from "@/contexts/UserContext"
 import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
-import ResultSlider from "./ResultResultSlider"
 import QuestionResultView from "./QuestionResultView"
 import collect from "../collect"
-import ResultResultSlider from "./ResultResultSlider"
+import QuizResultsWithFriendsView from "./QuizResultsWithFriendsView"
+import convertSecondToThirdPerson from "../covertSecondToThirdPerson"
 
 type QuizResultsViewProps = {
   quiz: Quiz
@@ -32,6 +33,7 @@ type Result = {
   name: string
   value: number
   isSelf: boolean
+  correctPercentage?: number
 }
 
 const QuizResultsView: React.FC<QuizResultsViewProps> = ({
@@ -103,7 +105,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
       if (answer) {
         const optionIndex = answer.optionIndex
         const side = question.options[optionIndex].side
-        const score = side === Side.LEFT ? -1 : 1
+        const score = side === Side.NEITHER ? 0 : side === Side.LEFT ? -1 : 1
         totalScore += score
       }
     })
@@ -136,10 +138,17 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
     })
   }, [selfAnswers, friendAnswers, quiz.id, selfId])
 
-  const handleOptionSelect = (questionId: number, optionIndex: number) => {
-    // This function is now a no-op since answers are locked in the results view
-    console.log("Option selected:", questionId, optionIndex)
-  }
+  const resultsWithCorrectness = results.map((result) => {
+    const correctnessScore = correctnessScores.find(
+      (score) => score.friendId === result.id
+    )
+    return {
+      ...result,
+      correctPercentage: correctnessScore
+        ? correctnessScore.score * 100
+        : undefined,
+    }
+  })
 
   const quizSelfAnswers =
     quizType == "your"
@@ -154,6 +163,11 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
       ? "Your"
       : `${allUsers.find((u) => u.id === selfId)?.name}'s` || "Friend"
 
+  const plainUserName =
+    selfId === user?.id
+      ? "you"
+      : `${allUsers.find((u) => u.id === selfId)?.name}` || "Friend"
+
   const quizFriendAnswers = collect(
     friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quiz.id),
     ["questionId"]
@@ -166,39 +180,28 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         contentContainerStyle={styles.contentContainer}
       >
         <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <ChevronLeft size={32} color="#FFFFFF" />
+          <ChevronLeft size={32} color="#000000" />
         </TouchableOpacity>
 
         <View style={styles.quizHeader}>
           <Image
-            source={quiz.src}
+            source={quiz.src as ImageSourcePropType}
             style={styles.quizImage}
             resizeMode="cover"
           />
-          <Text
-            style={styles.quizTitle}
-          >{`${userName} ${quiz.name} Results`}</Text>
+          <Text style={styles.quizTitle}>{`${userName} ${quiz.name}`}</Text>
+          <Text style={styles.quizSubtitle}>
+            {quizType === "your"
+              ? quiz.subtitle
+              : convertSecondToThirdPerson(quiz.subtitle, plainUserName)}
+          </Text>
         </View>
 
-        <ResultResultSlider results={results} quiz={quiz} />
-
-        <View style={styles.friendScores}>
-          {correctnessScores.map((score) => {
-            const friend = allUsers.find((u) => u.id === score.friendId)
-            const title =
-              score.friendId === user?.id
-                ? "Your Score:"
-                : `${friend?.name || "Unknown"}'s Score:`
-            return (
-              <View key={score.friendId} style={styles.friendScore}>
-                <Text style={styles.friendName}>{title}</Text>
-                <Text style={styles.friendScoreValue}>{`${(
-                  score.score * 100
-                ).toFixed(0)}%`}</Text>
-              </View>
-            )
-          })}
-        </View>
+        <QuizResultsWithFriendsView
+          quiz={quiz}
+          results={resultsWithCorrectness}
+          quizResult={resultsWithCorrectness.find((r) => r.isSelf)?.value || 0}
+        />
 
         {questions.map((question) => (
           <QuestionResultView
@@ -213,15 +216,13 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
               []
             }
             lockedAnswers={new Set(questions.map((q) => q.id))}
-            handleOptionSelect={handleOptionSelect}
-            index={question.id}
           />
         ))}
 
         <TouchableOpacity onPress={goBack} style={styles.backToQuizzesButton}>
           <ChevronLeft
             size={20}
-            color="#FFFFFF"
+            color="#000000"
             style={styles.backButtonIcon}
           />
           <Text style={styles.backButtonText}>Back</Text>
@@ -234,7 +235,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111419",
+    backgroundColor: "#FFFFFF",
   },
   scrollView: {
     flex: 1,
@@ -262,39 +263,18 @@ const styles = StyleSheet.create({
   quizTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "#000000",
     textAlign: "center",
   },
-  friendScores: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginBottom: 24,
-    paddingTop: 32,
-  },
-  friendScore: {
-    alignItems: "center",
-    margin: 8,
-    backgroundColor: "#1E2530",
-    padding: 20,
-    borderRadius: 8,
-    borderColor: "white",
-    borderWidth: 1,
-  },
-  friendName: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  friendScoreValue: {
-    color: "#FF4457",
+  quizSubtitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    color: "#666666",
+    textAlign: "center",
+    marginTop: 8,
   },
   backToQuizzesButton: {
     marginTop: 24,
-    backgroundColor: "#3C444F",
+    backgroundColor: "#E0E0E0",
     padding: 12,
     borderRadius: 8,
     flexDirection: "row",
@@ -305,7 +285,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   backButtonText: {
-    color: "#FFFFFF",
+    color: "#000000",
     fontWeight: "bold",
   },
 })

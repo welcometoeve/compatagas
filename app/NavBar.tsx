@@ -77,10 +77,10 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               {
                 paddingTop:
                   tab.page === "results"
-                    ? 5
+                    ? 2
                     : tab.page === "questions"
                     ? 17
-                    : 20,
+                    : 5,
               },
             ]}
             onPress={() => setPage(tab.page)}
@@ -94,21 +94,12 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               {tab.page === "questions" ? (
                 <View style={styles.flippedIcon}>
                   {page === tab.page ? (
-                    <RectangleStackIconSolid color={"white"} size={24} />
+                    <RectangleStackIconSolid color={"#007AFF"} size={28} />
                   ) : (
-                    <RectangleStackIconOutline color={"#656D7A"} size={24} />
+                    <RectangleStackIconOutline color={"#8E8E93"} size={28} />
                   )}
                 </View>
-              ) : // <AntDesign
-              //   name={
-              //     (page === tab.page
-              //       ? tab.activeIcon
-              //       : tab.inactiveIcon) as keyof typeof AntDesign.glyphMap
-              //   }
-              //   size={24}
-              //   color={page === tab.page ? "white" : "#8E8E93"}
-              // />
-              tab.page === "quizzes" ? (
+              ) : tab.page === "quizzes" ? (
                 <Ionicons
                   name={
                     (page === tab.page
@@ -116,7 +107,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
                       : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
                   }
                   size={28}
-                  color={page === tab.page ? "white" : "#656D7A"}
+                  color={page === tab.page ? "#007AFF" : "#8E8E93"}
                 />
               ) : (
                 <FontAwesome
@@ -126,7 +117,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
                       : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
                   }
                   size={26}
-                  color={page === tab.page ? "white" : "#656D7A"}
+                  color={page === tab.page ? "#007AFF" : "#8E8E93"}
                 />
               )}
               {tab.page === "results" && (
@@ -141,7 +132,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               style={[
                 styles.tabText,
                 {
-                  color: page === tab.page ? "white" : "#79818D",
+                  color: page === tab.page ? "#007AFF" : "#8E8E93",
                   width: 80,
                   textAlign: "center",
                 },
@@ -158,16 +149,18 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#111419",
-    paddingTop: 15,
+    backgroundColor: "rgba(255, 255, 255)",
+    paddingTop: 25,
     paddingBottom: 45,
+    borderTopColor: "#E0E0E0",
+    borderTopWidth: 1,
   },
   tabContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-    height: 50, // Adjust this value as needed
+    height: 50,
   },
   tabItem: {
     alignItems: "center",

@@ -47,7 +47,7 @@ const AccountScreen = () => {
               value={name}
               onChangeText={setName}
               placeholder="Enter your name"
-              placeholderTextColor="#a0aec0"
+              placeholderTextColor="#999999"
             />
           </View>
           <View style={styles.inputContainer}>
@@ -59,7 +59,7 @@ const AccountScreen = () => {
                 setPhoneNumber(parseInt(phoneNumber))
               }
               placeholder="Enter your phone number"
-              placeholderTextColor="#a0aec0"
+              placeholderTextColor="#999999"
               keyboardType="phone-pad"
             />
           </View>
@@ -97,7 +97,7 @@ const { height } = Dimensions.get("window")
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111419",
+    backgroundColor: "white",
   },
   scrollContent: {
     flexGrow: 1,
@@ -106,88 +106,89 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   formContainer: {
-    backgroundColor: "#111419",
-    borderRadius: 20, // Increased border radius
+    backgroundColor: "#ffffff",
+    borderRadius: 20,
     padding: 24,
     width: "100%",
     maxWidth: 400,
     alignSelf: "center",
-    borderColor: "#333",
+    elevation: 3,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#333333",
     textAlign: "center",
     marginBottom: 24,
   },
   inputContainer: {
-    marginBottom: 20, // Increased margin for more space
+    marginBottom: 20,
   },
   label: {
-    fontSize: 16, // Increased font size
+    fontSize: 16,
     fontWeight: "500",
-    color: "#fff",
+    color: "#666666",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#111419",
-    borderColor: "#3C444F",
+    borderColor: "#cccccc",
     borderWidth: 1,
-    borderRadius: 12, // Increased border radius
-    padding: 16, // Increased padding
-    color: "#fff",
-    fontSize: 18, // Increased font size
-    height: 60, // Increased height
+    borderRadius: 12,
+    padding: 16,
+    color: "#333333",
+    fontSize: 18,
+    height: 60,
   },
   button: {
-    borderColor: "#fff",
-    borderWidth: 1,
-    borderRadius: 12, // Increased border radius
-    padding: 16, // Increased padding
+    backgroundColor: "#007AFF",
+    borderRadius: 12,
+    padding: 16,
     alignItems: "center",
-    marginTop: 24, // Increased margin
+    marginTop: 24,
   },
   disabledButton: {
     opacity: 0.5,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 18, // Increased font size
+    color: "#ffffff",
+    fontSize: 18,
     fontWeight: "600",
   },
   errorContainer: {
-    borderColor: "#e53e3e",
+    backgroundColor: "#fff5f5",
+    borderColor: "#feb2b2",
     borderWidth: 1,
-    borderRadius: 12, // Increased border radius
-    padding: 16, // Increased padding
-    marginTop: 24, // Increased margin
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 24,
   },
   errorTitle: {
-    color: "#e53e3e",
+    color: "#c53030",
     fontWeight: "bold",
     marginBottom: 4,
-    fontSize: 16, // Increased font size
+    fontSize: 16,
   },
   errorText: {
-    color: "#e53e3e",
-    fontSize: 14, // Increased font size
+    color: "#c53030",
+    fontSize: 14,
   },
   successContainer: {
+    backgroundColor: "#f0fff4",
+    borderColor: "#9ae6b4",
     borderWidth: 1,
-    borderRadius: 12, // Increased border radius
-    padding: 16, // Increased padding
-    marginTop: 24, // Increased margin
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 24,
   },
   successTitle: {
-    color: "#38a169",
+    color: "#2f855a",
     fontWeight: "bold",
     marginBottom: 4,
-    fontSize: 16, // Increased font size
+    fontSize: 16,
   },
   successText: {
-    color: "#38a169",
-    fontSize: 14, // Increased font size
+    color: "#2f855a",
+    fontSize: 14,
   },
 })
 

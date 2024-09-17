@@ -80,21 +80,21 @@ const ResultsList: React.FC<ResultsListProps> = ({
     iconName: keyof typeof Ionicons.glyphMap
   ) => (
     <View style={styles.tabWithNotification}>
-      <Ionicons
-        name={isActive ? (iconName.replace("-outline", "") as any) : iconName}
-        size={30}
-        color={isActive ? "#fff" : "#79818D"}
-      />
-      <View
-        style={{ paddingTop: 10, flexDirection: "row", alignItems: "center" }}
-      >
-        <Text style={[styles.tabText, isActive && styles.activeTabText]}>
-          {tabName}
-        </Text>
-        <View style={{ paddingTop: 5 }}>
-          <NotificationDot count={notificationCount} />
-        </View>
+      <View style={styles.iconContainer}>
+        <Ionicons
+          name={isActive ? (iconName.replace("-outline", "") as any) : iconName}
+          size={30}
+          color={isActive ? "#000" : "#79818D"}
+        />
+        {notificationCount > 0 && (
+          <View style={styles.notificationDotContainer}>
+            <NotificationDot count={notificationCount} />
+          </View>
+        )}
       </View>
+      <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+        {tabName}
+      </Text>
     </View>
   )
 
@@ -151,13 +151,14 @@ const ResultsList: React.FC<ResultsListProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111419", // Dark background for the entire list
+    backgroundColor: "#FFFFFF", // Light background for the entire list
   },
   tabContainer: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#3C444F",
-    paddingTop: 30,
+    borderBottomColor: "#E0E0E0",
+    paddingTop: 20,
+    marginBottom: 20,
   },
   tab: {
     flex: 1,
@@ -165,18 +166,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#fff",
+    borderBottomWidth: 3,
+    borderBottomColor: "#000",
+    marginBottom: -1,
   },
   tabText: {
+    paddingBottom: 10,
     fontSize: 16,
     fontWeight: "bold",
     color: "#79818D",
     textAlign: "center",
-    marginTop: 5,
   },
   activeTabText: {
-    color: "#fff",
+    color: "#000",
   },
   list: {
     flex: 1,
@@ -194,6 +196,15 @@ const styles = StyleSheet.create({
   },
   tabWithNotification: {
     alignItems: "center",
+  },
+  iconContainer: {
+    position: "relative",
+    marginBottom: 5,
+  },
+  notificationDotContainer: {
+    position: "absolute",
+    top: -8,
+    left: -17,
   },
 })
 
