@@ -200,6 +200,15 @@ export default function App() {
 
   const completedQuiz = quizzes.find((q) => q.id === completedQuizId)
 
+  console.log(cardState, isLoading)
+  if (
+    cardState.currentFriendId === null ||
+    cardState.currentQuestionId === null ||
+    isLoading
+  ) {
+    return null
+  }
+
   return (
     <View style={styles.container}>
       <ExplanationText />
