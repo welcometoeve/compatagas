@@ -1,7 +1,7 @@
 import React from "react"
 import { View, Text, StyleSheet } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
-import { Quiz } from "@/components/questions"
+import { Quiz } from "@/constants/questions"
 
 type Result = {
   id: number

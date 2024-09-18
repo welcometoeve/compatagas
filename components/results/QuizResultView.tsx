@@ -10,14 +10,13 @@ import {
   ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft } from "lucide-react-native"
-import { Question, Quiz, Side } from "@/components/questions"
+import { insertName, Question, Quiz, Side } from "@/constants/questions"
 import { useUser } from "@/contexts/UserContext"
 import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import QuestionResultView from "./QuestionResultView"
 import collect from "../collect"
 import QuizResultsWithFriendsView from "./QuizResultsWithFriendsView"
-import convertSecondToThirdPerson from "../covertSecondToThirdPerson"
 
 type QuizResultsViewProps = {
   quiz: Quiz
@@ -105,7 +104,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
       if (answer) {
         const optionIndex = answer.optionIndex
         const side = question.options[optionIndex].side
-        const score = side === Side.NEITHER ? 0 : side === Side.LEFT ? -1 : 1
+        const score = side === "neither" ? 0 : side === "left" ? -1 : 1
         totalScore += score
       }
     })
@@ -192,8 +191,11 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           <Text style={styles.quizTitle}>{`${userName} ${quiz.name}`}</Text>
           <Text style={styles.quizSubtitle}>
             {quizType === "your"
-              ? quiz.subtitle
-              : convertSecondToThirdPerson(quiz.subtitle, plainUserName)}
+              ? quiz.subtitle.secondPerson
+              : insertName(
+                  quiz.subtitle.thirdPerson,
+                  allUsers.find((u) => u.id === selfId)?.name ?? ""
+                )}
           </Text>
         </View>
 

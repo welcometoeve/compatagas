@@ -7,7 +7,7 @@ import {
 import { UserProfile, useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
-import { questions } from "@/components/questions"
+import { questions } from "@/constants/questions"
 import { FriendAnswer, useFriendAnswers } from "./FriendAnswerContext"
 import collect from "@/components/collect"
 import { useNotification } from "./NotificationContext"
@@ -151,6 +151,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       .insert(newAnswer)
       .select()
 
+    return data ? data[0] : null
     if (error) {
       throw new Error("Failed to add self answer")
     } else if (data) {

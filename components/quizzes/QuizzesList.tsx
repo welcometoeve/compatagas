@@ -8,7 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native"
-import { questions, Quiz, quizzes } from "@/components/questions"
+import { questions, Quiz, quizzes } from "@/constants/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 

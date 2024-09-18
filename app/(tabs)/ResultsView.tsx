@@ -1,4 +1,4 @@
-import { Quiz, quizzes, Question, questions } from "@/components/questions"
+import { Quiz, quizzes, Question, questions } from "@/constants/questions"
 import React, { useState, useMemo } from "react"
 import {
   View,

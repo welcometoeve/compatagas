@@ -6,7 +6,7 @@ import {
   Animated,
   Dimensions,
 } from "react-native"
-import { Question, questions, quizzes } from "../../components/questions"
+import { Question, questions, quizzes } from "../../constants/questions"
 import { useFriends } from "@/contexts/FriendsContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
@@ -338,7 +338,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <ExplanationText />
+      {/* <ExplanationText /> */}
       {isOutOfQuestions ? (
         <OutOfQuestionsView />
       ) : (
@@ -383,6 +383,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 5,
   },
 })

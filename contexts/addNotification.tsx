@@ -1,4 +1,4 @@
-import { questions } from "@/components/questions"
+import { questions } from "@/constants/questions"
 import { FriendAnswer } from "./FriendAnswerContext"
 import { SelfAnswer } from "./SelfAnswerContext"
 import { UserProfile } from "./UserContext"

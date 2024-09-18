@@ -1,5 +1,5 @@
 import QuizList from "@/components/quizzes/QuizzesList"
-import { questions, Quiz, quizzes } from "@/components/questions"
+import { questions, Quiz, quizzes } from "@/constants/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import React, { useState } from "react"
 

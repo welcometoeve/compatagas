@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { ChevronRight } from "lucide-react"
 import { LinearGradient } from "expo-linear-gradient"
 import { UserProfile } from "@/contexts/UserContext"
-import { Quiz } from "@/components/questions"
+import { Quiz } from "@/constants/questions"
 
 interface QuizResultsWithoutFriendsViewProps {
   friendsWhoTookQuiz: number[]
@@ -22,7 +22,7 @@ const QuizResultsWithoutFriendsView: React.FC<
     .join(", ")
   const verb = friendsWhoTookQuiz.length === 1 ? "has" : "have"
 
-  const sliderPosition = ((quizResult + 1) / 2) * 100
+  const sliderPosition = mapRange(quizResult, -1, 1, 0, 100)
   const resultLabel = quiz.resultLabels
     ? quiz.resultLabels[getResultLabel(quizResult)]
     : null
@@ -167,3 +167,17 @@ const styles = StyleSheet.create({
 })
 
 export default QuizResultsWithoutFriendsView
+
+function mapRange(
+  value: number,
+  xMin: number,
+  xMax: number,
+  yMin: number,
+  yMax: number
+): number {
+  // First, normalize the value in the input range
+  const normalizedValue = (value - xMin) / (xMax - xMin)
+
+  // Then, map the normalized value to the output range
+  return yMin + normalizedValue * (yMax - yMin)
+}

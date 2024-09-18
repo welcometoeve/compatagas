@@ -7,7 +7,7 @@ import {
   Image,
   Animated,
 } from "react-native"
-import { Question } from "../questions"
+import { insertName, Question } from "../../constants/questions"
 import CompletionScreen from "@/components/stack/CompletionPopup"
 import { UserProfile } from "@/contexts/UserContext"
 
@@ -28,11 +28,13 @@ export const CardContents: React.FC<CardContentsProps> = ({
 }) => (
   <>
     <Text style={styles.name}>{friend?.name}</Text>
-    <Text style={styles.question}>{question?.thirdPersonLabel}</Text>
+    <Text style={styles.question}>
+      {insertName(question?.label.thirdPerson ?? "", friend?.name ?? "")}
+    </Text>
     {isLoading ? (
       <Text style={styles.loadingText}>Loading...</Text>
     ) : (
-      <View style={{ width: "100%", paddingHorizontal: 5 }}>
+      <View style={styles.buttonContainer}>
         {question?.options.map((option, index) => (
           <TouchableOpacity
             key={index}
@@ -40,18 +42,14 @@ export const CardContents: React.FC<CardContentsProps> = ({
             onPress={() => handleAnswer(index)}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>{`${option.emoji}`}</Text>
-            <Text style={styles.buttonText}> {option.label}</Text>
+            <Text style={styles.buttonEmoji}>{`${option.emoji}`}</Text>
+            <Text style={styles.buttonText}>
+              {insertName(option.label.thirdPerson, friend?.name ?? "")}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
     )}
-    {/* {quiz && (
-      <View style={styles.quizInfoContainer}>
-        <Image source={quiz.src} style={styles.quizImage} />
-        <Text style={styles.quizName}>{`From the ${quiz.name}`}</Text>
-      </View>
-    )} */}
   </>
 )
 
@@ -65,7 +63,22 @@ export const CardStack: React.FC<CardStackProps> = ({
   slideAnimation,
 }) => (
   <View style={styles.cardStack}>
-    <View style={[styles.cardContainer, { position: "absolute" }]}>
+    <View
+      style={[styles.cardContainer, styles.stackedCard, styles.bottomCard]}
+    />
+    <View
+      style={[styles.cardContainer, styles.stackedCard, styles.middleCard]}
+    />
+    <View
+      style={[
+        styles.cardContainer,
+        {
+          position: "absolute",
+          borderWidth: 1,
+          borderColor: "#E0E0E0",
+        },
+      ]}
+    >
       {renderCardContents(false)}
     </View>
     <Animated.View
@@ -73,6 +86,10 @@ export const CardStack: React.FC<CardStackProps> = ({
         styles.cardContainer,
         {
           transform: [{ translateX: slideAnimation }],
+        },
+        {
+          borderWidth: 1,
+          borderColor: "#E0E0E0",
         },
       ]}
     >
@@ -104,33 +121,37 @@ const styles = StyleSheet.create({
   },
   question: {
     fontSize: 20,
-    textAlign: "left",
+    textAlign: "center",
     marginBottom: 20,
     color: "#333333",
     width: "100%",
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
     fontWeight: "bold",
   },
+  buttonContainer: {
+    width: "100%",
+    paddingHorizontal: 7,
+  },
   button: {
-    padding: 10,
+    padding: 12,
     borderRadius: 16,
-    marginVertical: 7,
+    marginVertical: 5,
     width: "100%",
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
     borderColor: "#E0E0E0",
     borderWidth: 1.5,
-    // shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.15,
-    // shadowRadius: 3,
-    // elevation: 5,
+    alignItems: "center",
+  },
+  buttonEmoji: {
+    fontSize: 20,
+    marginRight: 10,
   },
   buttonText: {
     color: "black",
-    textAlign: "left",
     fontSize: 20,
-    paddingVertical: 5,
+    flex: 1,
+    flexWrap: "wrap",
   },
   loadingText: {
     color: "#666666",
@@ -171,13 +192,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "90%",
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: "#E0E0E0",
     borderRadius: 30,
-    backgroundColor: "#F5F5F5",
   },
   bottomCard: {
-    top: 50,
+    top: 45,
     width: "90%",
   },
   middleCard: {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import {
   View,
   Text,
@@ -9,11 +9,11 @@ import {
   ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft, ChevronRight } from "lucide-react-native"
-import { Question, Quiz, Side } from "@/components/questions"
+import { Question, Quiz, Side } from "@/constants/questions"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { CustomAlert } from "./CustomAlert"
-import QuestionView from "./QuestionView"
+import QuestionView, { Answers } from "./QuestionView"
 import ResultSlider from "./QuizResultsWithoutFriendsView"
 import { addSelfAnswerInitiatedNotification } from "@/contexts/addNotification"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
@@ -36,10 +36,6 @@ type QuizViewProps = {
   goBack: () => void
 }
 
-type Answers = {
-  [key: number]: { label: string; side: Side }
-}
-
 const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   const [answers, setAnswers] = useState<Answers>({})
   const [lockedAnswers, setLockedAnswers] = useState<Set<number>>(new Set())
@@ -48,56 +44,88 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState(false)
-  const [quizResult, setQuizResult] = useState<number | null>(null)
 
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
   const { user, allUsers } = useUser()
   const { friendAnswers } = useFriendAnswers()
   const { addNotification, notifications } = useNotification()
 
-  const friendsWhoTookQuiz = collect(
-    friendAnswers.filter(
-      (fa) => fa.selfId === user?.id && fa.quizId === quiz.id
-    ),
-    ["friendId"]
-  )
-    .filter((g) => g.length >= questions.length)
-    .map((g) => g[0].friendId)
+  const friendsWhoTookQuiz = useMemo(() => {
+    return collect(
+      friendAnswers.filter(
+        (fa) => fa.selfId === user?.id && fa.quizId === quiz.id
+      ),
+      ["friendId"]
+    )
+      .filter((g) => g.length >= questions.length)
+      .map((g) => g[0].friendId)
+  }, [friendAnswers, user, quiz.id, questions.length])
+
+  const quizResult = useMemo(() => {
+    const calculateQuizResult = (selfAnswers: SelfAnswer[]) => {
+      let totalScore = 0
+      questions.forEach((question) => {
+        const selfAnswer = selfAnswers.find(
+          (sa) => sa.questionId === question.id
+        )
+        if (selfAnswer) {
+          const optionIndex = selfAnswer.optionIndex
+          const side = question.options[optionIndex].side
+          const score = side === "neither" ? 0 : side === "left" ? -1 : 1
+
+          totalScore += score
+        }
+      })
+      const averageScore = totalScore / questions.length
+      return averageScore
+    }
+
+    const relevantAnswers = selfAnswers.filter(
+      (sa) => sa.quizId === quiz.id && sa.userId === user?.id
+    )
+
+    return relevantAnswers.length >= questions.length
+      ? calculateQuizResult(relevantAnswers)
+      : null
+  }, [selfAnswers, questions, quiz.id, user])
 
   useEffect(() => {
     if (user && selfAnswers) {
       const existingAnswers: Answers = {}
       const lockedQuestions = new Set<number>()
-      const relevantSelfAnswers: SelfAnswer[] = []
 
       questions.forEach((question) => {
         const selfAnswer = selfAnswers.find(
-          (sa) => sa.userId === user.id && sa.questionId === question.id
+          (sa) =>
+            sa.userId === user.id &&
+            sa.questionId === question.id &&
+            sa.quizId === quiz.id
         )
         if (selfAnswer) {
-          existingAnswers[question.id] =
-            question.options[selfAnswer.optionIndex]
+          existingAnswers[question.id] = {
+            secondPersonLabel:
+              question.options[selfAnswer.optionIndex].label.secondPerson,
+            side: question.options[selfAnswer.optionIndex].side,
+          }
           lockedQuestions.add(question.id)
-          relevantSelfAnswers.push(selfAnswer)
         }
+        // We don't set undefined for unanswered questions anymore
       })
 
       setAnswers(existingAnswers)
       setLockedAnswers(lockedQuestions)
-
-      if (relevantSelfAnswers.length === questions.length) {
-        calculateQuizResult(relevantSelfAnswers)
-      }
     }
-  }, [user, selfAnswers, questions])
+  }, [user, selfAnswers, questions, quiz.id])
 
   useEffect(() => {
-    setAllQuestionsAnswered(Object.keys(answers).length === questions.length)
+    setAllQuestionsAnswered(
+      questions.every((question) => answers[question.id] !== undefined)
+    )
   }, [answers, questions])
 
   const handleOptionSelect = (
     questionId: number,
-    option: { label: string; side: Side }
+    option: { secondPersonLabel: string; side: Side }
   ) => {
     if (!lockedAnswers.has(questionId)) {
       setAnswers((prevAnswers) => ({
@@ -108,24 +136,9 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
     }
   }
 
-  const calculateQuizResult = (selfAnswers: SelfAnswer[]) => {
-    let totalScore = 0
-    questions.forEach((question) => {
-      const selfAnswer = selfAnswers.find((sa) => sa.questionId === question.id)
-      if (selfAnswer) {
-        const optionIndex = selfAnswer.optionIndex
-        const side = question.options[optionIndex].side
-        const score = side === Side.NEITHER ? 0 : Side.LEFT ? -1 : 1
-        totalScore += score
-      }
-    })
-    const averageScore = totalScore / questions.length
-    setQuizResult(averageScore)
-  }
-
   const triggerHaptic = async () => {
     try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     } catch (error) {
       console.error("Failed to trigger haptic:", error)
     }
@@ -142,23 +155,25 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         const newSelfAnswersPromises = questions.map(async (question) => {
           if (!lockedAnswers.has(question.id)) {
             const selectedOption = answers[question.id]
-            const optionIndex = question.options.findIndex(
-              (opt) =>
-                opt.label === selectedOption.label &&
-                opt.side === selectedOption.side
-            )
-            const newSelfAnswerId = await addSelfAnswer(
-              question.id,
-              optionIndex
-            )
-            if (newSelfAnswerId) {
-              return {
-                id: Number(newSelfAnswerId),
-                userId: user.id,
-                questionId: question.id,
-                optionIndex,
-                quizId: quiz.id,
-              } as SelfAnswer
+            if (selectedOption) {
+              const optionIndex = question.options.findIndex(
+                (opt) =>
+                  opt.label.secondPerson === selectedOption.secondPersonLabel &&
+                  opt.side === selectedOption.side
+              )
+              const newSelfAnswerId = await addSelfAnswer(
+                question.id,
+                optionIndex
+              )
+              if (newSelfAnswerId) {
+                return {
+                  id: Number(newSelfAnswerId),
+                  userId: user.id,
+                  questionId: question.id,
+                  optionIndex,
+                  quizId: quiz.id,
+                } as SelfAnswer
+              }
             }
           }
           return null
@@ -175,23 +190,11 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           allUsers,
           addNotification
         )
-
         if (fs.length > 0) {
           triggerHaptic()
         }
 
         setSubmitSuccess(true)
-
-        // Combine existing and new self answers
-        const allSelfAnswers = [
-          ...(selfAnswers?.filter(
-            (sa) =>
-              sa.userId === user.id &&
-              questions.some((q) => q.id === sa.questionId)
-          ) || []),
-          ...newSelfAnswers,
-        ]
-        calculateQuizResult(allSelfAnswers)
       } catch (error) {
         setSubmitError("An unexpected error occurred")
       } finally {
@@ -249,7 +252,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               marginTop: 8,
             }}
           >
-            {quiz.subtitle}
+            {quiz.subtitle.secondPerson}
           </Text>
         </View>
 

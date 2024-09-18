@@ -1,6 +1,6 @@
 import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { Question } from "@/components/questions"
+import { insertName, Question } from "@/constants/questions"
 import { SelfAnswer } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
@@ -53,8 +53,12 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
     <View style={styles.container}>
       <Text style={styles.questionText}>
         {quizType === "your"
-          ? question.secondPersonLabel
-          : question.thirdPersonLabel}
+          ? question.label.secondPerson
+          : insertName(
+              question.label.thirdPerson,
+              allUsers.find((u) => u.id === selfAnswer.userId)?.name ||
+                "Unknown"
+            )}
       </Text>
       <View style={styles.optionsContainer}>
         {question.options.map((option, optionIndex) => {
@@ -81,7 +85,13 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
                   isSelected && styles.selectedOptionText,
                 ]}
               >
-                {option.label}
+                {quizType === "your"
+                  ? option.label.secondPerson
+                  : insertName(
+                      option.label.thirdPerson,
+                      allUsers.find((u) => u.id === selfAnswer.userId)?.name ||
+                        "Unknown"
+                    )}
               </Text>
               {usersWhoSelected && (
                 <Text

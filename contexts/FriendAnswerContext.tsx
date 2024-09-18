@@ -7,7 +7,7 @@ import {
 import { useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
 import { useSelfAnswers } from "./SelfAnswerContext"
-import { questions } from "@/components/questions"
+import { questions } from "@/constants/questions"
 import { useNotification } from "./NotificationContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useEnvironment } from "./EnvironmentContext"
