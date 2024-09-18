@@ -23,13 +23,13 @@ interface TabItem {
 
 const tabs: TabItem[] = [
   {
-    name: "Question Packs",
+    name: "Packs",
     page: "quizzes",
     activeIcon: "document-text",
     inactiveIcon: "document-text-outline",
   },
   {
-    name: "Question Stack",
+    name: "Stack",
     page: "questions",
     activeIcon: "questioncircle",
     inactiveIcon: "questioncircleo",
@@ -76,11 +76,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
               index === 2 && styles.rightTabItem,
               {
                 paddingTop:
-                  tab.page === "results"
-                    ? 2
-                    : tab.page === "questions"
-                    ? 17
-                    : 5,
+                  tab.page === "results" ? 0 : tab.page === "questions" ? 0 : 0,
               },
             ]}
             onPress={() => setPage(tab.page)}
@@ -88,7 +84,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
             <View
               style={[
                 styles.iconContainer,
-                { marginTop: tab.page === "results" ? -15 : 0 },
+                { marginTop: tab.page === "results" ? 0 : 0 },
               ]}
             >
               {tab.page === "questions" ? (
@@ -150,7 +146,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "rgb(250, 250, 250)",
-    paddingTop: 25,
+    paddingTop: 10,
     paddingBottom: 45,
     borderTopColor: "#E0E0E0",
     borderTopWidth: 1,
