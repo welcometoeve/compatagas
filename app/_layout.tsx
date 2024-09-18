@@ -85,10 +85,10 @@ function RootLayout() {
       refreshFriends()
       requestNotificationPermission().catch((error) => {
         console.error("Error requesting notification permission:", error)
-        Alert.alert(
-          "Notification Permission",
-          "We couldn't enable notifications. You can enable them in your device settings if you'd like to receive updates."
-        )
+        // Alert.alert(
+        //   "Notification Permission",
+        //   "We couldn't enable notifications. You can enable them in your device settings if you'd like to receive updates."
+        // )
       })
     }
   }, [!!user, authenticating, signingUp])
