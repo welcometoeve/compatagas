@@ -116,6 +116,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       .from(tableName)
       .select("*")
       .eq("deleted", false)
+      .not("id", "in", "(24,3)") // Exclude users with IDs 24 and 3
 
     if (error) {
       console.error("Error fetching users:", error)
