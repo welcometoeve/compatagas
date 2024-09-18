@@ -10,7 +10,8 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "devgrok": "ngrok http --domain=dev.eve.space 8081"
+    "devgrok": "ngrok http --domain=dev.eve.space 8081",
+    "edge-deploy": "supabase functions deploy send-notification"
   },
   "jest": {
     "preset": "jest-expo"
