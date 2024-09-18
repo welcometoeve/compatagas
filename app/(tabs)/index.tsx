@@ -340,7 +340,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {/* <ExplanationText /> */}
+      <ExplanationText />
       {isOutOfQuestions ? (
         <OutOfQuestionsView />
       ) : (

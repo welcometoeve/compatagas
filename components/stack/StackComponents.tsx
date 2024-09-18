@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
+    marginBottom: 30,
   },
   stackedCard: {
     position: "absolute",
@@ -197,11 +198,11 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   bottomCard: {
-    top: 45,
+    top: 44,
     width: "90%",
   },
   middleCard: {
-    top: 40,
+    top: 38,
     width: "95%",
   },
   cardContainer: {
@@ -239,6 +240,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
-    paddingBottom: 30,
+    paddingBottom: 25,
   },
 })

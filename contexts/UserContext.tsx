@@ -112,11 +112,19 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   const fetchAllUsers = async () => {
-    const { data, error } = await supabase
+    if (!user) return
+
+    let query = supabase
       .from(tableName)
       .select("*")
       .eq("deleted", false)
       .not("id", "in", "(24)") // Exclude users with IDs 24 and 3
+
+    if (user.name && user.name.toLowerCase().includes("leah")) {
+      query = query.eq("id", 11)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.error("Error fetching users:", error)
@@ -165,6 +173,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   useEffect(() => {
+    fetchAllUsers()
+  }, [user])
+
+  useEffect(() => {
     const initializeUser = async () => {
       setAuthenticating(true)
       try {
@@ -172,7 +184,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         if (storedPhoneNumber) {
           await authenticate(parseInt(storedPhoneNumber))
         }
-        await fetchAllUsers()
         await requestNotificationPermission()
       } finally {
         setAuthenticating(false)
