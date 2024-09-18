@@ -7,6 +7,7 @@ import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
 import { RectangleStackIcon as RectangleStackIconOutline } from "react-native-heroicons/outline"
 import { RectangleStackIcon as RectangleStackIconSolid } from "react-native-heroicons/solid"
+import { Page, usePage } from "@/contexts/PageContext"
 
 interface TabItem {
   name: string
@@ -18,7 +19,7 @@ interface TabItem {
     | keyof typeof Ionicons.glyphMap
     | keyof typeof AntDesign.glyphMap
     | keyof typeof FontAwesome.glyphMap
-  page: string
+  page: Page
 }
 
 const tabs: TabItem[] = [
@@ -42,12 +43,7 @@ const tabs: TabItem[] = [
   },
 ]
 
-interface NavBarProps {
-  page: string
-  setPage: (page: string) => void
-}
-
-const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
+const NavBar: React.FC = () => {
   const { notifications } = useNotification()
   const { user } = useUser()
   const numYourNotifications = collect(
@@ -57,6 +53,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
     ),
     ["quizId"]
   ).length
+  const { page, setPage } = usePage()
 
   const numTheirNotifications = notifications.filter(
     (notification) =>

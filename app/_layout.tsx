@@ -32,6 +32,7 @@ import { ResultsView } from "./(tabs)/ResultsView"
 import { NotificationProvider } from "@/contexts/NotificationContext"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
+import { PageProvider, usePage } from "@/contexts/PageContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -54,7 +55,7 @@ function RootLayout() {
     useSelfAnswers()
 
   const [errorMessage, setErrorMessage] = useState<string>("")
-  const [page, setPage] = useState("questions")
+  const { page } = usePage()
 
   useEffect(() => {
     if (loaded) {
@@ -183,7 +184,7 @@ function RootLayout() {
           }
         />
       </SafeAreaView>
-      <NavBar page={page} setPage={setPage} />
+      <NavBar />
     </ThemeProvider>
   )
 }
@@ -215,7 +216,9 @@ export default function ContextWrapper() {
           <FriendsProvider>
             <AnswerProvider>
               <SelfAnswerProvider>
-                <RootLayout />
+                <PageProvider>
+                  <RootLayout />
+                </PageProvider>
               </SelfAnswerProvider>
             </AnswerProvider>
           </FriendsProvider>

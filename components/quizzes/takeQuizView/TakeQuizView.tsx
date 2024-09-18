@@ -273,7 +273,6 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             quizResult={quizResult}
             friendsWhoTookQuiz={friendsWhoTookQuiz}
             allUsers={allUsers}
-            onPress={() => undefined}
           />
         )}
 

@@ -1,3 +1,6 @@
+import { Quiz } from "@/constants/questions"
+import { usePage } from "@/contexts/PageContext"
+import { useUser } from "@/contexts/UserContext"
 import { Ionicons } from "@expo/vector-icons"
 import React from "react"
 import {
@@ -10,19 +13,21 @@ import {
 
 interface CompletionScreenProps {
   completionAnimation: Animated.Value
-  completedQuizName: string
-  completedFriendName: string
+  completedQuiz: Quiz
+  completedQuizSelfId: number
   onDismiss: () => void
   onContinue: () => void
 }
 
 const CompletionScreen: React.FC<CompletionScreenProps> = ({
   completionAnimation,
-  completedQuizName,
-  completedFriendName,
+  completedQuiz,
+  completedQuizSelfId,
   onDismiss,
   onContinue,
 }) => {
+  const { setPage, setActiveResultsTab, setCurQuizResultItem } = usePage()
+  const { allUsers, user } = useUser()
   return (
     <View style={styles.completionOverlay}>
       <Animated.View
@@ -46,9 +51,21 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
         </TouchableOpacity>
         <Text style={styles.completionTitle}>Pack Completed!</Text>
         <Text style={styles.completionText}>
-          You've finished the {completedQuizName} for {completedFriendName}!
+          You've finished the {completedQuiz.name} for{" "}
+          {allUsers.find((u) => u.id === completedQuizSelfId)?.name}!
         </Text>
-        <TouchableOpacity style={styles.continueButton} onPress={onContinue}>
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={() => {
+            setPage("results")
+            setActiveResultsTab("their")
+            setCurQuizResultItem({
+              quiz: completedQuiz,
+              friendIds: user ? [user?.id] : [],
+              selfId: completedQuizSelfId,
+            })
+          }}
+        >
           <Text style={styles.continueButtonText}>View Results</Text>
           <Ionicons name="chevron-forward" size={24} color="white" />
         </TouchableOpacity>

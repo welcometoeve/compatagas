@@ -2,25 +2,27 @@ import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { ChevronRight } from "lucide-react"
 import { LinearGradient } from "expo-linear-gradient"
-import { UserProfile } from "@/contexts/UserContext"
+import { UserProfile, useUser } from "@/contexts/UserContext"
 import { Quiz } from "@/constants/questions"
+import { usePage } from "@/contexts/PageContext"
 
 interface QuizResultsWithoutFriendsViewProps {
   friendsWhoTookQuiz: number[]
   allUsers: UserProfile[]
-  onPress: () => void
   quiz: Quiz
   quizResult: number
 }
 
 const QuizResultsWithoutFriendsView: React.FC<
   QuizResultsWithoutFriendsViewProps
-> = ({ friendsWhoTookQuiz, allUsers, onPress, quiz, quizResult }) => {
+> = ({ friendsWhoTookQuiz, allUsers, quiz, quizResult }) => {
   const friendNames = friendsWhoTookQuiz
     .map((f) => allUsers.find((u) => u.id === f)?.name ?? "")
     .filter(Boolean)
     .join(", ")
   const verb = friendsWhoTookQuiz.length === 1 ? "has" : "have"
+  const { user } = useUser()
+  const { setPage, setCurQuizResultItem, setActiveResultsTab } = usePage()
 
   const sliderPosition = mapRange(quizResult, -1, 1, 0, 100)
   const resultLabel = quiz.resultLabels
@@ -51,10 +53,21 @@ const QuizResultsWithoutFriendsView: React.FC<
       </View>
       {friendsWhoTookQuiz.length > 0 ? (
         <>
-          <Text style={styles.friendsText}>
+          <Text style={[styles.friendsText, , { color: "gray" }]}>
             {friendNames} {verb} taken this quiz about you!
           </Text>
-          <TouchableOpacity onPress={onPress} style={styles.button}>
+          <TouchableOpacity
+            onPress={() => {
+              setActiveResultsTab("your")
+              setPage("results")
+              setCurQuizResultItem({
+                quiz,
+                selfId: user?.id ?? 0,
+                friendIds: friendsWhoTookQuiz,
+              })
+            }}
+            style={styles.button}
+          >
             <Text style={styles.buttonText}>Compare Results</Text>
           </TouchableOpacity>
         </>

@@ -1,43 +1,35 @@
-import { Quiz, quizzes, Question, questions } from "@/constants/questions"
-import React, { useState, useMemo } from "react"
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ListRenderItem,
-} from "react-native"
-import { ChevronRight } from "lucide-react-native"
-import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import React from "react"
 import { useUser } from "@/contexts/UserContext"
-import collect from "@/components/collect"
-import { act } from "react-test-renderer"
 import ResultsList from "@/components/results/resultsList/ResultsLists"
 import QuizResultsView from "@/components/results/QuizResultView"
-import { QuizItem } from "@/components/results/proccessQuizLists"
+import { questions } from "@/constants/questions"
+import { usePage } from "@/contexts/PageContext"
 
 export const ResultsView: React.FC = () => {
-  const [curQuizItem, setCurQuizItem] = useState<QuizItem | null>(null)
   const { user } = useUser()
-  const [activeTab, setActiveTab] = useState<"your" | "their">("your")
+  const {
+    curQuizResultItem,
+    setCurQuizResultItem,
+    activeResultsTab,
+    setActiveResultsTab,
+  } = usePage()
 
-  return !curQuizItem ? (
+  return !curQuizResultItem ? (
     <ResultsList
-      setQuizItem={setCurQuizItem}
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
+      setQuizItem={setCurQuizResultItem}
+      activeTab={activeResultsTab}
+      setActiveTab={setActiveResultsTab}
     />
   ) : (
     <QuizResultsView
-      quiz={curQuizItem.quiz}
-      goBack={() => setCurQuizItem(null)}
-      questions={questions.filter((q) => q.quizId === curQuizItem.quiz.id)}
-      quizType={user?.id === curQuizItem.selfId ? "your" : "their"}
-      friendIds={curQuizItem.friendIds}
-      selfId={curQuizItem.selfId}
+      quiz={curQuizResultItem.quiz}
+      goBack={() => setCurQuizResultItem(null)}
+      questions={questions.filter(
+        (q) => q.quizId === curQuizResultItem.quiz.id
+      )}
+      quizType={user?.id === curQuizResultItem.selfId ? "your" : "their"}
+      friendIds={curQuizResultItem.friendIds}
+      selfId={curQuizResultItem.selfId}
     />
   )
 }

@@ -22,7 +22,7 @@ import QuizItemComponent from "./QuizItemComponent"
 interface ResultsListProps {
   setQuizItem: (quizItem: QuizItem) => void
   activeTab: "your" | "their"
-  setActiveTab: React.Dispatch<React.SetStateAction<"your" | "their">>
+  setActiveTab: (tab: "your" | "their") => void
 }
 
 const ResultsList: React.FC<ResultsListProps> = ({

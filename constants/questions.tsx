@@ -140,14 +140,13 @@ export const musicQuestions: Question[] = [
     label: {
       secondPerson:
         "Walking Spotify algorithm or still figuring out who Chapell Roan is?",
-      thirdPerson:
-        "{name} is a walking Spotify algorithm or still figuring out who Chapell Roan is?",
+      thirdPerson: "{name} is:",
     },
     options: [
       {
         label: {
           secondPerson: "Walking Spotify algorithm",
-          thirdPerson: "Walking Spotify algorithm",
+          thirdPerson: "A walking Spotify algorithm",
         },
         side: "left",
         emoji: "🎧",
@@ -167,7 +166,7 @@ export const musicQuestions: Question[] = [
     id: 18,
     label: {
       secondPerson: "DJ of the friend group or banned from AUX?",
-      thirdPerson: "DJ of the friend group or banned from AUX?",
+      thirdPerson: "{name} is:",
     },
     options: [
       {
@@ -194,14 +193,13 @@ export const musicQuestions: Question[] = [
     label: {
       secondPerson:
         "Connoisseur of niche artists, top 1% of Taylor Swift listeners, or somewhere in between?",
-      thirdPerson:
-        "{name} is a connoisseur of niche artists, top 1% of Taylor Swift listeners, or somewhere in between?",
+      thirdPerson: "{name} is:",
     },
     options: [
       {
         label: {
           secondPerson: "Connoisseur of niche artists",
-          thirdPerson: "Connoisseur of niche artists",
+          thirdPerson: "A connoisseur of niche artists",
         },
         side: "left",
         emoji: "🎵",
@@ -229,13 +227,13 @@ export const musicQuestions: Question[] = [
     id: 20,
     label: {
       secondPerson: "Spotify Surfer or Tiktok top 100 ONLY?",
-      thirdPerson: "{name} is a Spotify Surfer or Tiktok top 100 ONLY?",
+      thirdPerson: "{name} is:",
     },
     options: [
       {
         label: {
           secondPerson: "Spotify Surfer",
-          thirdPerson: "Spotify Surfer",
+          thirdPerson: "A spotify Surfer",
         },
         side: "left",
         emoji: "🏄",
@@ -255,14 +253,13 @@ export const musicQuestions: Question[] = [
     id: 21,
     label: {
       secondPerson: "Music experimentalist or sticks to what they know?",
-      thirdPerson:
-        "{name} is a music experimentalist or sticks to what they know?",
+      thirdPerson: "{name} is:",
     },
     options: [
       {
         label: {
           secondPerson: "Music experimentalist",
-          thirdPerson: "Music experimentalist",
+          thirdPerson: "A music experimentalist",
         },
         side: "left",
         emoji: "🧪",

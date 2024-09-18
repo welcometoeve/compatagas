@@ -336,6 +336,8 @@ export default function App() {
     )
   }
 
+  const completedQuiz = quizzes.find((q) => q.id === completedQuizId)
+
   return (
     <View style={styles.container}>
       {/* <ExplanationText /> */}
@@ -357,15 +359,11 @@ export default function App() {
         </View>
       )}
 
-      {completedQuizFriendId !== undefined && (
+      {completedQuiz !== undefined && completedQuizFriendId && (
         <CompletionScreen
           completionAnimation={completionAnimation}
-          completedQuizName={
-            quizzes.find((q) => q.id === completedQuizId)?.name || ""
-          }
-          completedFriendName={
-            friends.find((f) => f.id === completedQuizFriendId)?.name || ""
-          }
+          completedQuiz={completedQuiz}
+          completedQuizSelfId={completedQuizFriendId}
           onDismiss={() => setCompletedQuizFriendId(undefined)}
           onContinue={handleContinue}
         />

@@ -1,34 +1,35 @@
 import QuizList from "@/components/quizzes/QuizzesList"
 import { questions, Quiz, quizzes } from "@/constants/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import React, { useState } from "react"
-
+import React from "react"
 import { View } from "react-native"
 import QuizView from "@/components/quizzes/takeQuizView/TakeQuizView"
+import { usePage } from "@/contexts/PageContext" // Import the usePage hook
 
 const QuizzesView: React.FC = () => {
-  const [curQuizId, setCurQuizId] = useState<number | null>(null)
   const { selfAnswers } = useSelfAnswers()
+  const { curquizId, setCurquizId } = usePage() // Use the context
 
-  const curQuiz = quizzes.find((quiz) => quiz.id === curQuizId)
+  const curQuiz = quizzes.find((quiz) => quiz.id === curquizId)
   const curQuestions = questions.filter(
-    (question) => question.quizId === curQuizId
+    (question) => question.quizId === curquizId
   )
+
   return (
     <View
       style={{
-        backgroundColor: "#111419", // Dark background for the entire list
+        backgroundColor: "#111419",
         flex: 1,
       }}
     >
-      {curQuizId !== null && curQuiz ? (
+      {curquizId !== null && curQuiz ? (
         <QuizView
           quiz={curQuiz}
           questions={curQuestions}
-          goBack={() => setCurQuizId(null)}
+          goBack={() => setCurquizId(null)}
         />
       ) : (
-        <QuizList setCurQuizId={setCurQuizId} />
+        <QuizList setCurQuizId={setCurquizId} />
       )}
     </View>
   )
