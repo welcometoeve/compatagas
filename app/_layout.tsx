@@ -145,14 +145,9 @@ function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={DefaultTheme}>
       <StatusBar style={"dark"} />
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colorScheme === "dark" ? "black" : "white" },
-        ]}
-      >
+      <SafeAreaView style={[styles.container]}>
         <View style={styles.debugButtonContainer}>
           <Button title="Debug" onPress={() => setIsDebugVisible(true)} />
         </View>
