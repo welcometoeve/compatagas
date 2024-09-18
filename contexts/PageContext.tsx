@@ -19,7 +19,7 @@ const PageContext = createContext<PageContextType | undefined>(undefined)
 export const PageProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [page, setCurrentPage] = useState<Page>("quizzes")
+  const [page, setCurrentPage] = useState<Page>("questions")
   const [curquizId, setCurquizId] = useState<number | null>(null)
   const [activeResultsTab, setActiveResultsTab] = useState<"your" | "their">(
     "your"
