@@ -93,7 +93,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, allUsers, isDev, tableName])
+  }, [tableName])
 
   const fetchAnswers = async () => {
     if (!user) return

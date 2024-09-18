@@ -200,7 +200,6 @@ export default function App() {
 
   const completedQuiz = quizzes.find((q) => q.id === completedQuizId)
 
-  console.log(cardState, isLoading)
   if (
     cardState.currentFriendId === null ||
     cardState.currentQuestionId === null ||
