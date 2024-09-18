@@ -135,7 +135,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     if (finalStatus !== "granted") {
-      Alert.alert("Failed to get push notification permissions")
       return
     }
 
