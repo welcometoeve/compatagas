@@ -149,11 +149,10 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       .insert(newAnswer)
       .select()
 
-    return data ? data[0] : null
     if (error) {
       throw new Error("Failed to add self answer")
     } else if (data) {
-      // Handle successful insertion if needed
+      return data ? data[0] : null
     }
   }
 

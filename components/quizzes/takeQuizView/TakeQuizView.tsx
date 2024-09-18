@@ -179,10 +179,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           return null
         })
 
-        const newSelfAnswers = (
-          await Promise.all(newSelfAnswersPromises)
-        ).filter((answer): answer is SelfAnswer => answer !== null)
-
+        const newSelfAnswers = await Promise.all(newSelfAnswersPromises)
         const fs = await addSelfAnswerInitiatedNotification(
           quiz.id,
           friendAnswers,
