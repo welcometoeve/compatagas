@@ -40,10 +40,10 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.resultContainer}>
-        <Text style={styles.title}>You Are:</Text>
+        {/* <Text style={styles.title}>You Are:</Text>
         <Text style={styles.subtitle}>
           {`${resultLabel?.label} ${resultLabel?.emoji}`}
-        </Text>
+        </Text> */}
 
         <View style={styles.labelContainer}>
           <Text style={styles.label}>{quiz.leftLabel}</Text>
@@ -58,7 +58,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
           />
           <View style={[{ left: `${sliderPosition}%` }]} />
           {Object.entries(groupedResults).map(([value, groupResults]) => {
-            const friendPosition = ((parseFloat(value) + 1) / 2) * 100
+            const position = ((parseFloat(value) + 1) / 2) * 100
             const names = groupResults.map((r) => r.name).join(", ")
 
             return (
@@ -67,15 +67,21 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
                   <View
                     key={result.id}
                     style={[
-                      styles.friendDot,
-                      { left: `${friendPosition}%` },
+                      styles.dot,
+                      { left: `${position}%` },
+                      { marginTop: -8 },
+                      {
+                        backgroundColor: groupResults.find((r) => r.isSelf)
+                          ? "#FF4457"
+                          : "rgba(255, 255, 255, 0.5)",
+                        borderWidth: 2,
+                        borderColor: result.isSelf ? "transparent" : "#FF4457",
+                      },
                       // result.isSelf ? styles.selfDot : null,
                     ]}
                   />
                 ))}
-                <Text
-                  style={[styles.resultName, { left: `${friendPosition}%` }]}
-                >
+                <Text style={[styles.resultName, { left: `${position}%` }]}>
                   {names}
                 </Text>
               </React.Fragment>
@@ -83,7 +89,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
           })}
         </View>
       </View>
-      <View style={styles.friendsResultContainer}>
+      {/* <View style={styles.friendsResultContainer}>
         {results.map((result) => (
           <View key={result.id} style={styles.friendResult}>
             <Text style={styles.friendName}>{result.name}</Text>
@@ -99,7 +105,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
             </View>
           </View>
         ))}
-      </View>
+      </View> */}
     </View>
   )
 }
@@ -153,7 +159,8 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     position: "relative",
-    height: 24,
+    height: 10,
+    marginTop: 12,
   },
   sliderBackground: {
     position: "absolute",
@@ -179,7 +186,7 @@ const styles = StyleSheet.create({
   //   shadowRadius: 3.84,
   //   elevation: 3,
   // },
-  friendDot: {
+  dot: {
     position: "absolute",
     top: 0,
     width: 24,
@@ -187,12 +194,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#FF4457",
     transform: [{ translateX: -12 }],
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 3,
   },
-  selfDot: {
-    zIndex: 2,
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-  },
+
   resultName: {
     position: "absolute",
     top: 24,

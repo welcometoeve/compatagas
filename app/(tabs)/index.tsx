@@ -7,7 +7,6 @@ import {
   Dimensions,
 } from "react-native"
 import { Question, questions, quizzes } from "../../constants/questions"
-import { useFriends } from "@/contexts/FriendsContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
@@ -32,7 +31,6 @@ interface CardState {
 }
 
 export default function App() {
-  const { friends } = useFriends()
   const { friendAnswers, addFriendAnswer, isLoading } = useFriendAnswers()
   const [cardState, setCardState] = useState<CardState>({
     currentFriendId: null,
@@ -55,6 +53,8 @@ export default function App() {
     quizId: number
     selfId: number
   } | null>(null)
+
+  const friends = allUsers.filter((u) => u.id !== user?.id)
 
   const availableQuestions: Question[] = questions
 

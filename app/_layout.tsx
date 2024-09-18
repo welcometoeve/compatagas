@@ -17,7 +17,6 @@ import NavBar from "./NavBar"
 import { UserProvider, useUser } from "@/contexts/UserContext"
 import AccountScreen from "./(tabs)/login"
 import { DebugView } from "./(tabs)/DebugView"
-import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
 import {
   AnswerProvider,
   useFriendAnswers,
@@ -45,9 +44,13 @@ function RootLayout() {
   const [isDebugVisible, setIsDebugVisible] = useState<boolean>(false)
   const [update, setUpdate] = useState<Updates.UpdateCheckResult | null>(null)
   const [updateString, setUpdateString] = useState<string>("")
-  const { user, authenticating, signingUp, requestNotificationPermission } =
-    useUser()
-  const { refreshFriends, error: friendsError, friends } = useFriends()
+  const {
+    user,
+    authenticating,
+    signingUp,
+    requestNotificationPermission,
+    allUsers,
+  } = useUser()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchFriendAnswers } =
     useFriendAnswers()
@@ -84,7 +87,6 @@ function RootLayout() {
 
   useEffect(() => {
     if (!!user && !authenticating && !signingUp) {
-      refreshFriends()
       requestNotificationPermission().catch((error) => {
         console.error("Error requesting notification permission:", error)
         // Alert.alert(
@@ -96,16 +98,13 @@ function RootLayout() {
   }, [!!user, authenticating, signingUp])
 
   useEffect(() => {
-    if (friendsError || fetchAnswersError || fetchSelfAnswersError) {
+    if (fetchAnswersError || fetchSelfAnswersError) {
       setErrorMessage(
-        friendsError ||
-          fetchAnswersError ||
-          fetchSelfAnswersError ||
-          "An error occurred"
+        fetchAnswersError || fetchSelfAnswersError || "An error occurred"
       )
       setIsErrorModalVisible(true)
     }
-  }, [friendsError, fetchAnswersError, fetchSelfAnswersError])
+  }, [fetchAnswersError, fetchSelfAnswersError])
 
   async function checkForUpdates() {
     setUpdateString(updateString + "\nChecking for updates")
@@ -129,9 +128,7 @@ function RootLayout() {
 
   const handleErrorModalClose = () => {
     setIsErrorModalVisible(false)
-    if (friendsError) {
-      refreshFriends()
-    } else if (fetchAnswersError) {
+    if (fetchAnswersError) {
       fetchFriendAnswers()
     } else if (fetchSelfAnswersError) {
       fetchSelfAnswers()
@@ -156,7 +153,7 @@ function RootLayout() {
 
         <View style={[styles.fullPageView, styles.cameraView]}>
           {page === "questions" ? (
-            friends.length > 0 ? (
+            allUsers.length > 0 ? (
               <App />
             ) : null
           ) : page === "results" ? (
@@ -175,13 +172,7 @@ function RootLayout() {
           visible={isErrorModalVisible}
           message={errorMessage}
           onClose={handleErrorModalClose}
-          retry={
-            friendsError
-              ? refreshFriends
-              : fetchAnswersError
-              ? fetchFriendAnswers
-              : fetchSelfAnswers
-          }
+          retry={fetchAnswersError ? fetchFriendAnswers : fetchSelfAnswers}
         />
       </SafeAreaView>
       <NavBar />
@@ -213,15 +204,13 @@ export default function ContextWrapper() {
     <EnvironmentProvider>
       <UserProvider>
         <NotificationProvider>
-          <FriendsProvider>
-            <AnswerProvider>
-              <SelfAnswerProvider>
-                <PageProvider>
-                  <RootLayout />
-                </PageProvider>
-              </SelfAnswerProvider>
-            </AnswerProvider>
-          </FriendsProvider>
+          <AnswerProvider>
+            <SelfAnswerProvider>
+              <PageProvider>
+                <RootLayout />
+              </PageProvider>
+            </SelfAnswerProvider>
+          </AnswerProvider>
         </NotificationProvider>
       </UserProvider>
     </EnvironmentProvider>

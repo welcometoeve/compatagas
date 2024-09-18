@@ -10,6 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import * as Notifications from "expo-notifications"
 import { Alert } from "react-native"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
+import { useEnvironment } from "./EnvironmentContext"
 
 // Define types
 export type UserProfile = {
@@ -46,6 +47,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [signingUp, setSigningUp] = useState(false)
   const [lastNotification, setLastNotification] =
     useState<Notifications.Notification | null>(null)
+  const { isDev } = useEnvironment()
+
+  const tableName = isDev ? "User_dev" : "User"
 
   const authenticate = async (
     phoneNumber: number
@@ -53,7 +57,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     setSigningUp(true)
     try {
       const { data, error } = await supabase
-        .from("User")
+        .from(tableName)
         .select("*")
         .eq("phoneNumber", phoneNumber)
         .single()
@@ -74,7 +78,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     setSigningUp(true)
     try {
       const { data: existingUser, error: fetchError } = await supabase
-        .from("User")
+        .from(tableName)
         .select("*")
         .eq("phoneNumber", parseInt(phoneNumber.toString()))
         .single()
@@ -90,7 +94,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       const { data: newUser, error: insertError } = await supabase
-        .from("User")
+        .from(tableName)
         .insert({ phoneNumber: phoneNumber, name: name })
         .select()
         .single()
@@ -109,7 +113,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   const fetchAllUsers = async () => {
     const { data, error } = await supabase
-      .from("User")
+      .from(tableName)
       .select("*")
       .eq("deleted", false)
 
@@ -121,7 +125,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   const requestNotificationPermission = async () => {
-    // console.log("Requesting notification permission")
     const { status: existingStatus } = await Notifications.getPermissionsAsync()
     let finalStatus = existingStatus
 
@@ -139,7 +142,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
     if (user) {
       const { error } = await supabase
-        .from("User")
+        .from(tableName)
         .update({ notificationToken: token })
         .eq("id", user.id)
 
@@ -182,22 +185,19 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     const notificationListener = Notifications.addNotificationReceivedListener(
       (notification) => {
         setLastNotification(notification)
-        // console.log("Notification received:", notification)
-        // Handle the notification here (e.g., update UI, trigger events)
       }
     )
 
     const responseListener =
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log("Notification response received:", response)
-        // Handle the user's response to the notification (e.g., navigate to a specific screen)
       })
 
     const subscription = supabase
       .channel("public:User")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "User" },
+        { event: "*", schema: "public", table: tableName },
         (payload) => {
           fetchAllUsers()
         }
@@ -209,7 +209,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       Notifications.removeNotificationSubscription(notificationListener)
       Notifications.removeNotificationSubscription(responseListener)
     }
-  }, [])
+  }, [isDev, tableName])
 
   return (
     <UserContext.Provider

@@ -5,7 +5,6 @@ import {
   RealtimeChannel,
 } from "@supabase/supabase-js"
 import { UserProfile, useUser } from "./UserContext"
-import { useFriends } from "./FriendsContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { questions } from "@/constants/questions"
 import { FriendAnswer, useFriendAnswers } from "./FriendAnswerContext"
@@ -45,8 +44,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [answers, setAnswers] = useState<SelfAnswer[]>([])
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const { user } = useUser()
-  const { friends } = useFriends()
+  const { user, allUsers } = useUser()
   const { addNotification } = useNotification()
   const { isDev } = useEnvironment()
 
@@ -107,7 +105,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, friends, isDev, tableName])
+  }, [user, allUsers, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
