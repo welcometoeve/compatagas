@@ -7,7 +7,7 @@ import {
 } from "react"
 import { createClient } from "@supabase/supabase-js"
 import { useUser, UserProfile } from "./UserContext" // Assuming UserContext is in a separate file
-import { SupabaseKey, SupabaseUrl } from "@/constants"
+import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 
 type FriendsContextType = {
   friends: UserProfile[]

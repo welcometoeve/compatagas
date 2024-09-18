@@ -259,6 +259,7 @@ export default function App() {
         optionIndex
       )
       const result = addFriendAnswerInitiatedNotification(
+        allUsers,
         friendAnswers,
         selfAnswers,
         quizId,

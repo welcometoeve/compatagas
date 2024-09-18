@@ -7,9 +7,9 @@ import {
 } from "react"
 import { createClient } from "@supabase/supabase-js"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { SupabaseKey, SupabaseUrl } from "@/constants"
 import * as Notifications from "expo-notifications"
 import { Alert } from "react-native"
+import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 
 // Define types
 export type UserProfile = {
@@ -27,6 +27,7 @@ type UserContextType = {
   createUser: (phoneNumber: number, name: string) => Promise<UserProfile>
   clearUser: () => void
   requestNotificationPermission: () => Promise<void>
+  lastNotification: Notifications.Notification | null
 }
 
 // Create Supabase client
@@ -43,6 +44,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [allUsers, setAllUsers] = useState<UserProfile[]>([])
   const [authenticating, setAuthenticating] = useState(true)
   const [signingUp, setSigningUp] = useState(false)
+  const [lastNotification, setLastNotification] =
+    useState<Notifications.Notification | null>(null)
 
   const authenticate = async (
     phoneNumber: number
@@ -147,6 +150,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         setUser({ ...user, notificationToken: token })
       }
     }
+
+    // Set up notification handler
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    })
   }
 
   useEffect(() => {
@@ -158,12 +170,28 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           await authenticate(parseInt(storedPhoneNumber))
         }
         await fetchAllUsers()
+        await requestNotificationPermission()
       } finally {
         setAuthenticating(false)
       }
     }
 
     initializeUser()
+
+    // Set up notification listeners
+    const notificationListener = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        setLastNotification(notification)
+        // console.log("Notification received:", notification)
+        // Handle the notification here (e.g., update UI, trigger events)
+      }
+    )
+
+    const responseListener =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log("Notification response received:", response)
+        // Handle the user's response to the notification (e.g., navigate to a specific screen)
+      })
 
     const subscription = supabase
       .channel("public:User")
@@ -178,6 +206,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
     return () => {
       subscription.unsubscribe()
+      Notifications.removeNotificationSubscription(notificationListener)
+      Notifications.removeNotificationSubscription(responseListener)
     }
   }, [])
 
@@ -191,6 +221,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         createUser,
         clearUser: () => setUser(null),
         requestNotificationPermission,
+        lastNotification,
       }}
     >
       {children}

@@ -4,11 +4,16 @@ import { SelfAnswer } from "./SelfAnswerContext"
 import { UserProfile } from "./UserContext"
 import collect from "@/components/collect"
 import { CustomNotification } from "./NotificationContext"
+import { createClient } from "@supabase/supabase-js"
+import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
+
+const supabase = createClient(SupabaseUrl, SupabaseKey)
 
 export async function addSelfAnswerInitiatedNotification(
   quizId: number,
   friendAnswers: FriendAnswer[],
   user: UserProfile,
+  allUsers: UserProfile[],
   addNotification: (
     selfId: number,
     friendId: number,
@@ -39,12 +44,20 @@ export async function addSelfAnswerInitiatedNotification(
     const quizId = q.quizId
 
     await addNotification(selfId, friendId, quizId)
+    await sendNotification(
+      friendId.toString(),
+      "New Pack Results!",
+      `One of ${
+        allUsers.find((u) => u.id === selfId)?.name
+      }'s pack results are available.`
+    )
   })
 
   return completedFriendQuizzes.map((q) => q.friendId)
 }
 
 export function addFriendAnswerInitiatedNotification(
+  allUsers: UserProfile[],
   friendAnswers: FriendAnswer[],
   selfAnswers: SelfAnswer[],
   quizId: number,
@@ -80,8 +93,39 @@ export function addFriendAnswerInitiatedNotification(
     !existingNotification
   ) {
     addNotification(selfId, friendId, quizId)
+    sendNotification(
+      selfId.toString(),
+      "New Pack Results!",
+      `${
+        allUsers.find((u) => u.id === friendId)?.name
+      } has finished one of your packs.`
+    )
+
     return { friendId: selfId, quizId }
   } else {
     return undefined
+  }
+}
+
+async function sendNotification(
+  recipientId: string,
+  title: string,
+  message: string
+) {
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "send-notification",
+      {
+        body: JSON.stringify({ recipientId, title, message }),
+      }
+    )
+
+    if (error) throw error
+
+    console.log("Notification sent successfully:", data)
+    return data
+  } catch (error) {
+    console.error("Error sending notification:", error)
+    throw error
   }
 }

@@ -7,7 +7,7 @@ import React, {
   ReactNode,
 } from "react"
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
-import { SupabaseKey, SupabaseUrl } from "@/constants"
+import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useUser } from "./UserContext"
 
 // Initialize Supabase client

@@ -172,6 +172,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           quiz.id,
           friendAnswers,
           user,
+          allUsers,
           addNotification
         )
 

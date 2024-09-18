@@ -6,10 +6,10 @@ import {
 } from "@supabase/supabase-js"
 import { useUser } from "./UserContext"
 import { useFriends } from "./FriendsContext"
-import { SupabaseKey, SupabaseUrl } from "@/constants"
 import { useSelfAnswers } from "./SelfAnswerContext"
 import { questions } from "@/components/questions"
 import { useNotification } from "./NotificationContext"
+import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -104,7 +104,6 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       .from("FriendAnswer")
       .select("*")
       .eq("deleted", false)
-
 
     if (error) {
       console.error("Error fetching friend answers:", error)
