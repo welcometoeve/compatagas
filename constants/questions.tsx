@@ -158,7 +158,7 @@ export const musicQuestions: Question[] = [
     id: 17,
     label: {
       secondPerson:
-        "Walking Spotify algorithm or still figuring out who Chapell Roan is?",
+        "Walking Spotify algorithm or still figuring out who Chappell Roan is?",
       thirdPerson: "{name} is:",
     },
     options: [
@@ -172,8 +172,8 @@ export const musicQuestions: Question[] = [
       },
       {
         label: {
-          secondPerson: "Still figuring out who Chapell Roan is",
-          thirdPerson: "Still figuring out who Chapell Roan is",
+          secondPerson: "Still figuring out who Chappell Roan is",
+          thirdPerson: "Still figuring out who Chappell Roan is",
         },
         side: "right",
         emoji: "🤔",
