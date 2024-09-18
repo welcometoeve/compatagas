@@ -11,6 +11,7 @@ import { questions } from "@/components/questions"
 import { FriendAnswer, useFriendAnswers } from "./FriendAnswerContext"
 import collect from "@/components/collect"
 import { useNotification } from "./NotificationContext"
+import { useEnvironment } from "./EnvironmentContext"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -21,7 +22,6 @@ export type SelfAnswer = {
   questionId: number
   optionIndex: number
   quizId: number
-  deleted: boolean
 }
 
 type SelfAnswerContextType = {
@@ -48,6 +48,9 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const { user } = useUser()
   const { friends } = useFriends()
   const { addNotification } = useNotification()
+  const { isDev } = useEnvironment()
+
+  const tableName = isDev ? "SelfAnswer_dev" : "SelfAnswer"
 
   useEffect(() => {
     let subscription: RealtimeChannel | null = null
@@ -63,8 +66,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
           {
             event: "*",
             schema: "public",
-            table: "SelfAnswer",
-            filter: "deleted=eq.false",
+            table: tableName,
           },
           (payload) => {
             const newAnswer = payload.new as SelfAnswer
@@ -105,7 +107,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, friends])
+  }, [user, friends, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
@@ -113,10 +115,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase
-      .from("SelfAnswer")
-      .select("*")
-      .eq("deleted", false)
+    const { data, error } = await supabase.from(tableName).select("*")
 
     if (error) {
       console.error("Error fetching self answers:", error)
@@ -140,7 +139,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       return "Answer already exists for this user and question"
     }
 
-    const newAnswer: Omit<SelfAnswer, "id" | "deleted"> = {
+    const newAnswer: Omit<SelfAnswer, "id"> = {
       userId: user.id,
       questionId,
       optionIndex,
@@ -148,8 +147,8 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const { data, error } = await supabase
-      .from("SelfAnswer")
-      .insert({ ...newAnswer, deleted: false })
+      .from(tableName)
+      .insert(newAnswer)
       .select()
 
     if (error) {

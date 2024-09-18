@@ -10,6 +10,7 @@ import { useSelfAnswers } from "./SelfAnswerContext"
 import { questions } from "@/components/questions"
 import { useNotification } from "./NotificationContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
+import { useEnvironment } from "./EnvironmentContext"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -49,6 +50,9 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const { friends } = useFriends()
   const { notifications, fetchNotifications, addNotification } =
     useNotification()
+  const { isDev } = useEnvironment()
+
+  const tableName = isDev ? "FriendAnswer_dev" : "FriendAnswer"
 
   useEffect(() => {
     let subscription: RealtimeChannel | null = null
@@ -58,14 +62,13 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Set up real-time subscription
       subscription = supabase
-        .channel("FriendAnswer")
+        .channel(tableName)
         .on(
           "postgres_changes",
           {
             event: "*",
             schema: "public",
-            table: "FriendAnswer",
-            filter: "deleted=eq.false",
+            table: tableName,
           },
           (payload) => {
             const newAnswer = payload.new as FriendAnswer
@@ -92,7 +95,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, friends])
+  }, [user, friends, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
@@ -100,10 +103,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase
-      .from("FriendAnswer")
-      .select("*")
-      .eq("deleted", false)
+    const { data, error } = await supabase.from(tableName).select("*")
 
     if (error) {
       console.error("Error fetching friend answers:", error)
@@ -142,7 +142,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       quizId: questions.find((q) => q.id === questionId)?.quizId || 0,
     }
     const { data, error } = await supabase
-      .from("FriendAnswer")
+      .from(tableName)
       .insert(newAnswer)
       .select()
 
@@ -150,6 +150,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error adding friend answer:", error)
       return "Error adding friend answer"
     } else if (data) {
+      // Handle successful insertion if needed
     }
   }
 

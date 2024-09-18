@@ -149,7 +149,7 @@ const NavBar: React.FC<NavBarProps> = ({ page, setPage }: NavBarProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "rgb(255, 255, 255)",
+    backgroundColor: "rgb(250, 250, 250)",
     paddingTop: 25,
     paddingBottom: 45,
     borderTopColor: "#E0E0E0",

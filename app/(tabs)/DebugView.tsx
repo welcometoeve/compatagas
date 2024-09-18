@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   Button,
   AppState,
+  Switch,
 } from "react-native"
 import { UpdateCheckResult } from "expo-updates"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { createClient } from "@supabase/supabase-js"
 import { useUser } from "@/contexts/UserContext"
+import { useEnvironment } from "@/contexts/EnvironmentContext"
+import * as Updates from "expo-updates"
 
 interface DebugViewProps {
   isVisible: boolean
@@ -28,6 +31,7 @@ export function DebugView({
 }: DebugViewProps) {
   const { clearUser } = useUser()
   const { user } = useUser()
+  const { isDev, setDev } = useEnvironment()
 
   return (
     <Modal
@@ -57,10 +61,23 @@ export function DebugView({
           User Phone Number: {user?.phoneNumber}
         </Text>
 
+        <View style={styles.toggleContainer}>
+          <Text style={styles.debugText}>{`isDev:${isDev}`} </Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isDev ? "white" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={async () => {
+              setDev(!isDev)
+            }}
+            value={isDev}
+          />
+        </View>
+
         <Button
           title="Log Out"
           onPress={() => {
-            AsyncStorage.clear()
+            AsyncStorage.removeItem("phoneNumber")
             clearUser()
             onClose()
           }}
@@ -103,5 +120,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    marginBottom: 30,
+    alignContent: "center",
+    justifyContent: "center",
+    gap: 10,
   },
 })

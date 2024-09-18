@@ -8,6 +8,7 @@ import {
 import { createClient } from "@supabase/supabase-js"
 import { useUser, UserProfile } from "./UserContext" // Assuming UserContext is in a separate file
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
+import { useEnvironment } from "./EnvironmentContext"
 
 type FriendsContextType = {
   friends: UserProfile[]
@@ -29,6 +30,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { user } = useUser()
+  const { isDev } = useEnvironment()
 
   const fetchFriends = async () => {
     if (!user) return
@@ -37,11 +39,11 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
     setError(null)
 
     try {
+      const tableName = isDev ? "User_dev" : "User"
       const { data, error } = await supabase
-        .from("User")
+        .from(tableName)
         .select("*")
         .neq("id", user.id)
-        .eq("deleted", false)
 
       if (error) throw error
 

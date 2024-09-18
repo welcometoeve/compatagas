@@ -9,6 +9,7 @@ import React, {
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useUser } from "./UserContext"
+import { useEnvironment } from "./EnvironmentContext"
 
 // Initialize Supabase client
 const supabase: SupabaseClient = createClient(SupabaseUrl, SupabaseKey)
@@ -53,6 +54,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 }) => {
   const [notifications, setNotifications] = useState<CustomNotification[]>([])
   const { user } = useUser()
+  const { isDev } = useEnvironment()
+
+  const tableName = isDev ? "Notification_dev" : "Notification"
 
   const fetchNotifications = useCallback(async (): Promise<
     CustomNotification[]
@@ -60,7 +64,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     if (!user) return []
 
     const { data, error } = await supabase
-      .from("Notification")
+      .from(tableName)
       .select("*")
       .or(`selfId.eq.${user.id},friendId.eq.${user.id}`)
       .order("createdAt", { ascending: false })
@@ -72,7 +76,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     setNotifications(data as CustomNotification[])
     return data as CustomNotification[]
-  }, [user])
+  }, [user, tableName])
 
   const addNotification = useCallback(
     async (
@@ -81,7 +85,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       quizId: number
     ): Promise<CustomNotification | null> => {
       const { data, error } = await supabase
-        .from("Notification")
+        .from(tableName)
         .insert([{ selfId, friendId, quizId }])
         .select()
 
@@ -97,15 +101,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       ])
       return newNotification
     },
-    []
+    [tableName]
   )
 
   const removeNotification = useCallback(
     async (id: number): Promise<boolean> => {
-      const { error } = await supabase
-        .from("Notification")
-        .delete()
-        .match({ id })
+      const { error } = await supabase.from(tableName).delete().match({ id })
 
       if (error) {
         console.error("Error removing notification:", error)
@@ -117,7 +118,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       )
       return true
     },
-    []
+    [tableName]
   )
 
   const markAsOpened = useCallback(
@@ -130,9 +131,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         : { friendOpened: true }
 
       try {
-        // Using upsert instead of update
         const { data, error } = await supabase
-          .from("Notification")
+          .from(tableName)
           .upsert({ ...notification, ...updateObject })
           .select()
 
@@ -143,7 +143,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
         if (data === null) {
           console.error("Unexpected null data from Supabase")
-
           return false
         }
 
@@ -152,7 +151,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             prevNotifications.map((n) =>
               n.id === notification.id
                 ? { ...notification, ...updateObject }
-                : notification
+                : n
             )
           )
           return true
@@ -165,7 +164,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         return false
       }
     },
-    []
+    [tableName]
   )
 
   useEffect(() => {
@@ -180,8 +179,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           {
             event: "*",
             schema: "public",
-            table: "Notification",
-            filter: "deleted=eq.false",
+            table: tableName,
           },
           (payload) => {
             fetchNotifications()
@@ -194,7 +192,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         subscription.unsubscribe()
       }
     }
-  }, [fetchNotifications, user])
+  }, [fetchNotifications, user, tableName])
 
   const contextValue: NotificationContextType = {
     notifications,

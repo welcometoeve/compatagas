@@ -121,7 +121,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   const requestNotificationPermission = async () => {
-    console.log("Requesting notification permission")
+    // console.log("Requesting notification permission")
     const { status: existingStatus } = await Notifications.getPermissionsAsync()
     let finalStatus = existingStatus
 

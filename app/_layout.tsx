@@ -31,6 +31,7 @@ import {
 import { ResultsView } from "./(tabs)/ResultsView"
 import { NotificationProvider } from "@/contexts/NotificationContext"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -208,16 +209,18 @@ const styles = StyleSheet.create({
 
 export default function ContextWrapper() {
   return (
-    <UserProvider>
-      <NotificationProvider>
-        <FriendsProvider>
-          <AnswerProvider>
-            <SelfAnswerProvider>
-              <RootLayout />
-            </SelfAnswerProvider>
-          </AnswerProvider>
-        </FriendsProvider>
-      </NotificationProvider>
-    </UserProvider>
+    <EnvironmentProvider>
+      <UserProvider>
+        <NotificationProvider>
+          <FriendsProvider>
+            <AnswerProvider>
+              <SelfAnswerProvider>
+                <RootLayout />
+              </SelfAnswerProvider>
+            </AnswerProvider>
+          </FriendsProvider>
+        </NotificationProvider>
+      </UserProvider>
+    </EnvironmentProvider>
   )
 }
