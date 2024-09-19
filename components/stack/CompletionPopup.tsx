@@ -54,21 +54,26 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
           You've finished the {completedQuiz.name} for{" "}
           {allUsers.find((u) => u.id === completedQuizSelfId)?.name}!
         </Text>
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={() => {
-            setPage("results")
-            setActiveResultsTab("their")
-            setCurQuizResultItem({
-              quiz: completedQuiz,
-              friendIds: user ? [user?.id] : [],
-              selfId: completedQuizSelfId,
-            })
-          }}
-        >
-          <Text style={styles.continueButtonText}>View Results</Text>
-          <Ionicons name="chevron-forward" size={24} color="white" />
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.continueButton} onPress={onContinue}>
+            <Text style={styles.continueButtonText}>Continue</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.viewResultsButton}
+            onPress={() => {
+              setPage("results")
+              setActiveResultsTab("their")
+              setCurQuizResultItem({
+                quiz: completedQuiz,
+                friendIds: user ? [user?.id] : [],
+                selfId: completedQuizSelfId,
+              })
+            }}
+          >
+            <Text style={styles.viewResultsButtonText}>View Results</Text>
+            {/* <Ionicons name="chevron-forward" size={24} color="white" /> */}
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </View>
   )
@@ -113,16 +118,38 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   continueButton: {
-    backgroundColor: "#FF4457",
+    backgroundColor: "#3A93F4",
     padding: 12,
     borderRadius: 8,
-    flexDirection: "row",
+    marginRight: 10,
+    alignItems: "center",
+    flex: 1,
   },
   continueButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  viewResultsButton: {
+    backgroundColor: "#FF4457",
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: "row",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  viewResultsButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 5,
   },
   dismissButton: {
     position: "absolute",

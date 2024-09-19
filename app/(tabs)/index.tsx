@@ -16,10 +16,10 @@ import * as Haptics from "expo-haptics"
 import {
   CardContents,
   CardStack,
-  CompletionScreen,
   ExplanationText,
   OutOfQuestionsView,
 } from "@/components/stack/StackComponents"
+import CompletionScreen from "@/components/stack/CompletionPopup"
 
 const { width } = Dimensions.get("window")
 
@@ -46,7 +46,7 @@ export default function App() {
     number | undefined
   >(undefined)
   const [completedQuizId, setCompletedQuizId] = useState<number | undefined>()
-  const [completionAnimation] = useState(new Animated.Value(0))
+  const [completionAnimation] = useState(new Animated.Value(1))
   const slideAnimation = useRef(new Animated.Value(0)).current
   const fadeAnimation = useRef(new Animated.Value(1)).current
   const [currentQuizUserCombo, setCurrentQuizUserCombo] = useState<{
@@ -359,11 +359,11 @@ export default function App() {
         </View>
       )}
 
-      {completedQuiz !== undefined && completedQuizFriendId && (
+      {completedQuiz == undefined && !completedQuizFriendId && (
         <CompletionScreen
           completionAnimation={completionAnimation}
-          completedQuiz={completedQuiz}
-          completedQuizSelfId={completedQuizFriendId}
+          completedQuiz={quizzes[0]}
+          completedQuizSelfId={3}
           onDismiss={() => setCompletedQuizFriendId(undefined)}
           onContinue={handleContinue}
         />

@@ -8,7 +8,6 @@ import {
   Animated,
 } from "react-native"
 import { insertName, Question } from "../../constants/questions"
-import CompletionScreen from "@/components/stack/CompletionPopup"
 import { UserProfile } from "@/contexts/UserContext"
 
 interface CardContentsProps {
@@ -107,8 +106,6 @@ export const ExplanationText: React.FC = () => (
     Answer questions about your friends to see what they said about themselves.
   </Text>
 )
-
-export { CompletionScreen }
 
 const styles = StyleSheet.create({
   name: {
