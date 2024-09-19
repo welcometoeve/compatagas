@@ -1,7 +1,7 @@
 import { questions } from "@/constants/questions"
-import { FriendAnswer } from "./FriendAnswerContext"
-import { SelfAnswer } from "./SelfAnswerContext"
-import { UserProfile } from "./UserContext"
+import { FriendAnswer } from "../FriendAnswerContext"
+import { SelfAnswer } from "../SelfAnswerContext"
+import { UserProfile } from "../UserContext"
 import collect from "@/components/collect"
 import { CustomNotification } from "./NotificationContext"
 import { createClient } from "@supabase/supabase-js"
@@ -43,13 +43,13 @@ export async function addSelfAnswerInitiatedNotification(
     const friendId = q.friendId
     const quizId = q.quizId
 
+    const selfUser = allUsers.find((u) => u.id === selfId)
     await addNotification(selfId, friendId, quizId)
     await sendNotification(
       friendId.toString(),
       "New Pack Results!",
-      `One of ${
-        allUsers.find((u) => u.id === selfId)?.name
-      }'s pack results are available.`
+      `One of ${selfUser?.name}'s pack results are available.`,
+      selfUser?.notificationToken
     )
   })
 
@@ -92,13 +92,15 @@ export function addFriendAnswerInitiatedNotification(
     numQuestionsInThisQuiz <= numSelfAnswers &&
     !existingNotification
   ) {
+    const selfUser = allUsers.find((u) => u.id === selfId)
     addNotification(selfId, friendId, quizId)
     sendNotification(
       selfId.toString(),
       "New Pack Results!",
       `${
         allUsers.find((u) => u.id === friendId)?.name
-      } has finished one of your packs.`
+      } has finished one of your packs.`,
+      selfUser?.notificationToken
     )
 
     return { friendId: selfId, quizId }
@@ -110,13 +112,19 @@ export function addFriendAnswerInitiatedNotification(
 async function sendNotification(
   recipientId: string,
   title: string,
-  message: string
+  message: string,
+  notificationToken?: string
 ) {
   try {
     const { data, error } = await supabase.functions.invoke(
       "send-notification",
       {
-        body: JSON.stringify({ recipientId, title, message }),
+        body: JSON.stringify({
+          recipientId,
+          title,
+          message,
+          notificationToken,
+        }),
       }
     )
 

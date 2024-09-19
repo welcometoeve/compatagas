@@ -49,8 +49,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     useState<Notifications.Notification | null>(null)
   const { isDev } = useEnvironment()
 
-  const tableName = isDev ? "User_dev" : "User"
-
+  const tableName = isDev ? "_User_dev" : "User"
   const authenticate = async (
     phoneNumber: number
   ): Promise<UserProfile | null> => {
@@ -89,7 +88,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
       if (existingUser) {
         setUser(existingUser)
-        await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
+        await AsyncStorage.setItem(
+          `phoneNumber-${tableName}`,
+          phoneNumber.toString()
+        )
         return existingUser
       }
 
@@ -113,7 +115,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   const fetchAllUsers = async () => {
     if (!user) return
-
     let query = supabase.from(tableName).select("*").eq("deleted", false)
 
     if (user.name && user.name.toLowerCase().includes("leah")) {
@@ -176,7 +177,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     fetchAllUsers()
-  }, [user])
+  }, [user, tableName])
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -207,7 +208,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       })
 
     const subscription = supabase
-      .channel("public:User")
+      .channel(tableName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: tableName },

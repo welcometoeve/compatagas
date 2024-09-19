@@ -2,7 +2,7 @@ import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons"
 import NotificationDot from "@/components/results/NotificationDot"
-import { useNotification } from "@/contexts/NotificationContext"
+import { useNotification } from "@/contexts/notification/NotificationContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
 import { RectangleStackIcon as RectangleStackIconOutline } from "react-native-heroicons/outline"
@@ -179,8 +179,8 @@ const styles = StyleSheet.create({
   },
   notificationDotContainer: {
     position: "absolute",
-    top: -9,
-    left: -20,
+    top: -10,
+    right: -7,
   },
   flippedIcon: {
     transform: [{ rotate: "180deg" }],

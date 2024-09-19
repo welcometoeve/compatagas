@@ -10,8 +10,8 @@ import { Question, questions, quizzes } from "../../constants/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
-import { useNotification } from "@/contexts/NotificationContext"
-import { addFriendAnswerInitiatedNotification } from "@/contexts/addNotification"
+import { useNotification } from "@/contexts/notification/NotificationContext"
+import { addFriendAnswerInitiatedNotification } from "@/contexts/notification/addNotification"
 import * as Haptics from "expo-haptics"
 import {
   CardContents,

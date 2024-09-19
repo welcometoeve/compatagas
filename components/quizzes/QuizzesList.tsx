@@ -27,9 +27,10 @@ const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
     (answer) =>
       questions.find(
         (question) =>
-          question.id === answer.questionId && answer.userId === user?.id
+          question.id === answer.questionId && answer.userId == user?.id
       )?.quizId === item.id
   )
+
   return (
     <TouchableOpacity style={styles.quizItem} onPress={onPress}>
       <Image source={item.src} style={styles.quizImage} />

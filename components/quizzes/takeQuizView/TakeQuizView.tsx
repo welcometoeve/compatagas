@@ -15,9 +15,9 @@ import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { CustomAlert } from "./CustomAlert"
 import QuestionView, { Answers } from "./QuestionView"
 import ResultSlider from "./QuizResultsWithoutFriendsView"
-import { addSelfAnswerInitiatedNotification } from "@/contexts/addNotification"
+import { addSelfAnswerInitiatedNotification } from "@/contexts/notification/addNotification"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
-import { useNotification } from "@/contexts/NotificationContext"
+import { useNotification } from "@/contexts/notification/NotificationContext"
 import * as Haptics from "expo-haptics"
 import collect from "@/components/collect"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -193,6 +193,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
 
         setSubmitSuccess(true)
       } catch (error) {
+        console.error("Failed to submit quiz:", error)
         setSubmitError("An unexpected error occurred")
       } finally {
         setIsSubmitting(false)

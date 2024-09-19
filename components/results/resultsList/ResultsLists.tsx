@@ -13,7 +13,7 @@ import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import processQuizLists, { QuizItem } from "../proccessQuizLists"
-import { useNotification } from "@/contexts/NotificationContext"
+import { useNotification } from "@/contexts/notification/NotificationContext"
 import { questions, quizzes } from "../../../constants/questions"
 import NotificationDot from "../NotificationDot"
 import collect from "../../collect"
@@ -87,7 +87,12 @@ const ResultsList: React.FC<ResultsListProps> = ({
           color={isActive ? "#000" : "#79818D"}
         />
         {notificationCount > 0 && (
-          <View style={styles.notificationDotContainer}>
+          <View
+            style={[
+              styles.notificationDotContainer,
+              { right: iconName.startsWith("people") ? -8 : -6 },
+            ]}
+          >
             <NotificationDot count={notificationCount} />
           </View>
         )}
@@ -203,8 +208,7 @@ const styles = StyleSheet.create({
   },
   notificationDotContainer: {
     position: "absolute",
-    top: -8,
-    left: -17,
+    top: -10,
   },
 })
 

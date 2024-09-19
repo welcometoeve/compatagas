@@ -7,7 +7,7 @@ import {
 import { useUser } from "./UserContext"
 import { useSelfAnswers } from "./SelfAnswerContext"
 import { questions } from "@/constants/questions"
-import { useNotification } from "./NotificationContext"
+import { useNotification } from "./notification/NotificationContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useEnvironment } from "./EnvironmentContext"
 
@@ -50,7 +50,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     useNotification()
   const { isDev } = useEnvironment()
 
-  const tableName = isDev ? "FriendAnswer_dev" : "FriendAnswer"
+  const tableName = isDev ? "_FriendAnswer_dev" : "FriendAnswer"
 
   useEffect(() => {
     let subscription: RealtimeChannel | null = null

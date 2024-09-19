@@ -8,8 +8,8 @@ import React, {
 } from "react"
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
-import { useUser } from "./UserContext"
-import { useEnvironment } from "./EnvironmentContext"
+import { useUser } from "../UserContext"
+import { useEnvironment } from "../EnvironmentContext"
 
 // Initialize Supabase client
 const supabase: SupabaseClient = createClient(SupabaseUrl, SupabaseKey)
@@ -56,7 +56,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const { user } = useUser()
   const { isDev } = useEnvironment()
 
-  const tableName = isDev ? "Notification_dev" : "Notification"
+  const tableName = isDev ? "_Notification_dev" : "Notification"
 
   const fetchNotifications = useCallback(async (): Promise<
     CustomNotification[]
@@ -173,7 +173,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
       // Set up real-time subscription
       const subscription = supabase
-        .channel("custom-all-channel")
+        .channel(tableName)
         .on(
           "postgres_changes",
           {

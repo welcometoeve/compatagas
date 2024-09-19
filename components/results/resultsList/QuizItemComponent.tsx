@@ -1,4 +1,4 @@
-import { useNotification } from "@/contexts/NotificationContext"
+import { useNotification } from "@/contexts/notification/NotificationContext"
 import { QuizItem } from "../proccessQuizLists"
 import * as Haptics from "expo-haptics"
 import { TouchableOpacity, View, Image, Text, StyleSheet } from "react-native"

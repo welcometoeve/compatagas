@@ -28,7 +28,7 @@ import {
   useSelfAnswers,
 } from "@/contexts/SelfAnswerContext"
 import { ResultsView } from "./(tabs)/ResultsView"
-import { NotificationProvider } from "@/contexts/NotificationContext"
+import { NotificationProvider } from "@/contexts/notification/NotificationContext"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
 import { PageProvider, usePage } from "@/contexts/PageContext"

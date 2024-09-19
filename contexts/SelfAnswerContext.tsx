@@ -9,8 +9,8 @@ import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { questions } from "@/constants/questions"
 import { FriendAnswer, useFriendAnswers } from "./FriendAnswerContext"
 import collect from "@/components/collect"
-import { useNotification } from "./NotificationContext"
 import { useEnvironment } from "./EnvironmentContext"
+import { useNotification } from "./notification/NotificationContext"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -48,17 +48,16 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const { addNotification } = useNotification()
   const { isDev } = useEnvironment()
 
-  const tableName = isDev ? "SelfAnswer_dev" : "SelfAnswer"
+  const tableName = isDev ? "_SelfAnswer_dev" : "SelfAnswer"
 
   useEffect(() => {
     let subscription: RealtimeChannel | null = null
 
     if (user) {
       fetchAnswers()
-
       // Set up real-time subscription
       subscription = supabase
-        .channel("SelfAnswer")
+        .channel(tableName)
         .on(
           "postgres_changes",
           {
@@ -114,7 +113,6 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setFetchError(null)
 
     const { data, error } = await supabase.from(tableName).select("*")
-
     if (error) {
       console.error("Error fetching self answers:", error)
       setFetchError("Error fetching self answers")
@@ -150,6 +148,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       .select()
 
     if (error) {
+      console.log("Error adding self answer:", error)
       throw new Error("Failed to add self answer")
     } else if (data) {
       return data ? data[0] : null
