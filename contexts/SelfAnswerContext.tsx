@@ -6,7 +6,7 @@ import {
 } from "@supabase/supabase-js"
 import { UserProfile, useUser } from "./UserContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
-import { questions } from "@/constants/questions"
+import { questions } from "@/constants/questions/questions"
 import { FriendAnswer, useFriendAnswers } from "./FriendAnswerContext"
 import collect from "@/components/collect"
 import { useEnvironment } from "./EnvironmentContext"
