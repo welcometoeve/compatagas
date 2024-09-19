@@ -1,22 +1,22 @@
 import { Question, Quiz } from "./types";
 
 export const styleQuiz: Quiz = {
-    id: 5,
-    name: "Style Pack",
-    subtitle: {
-        secondPerson: "How stylish are you?",
-        thirdPerson: "How stylish is {name}?",
-    },
-    src: require("../assets/images/stylePack.jpg"),
-    leftLabel: "Style Novice",
-    rightLabel: "Fashion Forward",
-    resultLabels: [
-        { label: "Comfort Seeker", emoji: "🛋️" },
-        { label: "Practical Dresser", emoji: "👕" },
-        { label: "Casual Chic", emoji: "😎" },
-        { label: "Style Enthusiast", emoji: "🎨" },
-        { label: "Fashion Savvy", emoji: "✨" },
-    ],
+  id: 5,
+  name: "Style Pack",
+  subtitle: {
+    secondPerson: "How stylish are you?",
+    thirdPerson: "How stylish is {name}?",
+  },
+  src: require("../../assets/images/stylePack.jpg"),
+  leftLabel: "Style Novice",
+  rightLabel: "Fashion Forward",
+  resultLabels: [
+    { label: "Comfort Seeker", emoji: "🛋️" },
+    { label: "Practical Dresser", emoji: "👕" },
+    { label: "Casual Chic", emoji: "😎" },
+    { label: "Style Enthusiast", emoji: "🎨" },
+    { label: "Fashion Savvy", emoji: "✨" },
+  ],
 };
 
 export const styleQuestions: Question[] = [
@@ -270,4 +270,4 @@ export const styleQuestions: Question[] = [
     ],
     quizId: 5,
   },
-]
+];

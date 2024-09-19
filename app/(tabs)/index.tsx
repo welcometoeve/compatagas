@@ -1,11 +1,5 @@
-import React, { useEffect, useState, useMemo, useRef } from "react"
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  Animated,
-  Dimensions,
-} from "react-native"
+import React, { useEffect, useState, useRef } from "react"
+import { View, StyleSheet, Animated, Dimensions } from "react-native"
 import { questions, quizzes } from "../../constants/questions/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
@@ -20,24 +14,22 @@ import {
   OutOfQuestionsView,
 } from "@/components/stack/StackComponents"
 import CompletionScreen from "@/components/stack/CompletionPopup"
-import { Question } from "@/constants/questions/types"
+import selectNextQuestion, {
+  SelectedQuestion,
+} from "@/components/stack/selectNextQuestion"
 
 const { width } = Dimensions.get("window")
 
 interface CardState {
-  currentFriendId: number | null
-  currentQuestionId: number | null
-  nextFriendId: number | null
-  nextQuestionId: number | null
+  currentQuestion: SelectedQuestion | null
+  nextQuestion: SelectedQuestion | null
 }
 
 export default function App() {
   const { friendAnswers, addFriendAnswer, isLoading } = useFriendAnswers()
   const [cardState, setCardState] = useState<CardState>({
-    currentFriendId: null,
-    currentQuestionId: null,
-    nextFriendId: null,
-    nextQuestionId: null,
+    currentQuestion: null,
+    nextQuestion: null,
   })
   const [addError, setAddError] = useState<string | undefined>()
   const { user, allUsers } = useUser()
@@ -50,148 +42,104 @@ export default function App() {
   const [completionAnimation] = useState(new Animated.Value(1))
   const slideAnimation = useRef(new Animated.Value(0)).current
   const fadeAnimation = useRef(new Animated.Value(1)).current
-  const [currentQuizUserCombo, setCurrentQuizUserCombo] = useState<{
-    quizId: number
-    selfId: number
-  } | null>(null)
 
-  const friends = allUsers.filter((u) => u.id !== user?.id)
+  const questionUserCombos: { questionId: number; selfId: number }[] =
+    questions.flatMap((q) => {
+      const questionsPerUser = allUsers
+        .map((u) => {
+          return { questionId: q.id, selfId: u.id }
+        })
+        .filter((q) => q.selfId !== user?.id)
 
-  const availableQuestions: Question[] = questions
-
-  const filteredFriendAnswers = friendAnswers.filter(
-    (answer) => answer.friendId === user?.id
-  )
-
-  const quizUserCombos = useMemo(() => {
-    return quizzes.flatMap((quiz) => {
-      return allUsers.map((user) => {
-        return { quizId: quiz.id, selfId: user.id }
-      })
+      return questionsPerUser
     })
-  }, [quizzes, allUsers])
-
-  const incompleteQuizUserCombos = useMemo(() => {
-    return quizUserCombos.filter(({ quizId, selfId }) => {
-      const relevantSelfAnswers = selfAnswers.filter(
-        (sa) =>
-          sa.quizId === quizId && sa.userId === selfId && sa.userId != user?.id
-      )
-      const relevantFriendAnswers = friendAnswers.filter(
+  const userFriendAnswers = friendAnswers.filter(
+    (fa) => fa.friendId === user?.id
+  )
+  const availableQuestions: SelectedQuestion[] = questionUserCombos
+    .map((qu) => {
+      const answered = userFriendAnswers.some(
         (fa) =>
-          fa.quizId === quizId &&
-          fa.selfId === selfId &&
+          fa.questionId === qu.questionId &&
+          fa.selfId === qu.selfId &&
           fa.friendId === user?.id
       )
-      const relevantQuestions = questions.filter((q) => q.quizId === quizId)
-      return (
-        relevantQuestions.length <= relevantSelfAnswers.length &&
-        relevantQuestions.length > relevantFriendAnswers.length
-      )
+      return { questionId: qu.questionId, selfId: qu.selfId, answered }
     })
-  }, [quizUserCombos, selfAnswers, friendAnswers, questions, user])
+    .map((qu) => {
+      const answeredBySelf = selfAnswers.some(
+        (sa) => sa.questionId === qu.questionId && sa.userId === qu.selfId
+      )
+      return {
+        questionId: qu.questionId,
+        selfId: qu.selfId,
+        answered: qu.answered,
+        answeredBySelf,
+        quizId: questions.find((q) => q.id === qu.questionId)?.quizId || 0,
+      }
+    })
 
-  const selectNextQuizUserCombo = () => {
-    if (incompleteQuizUserCombos.length > 0) {
-      return incompleteQuizUserCombos[0]
-    }
-    return null
-  }
+  const nextQuestionRef = useRef<SelectedQuestion>(
+    cardState.currentQuestion || availableQuestions[0]
+  )
+  const questionsRef = useRef<SelectedQuestion[]>(availableQuestions)
 
-  const selectRandomFriend = () => {
-    const availableFriends = friends.filter((friend) =>
-      availableQuestions.some(
+  console.log("currentQuestionRef", {
+    questionId: nextQuestionRef.current?.questionId,
+    selfId: nextQuestionRef.current?.selfId,
+  })
+  console.log("current card state", {
+    questionId: cardState.currentQuestion?.questionId,
+    selfId: cardState.currentQuestion?.selfId,
+  })
+  console.log("next card state", {
+    questionId: cardState.nextQuestion?.questionId,
+    selfId: cardState.nextQuestion?.selfId,
+  })
+  console.log("")
+
+  const selectNewQuestion = () => {
+    const newQuestion = selectNextQuestion(
+      nextQuestionRef,
+      questionsRef,
+      false, // devMode
+      false, // sameQuizOnly
+      false, // answeredByOthersOnly
+      [] // quizIdOrder
+    )
+
+    // Update the refs after selecting a new question
+    if (newQuestion) {
+      nextQuestionRef.current = newQuestion
+      questionsRef.current = questionsRef.current.filter(
         (q) =>
-          !filteredFriendAnswers.some(
-            (a) => a.selfId === friend.id && a.questionId === q.id
-          )
+          q.questionId !== newQuestion.questionId ||
+          q.selfId !== newQuestion.selfId
       )
-    )
-
-    if (availableFriends.length > 0) {
-      const randomIndex = Math.floor(Math.random() * availableFriends.length)
-      return availableFriends[randomIndex].id
-    }
-    return null
-  }
-
-  const selectQuestion = (
-    friendId: number,
-    currentQuestionId: number | null
-  ) => {
-    const unansweredQuestions = availableQuestions.filter(
-      (q) =>
-        !filteredFriendAnswers.some(
-          (a) => a.selfId === friendId && a.questionId === q.id
-        ) &&
-        q.id !== currentQuestionId &&
-        (currentQuizUserCombo ? q.quizId === currentQuizUserCombo.quizId : true)
-    )
-    if (unansweredQuestions.length > 0) {
-      return unansweredQuestions[0].id
-    }
-    return null
-  }
-
-  const selectNewFriendAndQuestion = () => {
-    if (!currentQuizUserCombo) {
-      const newCombo = selectNextQuizUserCombo()
-      if (newCombo) {
-        setCurrentQuizUserCombo(newCombo)
-        const newQuestionId = selectQuestion(newCombo.selfId, null)
-        return { newFriendId: newCombo.selfId, newQuestionId }
-      }
     }
 
-    if (currentQuizUserCombo) {
-      const newQuestionId = selectQuestion(
-        currentQuizUserCombo.selfId,
-        cardState.currentQuestionId
-      )
-      if (newQuestionId) {
-        return {
-          newFriendId: currentQuizUserCombo.selfId,
-          newQuestionId,
-        }
-      } else {
-        // Current quiz is completed, move to the next one
-        const newCombo = selectNextQuizUserCombo()
-        if (newCombo) {
-          setCurrentQuizUserCombo(newCombo)
-          const newQuestionId = selectQuestion(newCombo.selfId, null)
-          return { newFriendId: newCombo.selfId, newQuestionId }
-        }
-      }
-    }
-
-    // If no incomplete quizzes, fall back to random selection
-    const newFriendId = selectRandomFriend()
-    if (newFriendId !== null) {
-      const newQuestionId = selectQuestion(
-        newFriendId,
-        cardState.currentQuestionId
-      )
-      return { newFriendId, newQuestionId }
-    }
-    return null
+    return newQuestion
   }
 
   useEffect(() => {
-    if (
-      friends.length > 0 &&
-      (cardState.currentFriendId === null ||
-        cardState.currentQuestionId === null)
-    ) {
-      const newState = selectNewFriendAndQuestion()
-      if (newState) {
-        setCardState((prevState) => ({
-          ...prevState,
-          currentFriendId: newState.newFriendId,
-          currentQuestionId: newState.newQuestionId,
-        }))
-      }
+    if (!cardState.currentQuestion) {
+      const initialQuestion = selectNewQuestion()
+      setCardState({
+        currentQuestion: initialQuestion,
+        nextQuestion: selectNewQuestion(),
+      })
     }
-  }, [friends, filteredFriendAnswers])
+  }, [])
+
+  // New effect to update questionsRef when selfAnswers changes
+  useEffect(() => {
+    questionsRef.current = questionsRef.current.map((q) => ({
+      ...q,
+      answeredBySelf: selfAnswers.some(
+        (sa) => sa.questionId === q.questionId && sa.userId === q.selfId
+      ),
+    }))
+  }, [selfAnswers])
 
   const triggerHaptic = async (style: Haptics.ImpactFeedbackStyle) => {
     try {
@@ -216,8 +164,6 @@ export default function App() {
   }, [completedQuizFriendId])
 
   const animateCardAway = () => {
-    const newState = selectNewFriendAndQuestion()
-
     Animated.parallel([
       Animated.timing(slideAnimation, {
         toValue: -width,
@@ -232,40 +178,23 @@ export default function App() {
     ]).start(() => {
       slideAnimation.setValue(0)
       fadeAnimation.setValue(1)
-      if (newState) {
-        setCardState((prevState) => ({
-          currentFriendId: prevState.nextFriendId,
-          currentQuestionId: prevState.nextQuestionId,
-          nextFriendId: newState.newFriendId,
-          nextQuestionId: newState.newQuestionId,
-        }))
-      }
     })
   }
 
   const handleAnswer = async (optionIndex: number) => {
-    if (
-      cardState.currentFriendId === null ||
-      cardState.currentQuestionId === null
-    )
-      return
+    if (!cardState.currentQuestion) return
 
-    const quizId =
-      questions.find((q) => q.id === cardState.currentQuestionId)?.quizId || 0
+    const { questionId, quizId } = cardState.currentQuestion
 
     try {
-      addFriendAnswer(
-        cardState.currentFriendId,
-        cardState.currentQuestionId,
-        optionIndex
-      )
+      addFriendAnswer(user?.id || 0, questionId, optionIndex)
       const result = addFriendAnswerInitiatedNotification(
         allUsers,
         friendAnswers,
         selfAnswers,
         quizId,
-        cardState.currentFriendId,
-        user ? user.id : 0,
+        user?.id || 0,
+        user?.id || 0,
         notifications,
         addNotification
       )
@@ -277,13 +206,15 @@ export default function App() {
         await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
       }
 
-      const newState = selectNewFriendAndQuestion()
-      if (newState) {
-        setCardState((prevState) => ({
-          ...prevState,
-          nextFriendId: newState.newFriendId,
-          nextQuestionId: newState.newQuestionId,
-        }))
+      const newQuestion = selectNewQuestion()
+      setCardState((prevState) => ({
+        currentQuestion: prevState.nextQuestion,
+        nextQuestion: newQuestion,
+      }))
+
+      // Update the currentQuestionRef after setting the new state
+      if (cardState.nextQuestion) {
+        nextQuestionRef.current = cardState.nextQuestion
       }
 
       animateCardAway()
@@ -296,41 +227,29 @@ export default function App() {
   const handleContinue = () => {
     setCompletedQuizFriendId(undefined)
     setCompletedQuizId(undefined)
-    const newState = selectNewFriendAndQuestion()
-    if (newState) {
-      setCardState((prevState) => ({
-        ...prevState,
-        nextFriendId: newState.newFriendId,
-        nextQuestionId: newState.newQuestionId,
-      }))
-    }
+    const newQuestion = selectNewQuestion()
+    setCardState((prevState) => ({
+      ...prevState,
+      nextQuestion: newQuestion,
+    }))
   }
 
-  const isOutOfQuestions = useMemo(() => {
-    return friends.every((friend) => {
-      const answeredQuestionIds = filteredFriendAnswers
-        .filter((a) => a.selfId === friend.id)
-        .map((a) => a.questionId)
-      return availableQuestions.every((q) => answeredQuestionIds.includes(q.id))
-    })
-  }, [friends, filteredFriendAnswers])
+  const isOutOfQuestions = !cardState.currentQuestion && !cardState.nextQuestion
 
   const renderCardContents = (current: boolean) => {
-    const friendId = current
-      ? cardState.currentFriendId
-      : cardState.nextFriendId
-    const questionId = current
-      ? cardState.currentQuestionId
-      : cardState.nextQuestionId
-    const friend = friends.find((f) => f.id === friendId)
-    const question = questions.find((q) => q.id === questionId)
-    const quiz = quizzes.find((q) => q.id === question?.quizId)
+    const selectedQuestion = current
+      ? cardState.currentQuestion
+      : cardState.nextQuestion
+    if (!selectedQuestion) return null
+
+    const question = questions.find((q) => q.id === selectedQuestion.questionId)
+    const quiz = quizzes.find((q) => q.id === selectedQuestion.quizId)
+    const selfUser = allUsers.find((u) => u.id === selectedQuestion.selfId)
 
     return (
       <CardContents
-        friend={friend}
+        selfUser={selfUser}
         question={question}
-        quiz={quiz}
         isLoading={isLoading}
         handleAnswer={handleAnswer}
       />
@@ -360,11 +279,11 @@ export default function App() {
         </View>
       )}
 
-      {completedQuiz == undefined && !completedQuizFriendId && (
+      {completedQuiz && completedQuizFriendId && (
         <CompletionScreen
           completionAnimation={completionAnimation}
-          completedQuiz={quizzes[0]}
-          completedQuizSelfId={3}
+          completedQuiz={completedQuiz}
+          completedQuizSelfId={completedQuizFriendId}
           onDismiss={() => setCompletedQuizFriendId(undefined)}
           onContinue={handleContinue}
         />

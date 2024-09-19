@@ -7,7 +7,7 @@ export const goodStudentQuiz: Quiz = {
         secondPerson: "Let's be honest",
         thirdPerson: "Let's be honest about {name}",
     },
-    src: require("../assets/images/goodStudentQuiz.jpg"),
+    src: require("../../assets/images/goodStudentQuiz.jpg"),
     leftLabel: "Slacker",
     rightLabel: "Overachiever",
     resultLabels: [

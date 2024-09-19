@@ -7,7 +7,7 @@ export const chadQuiz: Quiz = {
         secondPerson: "Are you a chad?",
         thirdPerson: "Is {name} a chad?",
     },
-    src: require("../assets/images/chadQuiz.webp"),
+    src: require("../../assets/images/chadQuiz.webp"),
     leftLabel: "Not Chad",
     rightLabel: "Chad",
     resultLabels: [

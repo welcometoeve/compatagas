@@ -1,3 +1,4 @@
+import { questions } from "@/constants/questions/questions"
 import { Quiz } from "@/constants/questions/types"
 import { usePage } from "@/contexts/PageContext"
 import { useUser } from "@/contexts/UserContext"

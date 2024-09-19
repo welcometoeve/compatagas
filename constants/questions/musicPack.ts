@@ -7,7 +7,7 @@ export const musicQuiz: Quiz = {
         secondPerson: "Are your music tastes basic?",
         thirdPerson: "Are {name}'s music tastes basic?",
     },
-    src: require("../assets/images/musicQuiz.jpeg"),
+    src: require("../../assets/images/musicQuiz.jpeg"),
     leftLabel: "Not Basic",
     rightLabel: "Basic",
     resultLabels: [
