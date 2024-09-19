@@ -1,9 +1,10 @@
 import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { insertName, Question } from "@/constants/questions"
+import { Question } from "@/constants/questions/types"
 import { SelfAnswer } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer } from "@/contexts/FriendAnswerContext"
 import { useUser } from "@/contexts/UserContext"
+import { insertName } from "@/constants/questions/questions"
 
 type QuestionResultViewProps = {
   question: Question

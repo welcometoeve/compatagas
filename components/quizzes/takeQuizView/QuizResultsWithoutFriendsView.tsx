@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { ChevronRight } from "lucide-react"
 import { LinearGradient } from "expo-linear-gradient"
 import { UserProfile, useUser } from "@/contexts/UserContext"
-import { Quiz } from "@/constants/questions"
+import { Quiz } from "@/constants/questions/types"
 import { usePage } from "@/contexts/PageContext"
 
 interface QuizResultsWithoutFriendsViewProps {

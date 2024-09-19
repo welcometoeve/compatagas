@@ -6,7 +6,7 @@ import {
   Animated,
   Dimensions,
 } from "react-native"
-import { Question, questions, quizzes } from "../../constants/questions"
+import { questions, quizzes } from "../../constants/questions/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
@@ -20,6 +20,7 @@ import {
   OutOfQuestionsView,
 } from "@/components/stack/StackComponents"
 import CompletionScreen from "@/components/stack/CompletionPopup"
+import { Question } from "@/constants/questions/types"
 
 const { width } = Dimensions.get("window")
 

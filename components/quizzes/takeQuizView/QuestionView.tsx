@@ -1,5 +1,5 @@
 import React from "react"
-import { Question, Side } from "@/constants/questions"
+import { Question, Side } from "@/constants/questions/types"
 import { TouchableOpacity, View, Text } from "react-native"
 
 export type Answers = {

@@ -10,13 +10,14 @@ import {
   ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft } from "lucide-react-native"
-import { insertName, Question, Quiz, Side } from "@/constants/questions"
+import { Question, Quiz, Side } from "@/constants/questions/types"
 import { useUser } from "@/contexts/UserContext"
 import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import QuestionResultView from "./QuestionResultView"
 import collect from "../collect"
 import QuizResultsWithFriendsView from "./QuizResultsWithFriendsView"
+import { insertName } from "@/constants/questions/questions"
 
 type QuizResultsViewProps = {
   quiz: Quiz

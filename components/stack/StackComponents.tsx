@@ -7,8 +7,9 @@ import {
   Image,
   Animated,
 } from "react-native"
-import { insertName, Question } from "../../constants/questions"
 import { UserProfile } from "@/contexts/UserContext"
+import { Question } from "@/constants/questions/types"
+import { insertName } from "@/constants/questions/questions"
 
 interface CardContentsProps {
   friend: UserProfile | undefined

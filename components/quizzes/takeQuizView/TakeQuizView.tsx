@@ -9,7 +9,7 @@ import {
   ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft, ChevronRight } from "lucide-react-native"
-import { Question, Quiz, Side } from "@/constants/questions"
+import { Question, Quiz, Side } from "@/constants/questions/types"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { CustomAlert } from "./CustomAlert"

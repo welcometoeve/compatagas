@@ -1,4 +1,4 @@
-import { Quiz } from "@/constants/questions"
+import { Quiz } from "@/constants/questions/types"
 import { usePage } from "@/contexts/PageContext"
 import { useUser } from "@/contexts/UserContext"
 import { Ionicons } from "@expo/vector-icons"

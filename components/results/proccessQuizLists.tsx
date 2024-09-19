@@ -1,6 +1,6 @@
 import { FriendAnswer } from "@/contexts/FriendAnswerContext"
 import { SelfAnswer } from "@/contexts/SelfAnswerContext"
-import { Question, Quiz } from "../../constants/questions"
+import { Question, Quiz } from "../../constants/questions/types"
 import collect from "../collect"
 
 export interface QuizItem {

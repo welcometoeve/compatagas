@@ -8,7 +8,8 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native"
-import { questions, Quiz, quizzes } from "@/constants/questions"
+import { Quiz } from "@/constants/questions/types"
+import { questions, quizzes } from "@/constants/questions/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 
