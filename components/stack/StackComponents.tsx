@@ -269,5 +269,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "100%",
     paddingBottom: 25,
+    zIndex: 2,
   },
 })
