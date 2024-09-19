@@ -18,7 +18,7 @@ import selectNextQuestion, {
   SelectedQuestion,
 } from "@/components/stack/selectNextQuestion"
 
-const { width } = Dimensions.get("window")
+const { height } = Dimensions.get("window")
 
 interface CardState {
   currentQuestion: SelectedQuestion | null
@@ -153,7 +153,7 @@ export default function App() {
     newQuestionId: number
   }) => {
     Animated.timing(slideAnimation, {
-      toValue: -width,
+      toValue: -height,
       duration: 300,
       useNativeDriver: true,
     }).start(() => {

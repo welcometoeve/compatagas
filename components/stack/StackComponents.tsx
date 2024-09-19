@@ -82,7 +82,7 @@ export const CardStack: React.FC<CardStackProps> = ({
       style={[
         styles.cardContainer,
         {
-          transform: [{ translateX: slideAnimation }],
+          transform: [{ translateY: slideAnimation }], // Changed from translateX to translateY
         },
       ]}
     >
@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     marginBottom: 30,
+    overflow: "hidden", // Added to clip the card as it animates out
   },
   stackedCard: {
     position: "absolute",
