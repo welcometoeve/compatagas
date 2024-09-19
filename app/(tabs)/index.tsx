@@ -41,7 +41,6 @@ export default function App() {
   const [completedQuizId, setCompletedQuizId] = useState<number | undefined>()
   const [completionAnimation] = useState(new Animated.Value(1))
   const slideAnimation = useRef(new Animated.Value(0)).current
-  const fadeAnimation = useRef(new Animated.Value(1)).current
 
   const questionUserCombos: { questionId: number; selfId: number }[] =
     questions.flatMap((q) => {
@@ -83,20 +82,6 @@ export default function App() {
     cardState.currentQuestion || availableQuestions[0]
   )
   const questionsRef = useRef<SelectedQuestion[]>(availableQuestions)
-
-  console.log("currentQuestionRef", {
-    questionId: nextQuestionRef.current?.questionId,
-    selfId: nextQuestionRef.current?.selfId,
-  })
-  console.log("current card state", {
-    questionId: cardState.currentQuestion?.questionId,
-    selfId: cardState.currentQuestion?.selfId,
-  })
-  console.log("next card state", {
-    questionId: cardState.nextQuestion?.questionId,
-    selfId: cardState.nextQuestion?.selfId,
-  })
-  console.log("")
 
   const selectNewQuestion = () => {
     const newQuestion = selectNextQuestion(
@@ -163,21 +148,30 @@ export default function App() {
     }
   }, [completedQuizFriendId])
 
-  const animateCardAway = () => {
-    Animated.parallel([
-      Animated.timing(slideAnimation, {
-        toValue: -width,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnimation, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
+  const animateCardAway = (newState?: {
+    newFriendId: number
+    newQuestionId: number
+  }) => {
+    Animated.timing(slideAnimation, {
+      toValue: -width,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
       slideAnimation.setValue(0)
-      fadeAnimation.setValue(1)
+      if (newState) {
+        setCardState((prevState) => ({
+          currentQuestion: prevState.nextQuestion,
+          nextQuestion: {
+            questionId: newState.newQuestionId,
+            selfId: newState.newFriendId,
+            answered: false,
+            answeredBySelf: false,
+            quizId:
+              questions.find((q) => q.id === newState.newQuestionId)?.quizId ||
+              0,
+          },
+        }))
+      }
     })
   }
 
@@ -207,17 +201,21 @@ export default function App() {
       }
 
       const newQuestion = selectNewQuestion()
-      setCardState((prevState) => ({
-        currentQuestion: prevState.nextQuestion,
-        nextQuestion: newQuestion,
-      }))
+
+      // Animate the card away and update the state
+      animateCardAway(
+        newQuestion
+          ? {
+              newFriendId: newQuestion.selfId,
+              newQuestionId: newQuestion.questionId,
+            }
+          : undefined
+      )
 
       // Update the currentQuestionRef after setting the new state
       if (cardState.nextQuestion) {
         nextQuestionRef.current = cardState.nextQuestion
       }
-
-      animateCardAway()
     } catch (error) {
       setAddError(JSON.stringify(error))
       console.error("Failed to add answer:", error)
