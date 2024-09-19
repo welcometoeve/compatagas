@@ -1453,10 +1453,10 @@ export const questions: Question[] = [
 export const quizzes: Quiz[] = [
   NeighborQuiz,
   styleQuiz,
-  badPersonQuiz,
   goodStudentQuiz,
   musicQuiz,
   chadQuiz,
+  badPersonQuiz,
 ]
 
 export function insertName(text: string, name: string): string {

@@ -74,8 +74,10 @@ export const CardStack: React.FC<CardStackProps> = ({
         styles.cardContainer,
         {
           position: "absolute",
-          borderWidth: 1,
-          borderColor: "#E0E0E0",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.15,
+          shadowRadius: 3.84,
         },
       ]}
     >
@@ -86,10 +88,6 @@ export const CardStack: React.FC<CardStackProps> = ({
         styles.cardContainer,
         {
           transform: [{ translateX: slideAnimation }],
-        },
-        {
-          borderWidth: 1,
-          borderColor: "#E0E0E0",
         },
       ]}
     >
@@ -196,6 +194,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E0E0E0",
     borderRadius: 30,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3.84,
   },
   bottomCard: {
     top: 44,
@@ -218,6 +219,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     zIndex: 3,
     elevation: 3,
+    borderWidth: 1,
   },
   contentContainer: {
     flex: 1,

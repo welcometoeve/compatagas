@@ -114,11 +114,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const fetchAllUsers = async () => {
     if (!user) return
 
-    let query = supabase
-      .from(tableName)
-      .select("*")
-      .eq("deleted", false)
-      .not("id", "in", "(24)") // Exclude users with IDs 24 and 3
+    let query = supabase.from(tableName).select("*").eq("deleted", false)
 
     if (user.name && user.name.toLowerCase().includes("leah")) {
       query = query.eq("id", 11)
@@ -126,6 +122,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
     if (user.phoneNumber === 333 || user.phoneNumber === 666) {
       query = query.in("phoneNumber", [333, 666])
+    } else {
+      query = query.not("phoneNumber", "eq", 333).not("phoneNumber", "eq", 666)
     }
 
     const { data, error } = await query
