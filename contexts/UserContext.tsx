@@ -124,6 +124,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       query = query.eq("id", 11)
     }
 
+    if (user.phoneNumber === 333 || user.phoneNumber === 666) {
+      query = query.in("phoneNumber", [333, 666])
+    }
+
     const { data, error } = await query
 
     if (error) {

@@ -952,7 +952,7 @@ export const badPersonQuestions: Question[] = [
       {
         label: {
           secondPerson: "Do nothing",
-          thirdPerson: "Doe nothing",
+          thirdPerson: "Do nothing",
         },
         side: "neither",
         emoji: "🙅",
