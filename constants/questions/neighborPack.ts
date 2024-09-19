@@ -7,7 +7,7 @@ export const NeighborQuiz: Quiz = {
         secondPerson: "Are you a good neighbor?",
         thirdPerson: "Is {name} a good neighbor?",
     },
-    src: require("../assets/images/neighborQuiz.jpg"),
+    src: require("../../assets/images/neighborQuiz.jpg"),
     leftLabel: "Demon Neighbor",
     rightLabel: "Dream Neighbor",
     resultLabels: [

@@ -7,7 +7,7 @@ export const badPersonQuiz: Quiz = {
         secondPerson: "Are you a bad person?",
         thirdPerson: "Is {name} a bad person?",
     },
-    src: require("../assets/images/badPersonPack.png"),
+    src: require("../../assets/images/badPersonPack.png"),
     leftLabel: "Saint",
     rightLabel: "Sinner",
     resultLabels: [

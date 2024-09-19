@@ -12,44 +12,39 @@ import { Question } from "@/constants/questions/types"
 import { insertName } from "@/constants/questions/questions"
 
 interface CardContentsProps {
-  friend: UserProfile | undefined
+  selfUser: UserProfile | undefined
   question: Question | undefined
-  quiz: { name: string; src: any } | undefined
   isLoading: boolean
   handleAnswer: (index: number) => void
 }
 
 export const CardContents: React.FC<CardContentsProps> = ({
-  friend,
+  selfUser,
   question,
-  quiz,
   isLoading,
   handleAnswer,
 }) => (
   <>
-    <Text style={styles.name}>{friend?.name}</Text>
+    <Text style={styles.name}>{selfUser?.name}</Text>
     <Text style={styles.question}>
-      {insertName(question?.label.thirdPerson ?? "", friend?.name ?? "")}
+      {insertName(question?.label.thirdPerson ?? "", selfUser?.name ?? "")}
     </Text>
-    {isLoading ? (
-      <Text style={styles.loadingText}>Loading...</Text>
-    ) : (
-      <View style={styles.buttonContainer}>
-        {question?.options.map((option, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.button}
-            onPress={() => handleAnswer(index)}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonEmoji}>{`${option.emoji}`}</Text>
-            <Text style={styles.buttonText}>
-              {insertName(option.label.thirdPerson, friend?.name ?? "")}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    )}
+
+    <View style={styles.buttonContainer}>
+      {question?.options.map((option, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.button}
+          onPress={() => handleAnswer(index)}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonEmoji}>{`${option.emoji}`}</Text>
+          <Text style={styles.buttonText}>
+            {insertName(option.label.thirdPerson, selfUser?.name ?? "")}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
   </>
 )
 
