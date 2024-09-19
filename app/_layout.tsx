@@ -146,7 +146,7 @@ function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <StatusBar style={"dark"} />
-      <SafeAreaView style={[styles.container]}>
+      <View style={[styles.container]}>
         <View style={styles.debugButtonContainer}>
           <Button title="Debug" onPress={() => setIsDebugVisible(true)} />
         </View>
@@ -174,7 +174,7 @@ function RootLayout() {
           onClose={handleErrorModalClose}
           retry={fetchAnswersError ? fetchFriendAnswers : fetchSelfAnswers}
         />
-      </SafeAreaView>
+      </View>
       <NavBar />
     </ThemeProvider>
   )
@@ -183,6 +183,7 @@ function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "gray",
   },
   debugButtonContainer: {
     position: "absolute",

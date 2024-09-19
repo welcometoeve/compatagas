@@ -9,7 +9,8 @@ import {
 } from "react-native"
 import { UserProfile } from "@/contexts/UserContext"
 import { Question } from "@/constants/questions/types"
-import { insertName } from "@/constants/questions/questions"
+import { insertName, quizzes } from "@/constants/questions/questions"
+import { Ionicons } from "@expo/vector-icons"
 
 interface CardContentsProps {
   selfUser: UserProfile | undefined
@@ -23,30 +24,62 @@ export const CardContents: React.FC<CardContentsProps> = ({
   question,
   isLoading,
   handleAnswer,
-}) => (
-  <>
-    <Text style={styles.name}>{selfUser?.name}</Text>
-    <Text style={styles.question}>
-      {insertName(question?.label.thirdPerson ?? "", selfUser?.name ?? "")}
-    </Text>
+}) => {
+  const quizId = question?.quizId
+  const quizName = quizzes.find((q) => q.id === quizId)?.name
 
-    <View style={styles.buttonContainer}>
-      {question?.options.map((option, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.button}
-          onPress={() => handleAnswer(index)}
-          disabled={isLoading}
-        >
-          <Text style={styles.buttonEmoji}>{`${option.emoji}`}</Text>
-          <Text style={styles.buttonText}>
-            {insertName(option.label.thirdPerson, selfUser?.name ?? "")}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </>
-)
+  return (
+    <>
+      <Text
+        style={{
+          marginBottom: 10,
+          textAlign: "center",
+          color: "gray",
+          position: "absolute",
+          top: 20,
+        }}
+      >
+        {quizName?.toUpperCase()}
+      </Text>
+
+      <Text style={styles.name}>{selfUser?.name}</Text>
+      <Text style={styles.question}>
+        {insertName(question?.label.thirdPerson ?? "", selfUser?.name ?? "")}
+      </Text>
+
+      <View style={[styles.buttonContainer, { paddingBottom: 0 }]}>
+        {question?.options.map((option, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.button}
+            onPress={() => handleAnswer(index)}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonEmoji}>{`${option.emoji}`}</Text>
+            <Text style={styles.buttonText}>
+              {insertName(option.label.thirdPerson, selfUser?.name ?? "")}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <TouchableOpacity
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          bottom: 30,
+          position: "absolute",
+        }}
+        onPress={() => {
+          /* Add skip functionality here */
+        }}
+      >
+        <Text style={{ color: "gray", marginRight: 5 }}>SKIP</Text>
+        <Ionicons name="arrow-forward" color="gray" size={16} />
+      </TouchableOpacity>
+    </>
+  )
+}
 
 interface CardStackProps {
   renderCardContents: (current: boolean) => React.ReactNode
@@ -129,9 +162,9 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     width: "100%",
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderColor: "#E0E0E0",
-    borderWidth: 1.5,
+    backgroundColor: "transparent",
+    borderColor: "gray",
+    borderWidth: 1,
     alignItems: "center",
   },
   buttonEmoji: {
@@ -209,10 +242,10 @@ const styles = StyleSheet.create({
     padding: 0,
     borderRadius: 30,
     paddingHorizontal: 0,
-    backgroundColor: "#FFFFFF",
     zIndex: 3,
     elevation: 3,
     borderWidth: 1,
+    backgroundColor: "white", //"rgb(240, 240, 240)",
   },
   contentContainer: {
     flex: 1,

@@ -142,7 +142,7 @@ const NavBar: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "rgb(250, 250, 250)",
+    backgroundColor: "rgb(240, 240, 240)",
     paddingTop: 10,
     paddingBottom: 45,
     borderTopColor: "#E0E0E0",

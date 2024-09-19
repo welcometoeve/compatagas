@@ -300,5 +300,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 5,
+    backgroundColor: "rgb(245, 245, 245)",
   },
 })
