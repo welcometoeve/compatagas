@@ -44,7 +44,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [answers, setAnswers] = useState<SelfAnswer[]>([])
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const { user, allUsers } = useUser()
+  const { user, friends: friends } = useUser()
   const { addNotification } = useNotification()
   const { isDev } = useEnvironment()
 
@@ -66,34 +66,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
             table: tableName,
           },
           (payload) => {
-            const newAnswer = payload.new as SelfAnswer
-            if (
-              payload.eventType === "INSERT" ||
-              payload.eventType === "UPDATE"
-            ) {
-              setAnswers((prevAnswers) => {
-                const index = prevAnswers.findIndex(
-                  (a) =>
-                    a.userId === newAnswer.userId &&
-                    a.questionId === newAnswer.questionId
-                )
-                if (index === -1) {
-                  return [...prevAnswers, newAnswer]
-                } else {
-                  const updatedAnswers = [...prevAnswers]
-                  updatedAnswers[index] = newAnswer
-                  return updatedAnswers
-                }
-              })
-            } else if (payload.eventType === "DELETE") {
-              setAnswers((prevAnswers) =>
-                prevAnswers.filter(
-                  (a) =>
-                    a.userId !== newAnswer.userId ||
-                    a.questionId !== newAnswer.questionId
-                )
-              )
-            }
+            fetchAnswers()
           }
         )
         .subscribe()
@@ -104,7 +77,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, allUsers, isDev, tableName])
+  }, [user, friends, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
@@ -113,6 +86,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setFetchError(null)
 
     const { data, error } = await supabase.from(tableName).select("*")
+    // .or(`and(userId.eq.${user.id}),and(userId.in.(${user.friendIds}))`)
     if (error) {
       console.error("Error fetching self answers:", error)
       setFetchError("Error fetching self answers")

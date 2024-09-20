@@ -28,7 +28,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
   onContinue,
 }) => {
   const { setPage, setActiveResultsTab, setCurQuizResultItem } = usePage()
-  const { allUsers, user } = useUser()
+  const { friends: friends, user } = useUser()
   return (
     <View style={styles.completionOverlay}>
       <Animated.View
@@ -53,7 +53,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
         <Text style={styles.completionTitle}>Pack Completed!</Text>
         <Text style={styles.completionText}>
           You've finished the {completedQuiz.name} for{" "}
-          {allUsers.find((u) => u.id === completedQuizSelfId)?.name}!
+          {friends.find((u) => u.id === completedQuizSelfId)?.name}!
         </Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.continueButton} onPress={onContinue}>

@@ -32,7 +32,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
 }) => {
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
-  const { user, allUsers } = useUser()
+  const { user, friends: friends } = useUser()
   const { notifications } = useNotification()
 
   const numYourNotifications = collect(
@@ -67,7 +67,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
       item={item}
       setQuizItem={setQuizItem}
       activeTab={activeTab}
-      allUsers={allUsers}
+      friends={friends}
       user={user}
     />
   )

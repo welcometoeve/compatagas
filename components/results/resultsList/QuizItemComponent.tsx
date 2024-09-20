@@ -9,7 +9,7 @@ interface QuizItemComponentProps {
   item: QuizItem
   setQuizItem: (item: QuizItem) => void
   activeTab: "your" | "their"
-  allUsers: any[] // Replace 'any' with the correct type for users
+  friends: any[] // Replace 'any' with the correct type for users
   user: any // Replace 'any' with the correct type for user
 }
 
@@ -17,7 +17,7 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
   item,
   setQuizItem,
   activeTab,
-  allUsers,
+  friends: friends,
   user,
 }) => {
   const { notifications, markAsOpened } = useNotification()
@@ -70,10 +70,10 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
           <Text style={styles.quizSubtitle}>
             {activeTab === "your"
               ? `Taken by ${item.friendIds
-                  .map((id) => allUsers.find((user) => user?.id === id)?.name)
+                  .map((id) => friends.find((user) => user?.id === id)?.name)
                   .join(", ")}`
               : `Taken for ${
-                  allUsers.find((user) => user?.id === item.selfId)?.name
+                  friends.find((user) => user?.id === item.selfId)?.name
                 }`}
           </Text>
         </View>

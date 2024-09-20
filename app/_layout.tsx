@@ -49,7 +49,7 @@ function RootLayout() {
     authenticating,
     signingUp,
     requestNotificationPermission,
-    allUsers,
+    friends: friends,
   } = useUser()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchFriendAnswers } =
@@ -153,7 +153,7 @@ function RootLayout() {
 
         <View style={[styles.fullPageView, styles.cameraView]}>
           {page === "questions" ? (
-            allUsers.length > 0 ? (
+            friends.length > 0 ? (
               <App />
             ) : null
           ) : page === "results" ? (

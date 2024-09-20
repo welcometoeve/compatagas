@@ -46,7 +46,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   const [submitSuccess, setSubmitSuccess] = useState(false)
 
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
-  const { user, allUsers } = useUser()
+  const { user, friends: friends } = useUser()
   const { friendAnswers } = useFriendAnswers()
   const { addNotification, notifications } = useNotification()
 
@@ -184,7 +184,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           quiz.id,
           friendAnswers,
           user,
-          allUsers,
+          friends,
           addNotification
         )
         if (fs.length > 0) {
@@ -270,7 +270,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             quiz={quiz}
             quizResult={quizResult}
             friendsWhoTookQuiz={friendsWhoTookQuiz}
-            allUsers={allUsers}
+            friends={friends}
           />
         )}
 

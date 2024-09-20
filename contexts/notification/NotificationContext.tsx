@@ -66,7 +66,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const { data, error } = await supabase
       .from(tableName)
       .select("*")
-      .or(`selfId.eq.${user.id},friendId.eq.${user.id}`)
+      // .or(
+      //   `and(selfId.eq.${user.id},friendId.in.(${user.friendIds})),and(friendId.eq.${user.id},selfId.in.(${user.friendIds}))`
+      // )
       .order("createdAt", { ascending: false })
 
     if (error) {

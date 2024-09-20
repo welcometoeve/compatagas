@@ -32,7 +32,7 @@ export default function App() {
     nextQuestion: null,
   })
   const [addError, setAddError] = useState<string | undefined>()
-  const { user, allUsers } = useUser()
+  const { user, friends: friends } = useUser()
   const { addNotification, notifications } = useNotification()
   const { selfAnswers } = useSelfAnswers()
   const [completedQuizFriendId, setCompletedQuizFriendId] = useState<
@@ -44,7 +44,7 @@ export default function App() {
 
   const questionUserCombos: { questionId: number; selfId: number }[] =
     questions.flatMap((q) => {
-      const questionsPerUser = allUsers
+      const questionsPerUser = friends
         .map((u) => {
           return { questionId: q.id, selfId: u.id }
         })
@@ -183,7 +183,7 @@ export default function App() {
     try {
       addFriendAnswer(user?.id || 0, questionId, optionIndex)
       const result = addFriendAnswerInitiatedNotification(
-        allUsers,
+        friends,
         friendAnswers,
         selfAnswers,
         quizId,
@@ -242,7 +242,7 @@ export default function App() {
 
     const question = questions.find((q) => q.id === selectedQuestion.questionId)
     const quiz = quizzes.find((q) => q.id === selectedQuestion.quizId)
-    const selfUser = allUsers.find((u) => u.id === selectedQuestion.selfId)
+    const selfUser = friends.find((u) => u.id === selectedQuestion.selfId)
 
     return (
       <CardContents

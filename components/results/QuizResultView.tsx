@@ -44,7 +44,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   quizType,
   selfId,
 }) => {
-  const { user, allUsers } = useUser()
+  const { user, friends: friends } = useUser()
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
 
@@ -65,7 +65,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         name:
           user.id === selfId
             ? "You"
-            : allUsers.find((u) => u.id === selfId)?.name || "Friend",
+            : friends.find((u) => u.id === selfId)?.name || "Friend",
         value: selfResult,
         isSelf: true,
       })
@@ -77,7 +77,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           )
         )
         const friendName =
-          allUsers.find((u) => u.id === friendId)?.name || "Friend"
+          friends.find((u) => u.id === friendId)?.name || "Friend"
         allResults.push({
           id: friendId,
           name: user.id === friendId ? "You" : friendName,
@@ -88,15 +88,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
       setResults(allResults)
     }
-  }, [
-    user,
-    selfAnswers,
-    friendAnswers,
-    questions,
-    quiz.id,
-    friendIds,
-    allUsers,
-  ])
+  }, [user, selfAnswers, friendAnswers, questions, quiz.id, friendIds, friends])
 
   const calculateQuizResult = (answers: (SelfAnswer | FriendAnswer)[]) => {
     let totalScore = 0
@@ -161,12 +153,12 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   const userName =
     selfId === user?.id
       ? "Your"
-      : `${allUsers.find((u) => u.id === selfId)?.name}'s` || "Friend"
+      : `${friends.find((u) => u.id === selfId)?.name}'s` || "Friend"
 
   const plainUserName =
     selfId === user?.id
       ? "you"
-      : `${allUsers.find((u) => u.id === selfId)?.name}` || "Friend"
+      : `${friends.find((u) => u.id === selfId)?.name}` || "Friend"
 
   const quizFriendAnswers = collect(
     friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quiz.id),
@@ -195,7 +187,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
               ? quiz.subtitle.secondPerson
               : insertName(
                   quiz.subtitle.thirdPerson,
-                  allUsers.find((u) => u.id === selfId)?.name ?? ""
+                  friends.find((u) => u.id === selfId)?.name ?? ""
                 )}
           </Text>
         </View>

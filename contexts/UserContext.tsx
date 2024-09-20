@@ -23,6 +23,7 @@ export type UserProfile = {
 type UserContextType = {
   user: UserProfile | null
   allUsers: UserProfile[]
+  friends: UserProfile[]
   authenticating: boolean
   signingUp: boolean
   createUser: (phoneNumber: number, name: string) => Promise<UserProfile>
@@ -43,20 +44,25 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [allUsers, setAllUsers] = useState<UserProfile[]>([])
+  const [friends, setFriends] = useState<UserProfile[]>([])
   const [authenticating, setAuthenticating] = useState(true)
   const [signingUp, setSigningUp] = useState(false)
   const [lastNotification, setLastNotification] =
     useState<Notifications.Notification | null>(null)
   const { isDev } = useEnvironment()
 
-  const tableName = isDev ? "_User_dev" : "User"
+  const userTableName = isDev ? "_User_dev" : "User"
+  const friendRelationTableName = isDev
+    ? "_FriendRelation_dev"
+    : "FriendRelation"
+
   const authenticate = async (
     phoneNumber: number
   ): Promise<UserProfile | null> => {
     setSigningUp(true)
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from(userTableName)
         .select("*")
         .eq("phoneNumber", phoneNumber)
         .single()
@@ -77,7 +83,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     setSigningUp(true)
     try {
       const { data: existingUser, error: fetchError } = await supabase
-        .from(tableName)
+        .from(userTableName)
         .select("*")
         .eq("phoneNumber", parseInt(phoneNumber.toString()))
         .single()
@@ -89,14 +95,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       if (existingUser) {
         setUser(existingUser)
         await AsyncStorage.setItem(
-          `phoneNumber-${tableName}`,
+          `phoneNumber-${userTableName}`,
           phoneNumber.toString()
         )
         return existingUser
       }
 
       const { data: newUser, error: insertError } = await supabase
-        .from(tableName)
+        .from(userTableName)
         .insert({ phoneNumber: phoneNumber, name: name })
         .select()
         .single()
@@ -115,24 +121,32 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   const fetchAllUsers = async () => {
     if (!user) return
-    let query = supabase.from(tableName).select("*").eq("deleted", false)
+    try {
+      // Fetch all users
+      const { data: userData, error: userError } = await supabase
+        .from(userTableName)
+        .select("*")
 
-    if (user.name && user.name.toLowerCase().includes("leah")) {
-      query = query.eq("id", 11)
-    }
+      if (userError) throw userError
 
-    if (user.phoneNumber === 333 || user.phoneNumber === 666) {
-      query = query.in("phoneNumber", [333, 666])
-    } else {
-      query = query.not("phoneNumber", "eq", 333).not("phoneNumber", "eq", 666)
-    }
+      // Fetch friend relations for the current user
+      const { data: friendData, error: friendError } = await supabase
+        .from(friendRelationTableName)
+        .select("userId2")
+        .eq("userId1", user.id)
 
-    const { data, error } = await query
+      if (friendError) throw friendError
 
-    if (error) {
-      console.error("Error fetching users:", error)
-    } else {
-      setAllUsers(data)
+      // Create a set of friend IDs for faster lookup
+      const friendIds = new Set(friendData.map((relation) => relation.userId2))
+
+      // Filter friends from all users
+      const friendUsers = userData.filter((u) => friendIds.has(u.id))
+
+      setAllUsers(userData)
+      setFriends([user, ...friendUsers]) // Include the current user in the friends list
+    } catch (error) {
+      console.error("Error fetching users and friends:", error)
     }
   }
 
@@ -153,7 +167,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
     if (user) {
       const { error } = await supabase
-        .from(tableName)
+        .from(userTableName)
         .update({ notificationToken: token })
         .eq("id", user.id)
 
@@ -177,7 +191,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     fetchAllUsers()
-  }, [user, tableName])
+  }, [user, userTableName, friendRelationTableName])
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -208,10 +222,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       })
 
     const subscription = supabase
-      .channel(tableName)
+      .channel(userTableName)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: tableName },
+        { event: "*", schema: "public", table: userTableName },
         (payload) => {
           fetchAllUsers()
         }
@@ -223,13 +237,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       Notifications.removeNotificationSubscription(notificationListener)
       Notifications.removeNotificationSubscription(responseListener)
     }
-  }, [isDev, tableName])
+  }, [isDev, userTableName])
 
+  console.log(friends.map((f) => f.id))
   return (
     <UserContext.Provider
       value={{
         user,
         allUsers,
+        friends,
         authenticating,
         signingUp,
         createUser,

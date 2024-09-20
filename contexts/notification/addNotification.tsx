@@ -13,7 +13,7 @@ export async function addSelfAnswerInitiatedNotification(
   quizId: number,
   friendAnswers: FriendAnswer[],
   user: UserProfile,
-  allUsers: UserProfile[],
+  friends: UserProfile[],
   addNotification: (
     selfId: number,
     friendId: number,
@@ -43,7 +43,7 @@ export async function addSelfAnswerInitiatedNotification(
     const friendId = q.friendId
     const quizId = q.quizId
 
-    const selfUser = allUsers.find((u) => u.id === selfId)
+    const selfUser = friends.find((u) => u.id === selfId)
     await addNotification(selfId, friendId, quizId)
     await sendNotification(
       friendId.toString(),
@@ -57,7 +57,7 @@ export async function addSelfAnswerInitiatedNotification(
 }
 
 export function addFriendAnswerInitiatedNotification(
-  allUsers: UserProfile[],
+  friends: UserProfile[],
   friendAnswers: FriendAnswer[],
   selfAnswers: SelfAnswer[],
   quizId: number,
@@ -92,13 +92,13 @@ export function addFriendAnswerInitiatedNotification(
     numQuestionsInThisQuiz <= numSelfAnswers &&
     !existingNotification
   ) {
-    const selfUser = allUsers.find((u) => u.id === selfId)
+    const selfUser = friends.find((u) => u.id === selfId)
     addNotification(selfId, friendId, quizId)
     sendNotification(
       selfId.toString(),
       "New Pack Results!",
       `${
-        allUsers.find((u) => u.id === friendId)?.name
+        friends.find((u) => u.id === friendId)?.name
       } has finished one of your packs.`,
       selfUser?.notificationToken
     )

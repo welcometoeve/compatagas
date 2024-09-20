@@ -45,7 +45,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [answers, setAnswers] = useState<FriendAnswer[]>([])
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const { user, allUsers } = useUser()
+  const { user, friends: friends } = useUser()
   const { notifications, fetchNotifications, addNotification } =
     useNotification()
   const { isDev } = useEnvironment()
@@ -69,20 +69,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
             table: tableName,
           },
           (payload) => {
-            const newAnswer = payload.new as FriendAnswer
-            setAnswers((prevAnswers) => {
-              // Check if the answer already exists
-              const exists = prevAnswers.some(
-                (a) =>
-                  a.friendId === newAnswer.friendId &&
-                  a.selfId === newAnswer.selfId &&
-                  a.questionId === newAnswer.questionId
-              )
-              if (!exists) {
-                return [...prevAnswers, newAnswer]
-              }
-              return prevAnswers
-            })
+            fetchAnswers()
           }
         )
         .subscribe()
@@ -93,7 +80,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, allUsers, isDev, tableName])
+  }, [user, friends, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
@@ -102,6 +89,9 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setFetchError(null)
 
     const { data, error } = await supabase.from(tableName).select("*")
+    // .or(
+    //   `and(selfId.eq.${user.id},friendId.in.(${user.friendIds})),and(friendId.eq.${user.id},selfId.in.(${user.friendIds}))`
+    // )
 
     if (error) {
       console.error("Error fetching friend answers:", error)
