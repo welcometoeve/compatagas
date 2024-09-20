@@ -255,7 +255,6 @@ export default function App() {
   }
 
   const completedQuiz = quizzes.find((q) => q.id === completedQuizId)
-
   return (
     <View style={styles.container}>
       <ExplanationText />

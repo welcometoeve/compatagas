@@ -50,6 +50,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const { isDev } = useEnvironment()
 
   const tableName = isDev ? "_User_dev" : "User"
+  const friendRelationTableName = isDev
+    ? "_FriendRelation_dev"
+    : "FriendRelation"
+
   const authenticate = async (
     phoneNumber: number
   ): Promise<UserProfile | null> => {
@@ -115,7 +119,32 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   const fetchAllUsers = async () => {
     if (!user) return
-    let query = supabase.from(tableName).select("*").eq("deleted", false)
+
+    const { data: friendRelations, error: friendRelationsError } =
+      await supabase
+        .from(friendRelationTableName)
+        .select("userId1, userId2")
+        .or(`userId1.eq.${user.id},userId2.eq.${user.id}`)
+
+    if (friendRelationsError) {
+      console.error("Error fetching friend relations:", friendRelationsError)
+      return
+    }
+
+    const friendIds = new Set(
+      friendRelations.flatMap((relation) => [
+        relation.userId1,
+        relation.userId2,
+      ])
+    )
+    friendIds.delete(user.id) // Remove the current user's ID
+
+    let query = supabase
+      .from(tableName)
+      .select("*")
+      .eq("deleted", false)
+      .in("id", Array.from(friendIds))
+      .order("name")
 
     if (user.name && user.name.toLowerCase().includes("leah")) {
       query = query.eq("id", 11)
@@ -132,7 +161,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     if (error) {
       console.error("Error fetching users:", error)
     } else {
-      setAllUsers(data)
+      setAllUsers([...data, user])
     }
   }
 
