@@ -7,7 +7,6 @@ import {
   ScrollView,
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { SafeAreaView } from "react-native-safe-area-context"
 
 interface Friend {
   id: string
@@ -55,7 +54,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
@@ -66,7 +65,12 @@ const ProfilePage: React.FC = () => {
           <Text style={styles.phoneNumber}>{phoneNumber}</Text>
         </View>
         <View style={styles.friendsContainer}>
-          <Text style={styles.friendsTitle}>Friends</Text>
+          <View style={styles.friendsTitleContainer}>
+            <Text style={styles.friendsTitle}>Friends</Text>
+            <Text style={styles.friendsSubtitle}>
+              (check everyone you know)
+            </Text>
+          </View>
           {friends.map((item) => (
             <View key={item.id} style={styles.friendItem}>
               <Text style={styles.friendEmoji}>{item.emoji}</Text>
@@ -79,7 +83,7 @@ const ProfilePage: React.FC = () => {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 
@@ -87,11 +91,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingTop: 20,
   },
   scrollViewContent: {
     alignItems: "center",
     paddingTop: 20,
-    paddingBottom: 40, // Add some bottom padding for better scrolling
+    paddingBottom: 40,
   },
   header: {
     alignItems: "center",
@@ -119,10 +124,22 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 20,
   },
-  friendsTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+  friendsTitleContainer: {
+    flexDirection: "column",
+    // alignItems: "center",
     marginBottom: 20,
+    width: "100%",
+    paddingBottom: 10,
+  },
+  friendsTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    paddingLeft: 1,
+  },
+  friendsSubtitle: {
+    fontSize: 18,
+    color: "gray",
+    paddingTop: 12,
   },
   friendItem: {
     flexDirection: "row",
