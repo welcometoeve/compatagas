@@ -17,6 +17,7 @@ import CompletionScreen from "@/components/stack/CompletionPopup"
 import selectNextQuestion, {
   SelectedQuestion,
 } from "@/components/stack/selectNextQuestion"
+import { useEnvironment } from "@/contexts/EnvironmentContext"
 
 const { width } = Dimensions.get("window")
 
@@ -41,6 +42,7 @@ export default function App() {
   const [completedQuizId, setCompletedQuizId] = useState<number | undefined>()
   const [completionAnimation] = useState(new Animated.Value(1))
   const slideAnimation = useRef(new Animated.Value(0)).current
+  const { isDev } = useEnvironment()
 
   const questionUserCombos: { questionId: number; selfId: number }[] =
     questions.flatMap((q) => {
@@ -87,19 +89,17 @@ export default function App() {
     const newQuestion = selectNextQuestion(
       nextQuestionRef,
       questionsRef,
-      false, // devMode
-      false, // sameQuizOnly
-      false, // answeredByOthersOnly
-      [] // quizIdOrder
+      isDev // devMode
     )
 
     // Update the refs after selecting a new question
     if (newQuestion) {
       nextQuestionRef.current = newQuestion
-      questionsRef.current = questionsRef.current.filter(
-        (q) =>
-          q.questionId !== newQuestion.questionId ||
-          q.selfId !== newQuestion.selfId
+      questionsRef.current = questionsRef.current.map((q) =>
+        q.questionId === newQuestion.questionId &&
+        q.selfId == newQuestion.selfId
+          ? { ...q, answered: true }
+          : q
       )
     }
 
@@ -148,28 +148,17 @@ export default function App() {
     }
   }, [completedQuizFriendId])
 
-  const animateCardAway = (newState?: {
-    newFriendId: number
-    newQuestionId: number
-  }) => {
+  const animateCardAway = (q?: SelectedQuestion) => {
     Animated.timing(slideAnimation, {
       toValue: -width,
       duration: 300,
       useNativeDriver: true,
     }).start(() => {
       slideAnimation.setValue(0)
-      if (newState) {
+      if (q) {
         setCardState((prevState) => ({
           currentQuestion: prevState.nextQuestion,
-          nextQuestion: {
-            questionId: newState.newQuestionId,
-            selfId: newState.newFriendId,
-            answered: false,
-            answeredBySelf: false,
-            quizId:
-              questions.find((q) => q.id === newState.newQuestionId)?.quizId ||
-              0,
-          },
+          nextQuestion: q,
         }))
       }
     })
@@ -178,16 +167,16 @@ export default function App() {
   const handleAnswer = async (optionIndex: number) => {
     if (!cardState.currentQuestion) return
 
-    const { questionId, quizId } = cardState.currentQuestion
+    const { questionId, quizId, selfId } = cardState.currentQuestion
 
     try {
-      addFriendAnswer(user?.id || 0, questionId, optionIndex)
+      addFriendAnswer(selfId, questionId, optionIndex)
       const result = addFriendAnswerInitiatedNotification(
         allUsers,
         friendAnswers,
         selfAnswers,
         quizId,
-        user?.id || 0,
+        selfId,
         user?.id || 0,
         notifications,
         addNotification
@@ -203,14 +192,7 @@ export default function App() {
       const newQuestion = selectNewQuestion()
 
       // Animate the card away and update the state
-      animateCardAway(
-        newQuestion
-          ? {
-              newFriendId: newQuestion.selfId,
-              newQuestionId: newQuestion.questionId,
-            }
-          : undefined
-      )
+      animateCardAway(newQuestion ?? undefined)
 
       // Update the currentQuestionRef after setting the new state
       if (cardState.nextQuestion) {

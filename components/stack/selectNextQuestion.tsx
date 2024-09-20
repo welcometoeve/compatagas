@@ -5,18 +5,20 @@ export interface SelectedQuestion {
   questionId: number
   selfId: number
   answeredBySelf: boolean
+  answered: boolean
 }
+
+const sameQuizOnly = false
+const answeredByOthersOnly = false
+const quizIdOrder: number[] = []
 
 export default function selectNextQuestion(
   currentQuestionRef: MutableRefObject<SelectedQuestion>,
   questionsRef: MutableRefObject<SelectedQuestion[]>,
-  devMode: boolean,
-  sameQuizOnly: boolean = false,
-  answeredByOthersOnly: boolean = false,
-  quizIdOrder: number[] = []
+  devMode: boolean
 ): SelectedQuestion | null {
   const currentQuestion = currentQuestionRef.current
-  const questions = questionsRef.current
+  const questions = questionsRef.current.filter((q) => !q.answered)
 
   if (questions.length === 0) {
     return null
