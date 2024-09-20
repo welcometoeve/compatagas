@@ -66,7 +66,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const { data, error } = await supabase
       .from(tableName)
       .select("*")
-      .or(`selfId.eq.${user.id},friendId.eq.${user.id}`)
+      .or(`selfId.eq.${user.id},friendId.eq.${user.id}`) // not worrying about friend relations here
       .order("createdAt", { ascending: false })
 
     if (error) {
@@ -182,6 +182,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             table: tableName,
           },
           (payload) => {
+            console.log(payload)
             fetchNotifications()
           }
         )
