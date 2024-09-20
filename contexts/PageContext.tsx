@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode } from "react"
 import { QuizItem } from "@/components/results/proccessQuizLists"
 
-export type Page = "quizzes" | "questions" | "results"
+export type Page = "quizzes" | "questions" | "results" | "profile"
 
 interface PageContextType {
   page: Page

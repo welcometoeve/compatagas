@@ -32,6 +32,7 @@ import { NotificationProvider } from "@/contexts/notification/NotificationContex
 import { SafeAreaView } from "react-native-safe-area-context"
 import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
 import { PageProvider, usePage } from "@/contexts/PageContext"
+import ProfilePage from "./(tabs)/ProfilePage"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -158,6 +159,8 @@ function RootLayout() {
             ) : null
           ) : page === "results" ? (
             <ResultsView />
+          ) : page === "profile" ? (
+            <ProfilePage />
           ) : (
             <QuizzesView />
           )}

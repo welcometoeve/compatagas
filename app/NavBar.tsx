@@ -41,6 +41,12 @@ const tabs: TabItem[] = [
     activeIcon: "folder-open",
     inactiveIcon: "folder-open-o",
   },
+  {
+    name: "Profile",
+    page: "profile",
+    activeIcon: "person-circle-sharp",
+    inactiveIcon: "person-circle-outline",
+  },
 ]
 
 const NavBar: React.FC = () => {
@@ -68,9 +74,8 @@ const NavBar: React.FC = () => {
             key={tab.name}
             style={[
               styles.tabItem,
-              index === 0 && styles.leftTabItem,
-              index === 1 && styles.centerTabItem,
-              index === 2 && styles.rightTabItem,
+              { flex: 1 },
+
               {
                 paddingTop:
                   tab.page === "results" ? 0 : tab.page === "questions" ? 0 : 0,
@@ -92,14 +97,14 @@ const NavBar: React.FC = () => {
                     <RectangleStackIconOutline color={"#8E8E93"} size={28} />
                   )}
                 </View>
-              ) : tab.page === "quizzes" ? (
+              ) : tab.page === "quizzes" || tab.page === "profile" ? (
                 <Ionicons
                   name={
                     (page === tab.page
                       ? tab.activeIcon
                       : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
                   }
-                  size={28}
+                  size={tab.page === "quizzes" ? 27 : 29}
                   color={page === tab.page ? "#007AFF" : "#8E8E93"}
                 />
               ) : (
