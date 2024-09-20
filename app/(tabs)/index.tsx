@@ -18,6 +18,7 @@ import selectNextQuestion, {
   SelectedQuestion,
 } from "@/components/stack/selectNextQuestion"
 import { useEnvironment } from "@/contexts/EnvironmentContext"
+import { useFriends } from "@/contexts/FriendContext"
 
 const { width } = Dimensions.get("window")
 
@@ -33,7 +34,9 @@ export default function App() {
     nextQuestion: null,
   })
   const [addError, setAddError] = useState<string | undefined>()
-  const { user, allUsers } = useUser()
+  const { user } = useUser()
+  const { allUsers } = useFriends()
+
   const { addNotification, notifications } = useNotification()
   const { selfAnswers } = useSelfAnswers()
   const [completedQuizFriendId, setCompletedQuizFriendId] = useState<

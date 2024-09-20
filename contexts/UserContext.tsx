@@ -24,7 +24,6 @@ export type UserProfile = {
 
 type UserContextType = {
   user: UserProfile | null
-  allUsers: UserProfile[]
   authenticating: boolean
   signingUp: boolean
   createUser: (
@@ -48,7 +47,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserProfile | null>(null)
-  const [allUsers, setAllUsers] = useState<UserProfile[]>([])
   const [authenticating, setAuthenticating] = useState(true)
   const [signingUp, setSigningUp] = useState(false)
   const [lastNotification, setLastNotification] =
@@ -111,42 +109,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
   }
 
-  const fetchAllUsers = async () => {
-    if (!user) return
-    const { data: friendRelations, error: friendRelationsError } =
-      await supabase
-        .from(friendRelationTableName)
-        .select("userId1, userId2")
-        .or(`userId1.eq.${user.id},userId2.eq.${user.id}`)
-
-    if (friendRelationsError) {
-      console.error("Error fetching friend relations:", friendRelationsError)
-      return
-    }
-
-    const friendIds = new Set([
-      ...friendRelations.flatMap((relation) => [
-        relation.userId1,
-        relation.userId2,
-      ]),
-      user.id,
-    ])
-
-    let query = supabase
-      .from(tableName)
-      .select("*")
-      .eq("deleted", false)
-      .in("id", Array.from(friendIds))
-      .order("name")
-
-    const { data, error } = await query
-    if (error) {
-      console.error("Error fetching users:", error)
-    } else {
-      setAllUsers(data)
-    }
-  }
-
   const requestNotificationPermission = async () => {
     const { status: existingStatus } = await Notifications.getPermissionsAsync()
     let finalStatus = existingStatus
@@ -187,10 +149,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   useEffect(() => {
-    fetchAllUsers()
-  }, [user, tableName])
-
-  useEffect(() => {
     const initializeUser = async () => {
       setAuthenticating(true)
       try {
@@ -205,55 +163,18 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     initializeUser()
+  }, [])
 
-    // Set up notification listeners
-    const notificationListener = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        setLastNotification(notification)
-      }
-    )
-
-    const responseListener =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("Notification response received:", response)
-      })
-
-    const userSubscription = supabase
-      .channel(tableName)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: tableName },
-        (payload) => {
-          fetchAllUsers()
-        }
-      )
-      .subscribe()
-
-    const friendRelationSubscription = supabase
-      .channel(friendRelationTableName)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: friendRelationTableName },
-        (payload) => {
-          console.log(payload)
-          fetchAllUsers()
-        }
-      )
-      .subscribe()
-
-    return () => {
-      userSubscription.unsubscribe()
-      friendRelationSubscription.unsubscribe()
-      Notifications.removeNotificationSubscription(notificationListener)
-      Notifications.removeNotificationSubscription(responseListener)
+  // Set up notification listeners
+  const notificationListener = Notifications.addNotificationReceivedListener(
+    (notification) => {
+      setLastNotification(notification)
     }
-  }, [isDev, tableName, friendRelationTableName])
-
+  )
   return (
     <UserContext.Provider
       value={{
         user,
-        allUsers,
         authenticating,
         signingUp,
         createUser,

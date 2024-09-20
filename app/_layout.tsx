@@ -33,6 +33,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
 import { PageProvider, usePage } from "@/contexts/PageContext"
 import ProfilePage from "./(tabs)/ProfilePage"
+import { FriendsProvider, useFriends } from "@/contexts/FriendContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -45,13 +46,9 @@ function RootLayout() {
   const [isDebugVisible, setIsDebugVisible] = useState<boolean>(false)
   const [update, setUpdate] = useState<Updates.UpdateCheckResult | null>(null)
   const [updateString, setUpdateString] = useState<string>("")
-  const {
-    user,
-    authenticating,
-    signingUp,
-    requestNotificationPermission,
-    allUsers,
-  } = useUser()
+  const { user, authenticating, signingUp, requestNotificationPermission } =
+    useUser()
+  const { allUsers } = useFriends()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchFriendAnswers } =
     useFriendAnswers()
@@ -207,15 +204,17 @@ export default function ContextWrapper() {
   return (
     <EnvironmentProvider>
       <UserProvider>
-        <NotificationProvider>
-          <AnswerProvider>
-            <SelfAnswerProvider>
-              <PageProvider>
-                <RootLayout />
-              </PageProvider>
-            </SelfAnswerProvider>
-          </AnswerProvider>
-        </NotificationProvider>
+        <FriendsProvider>
+          <NotificationProvider>
+            <AnswerProvider>
+              <SelfAnswerProvider>
+                <PageProvider>
+                  <RootLayout />
+                </PageProvider>
+              </SelfAnswerProvider>
+            </AnswerProvider>
+          </NotificationProvider>
+        </FriendsProvider>
       </UserProvider>
     </EnvironmentProvider>
   )

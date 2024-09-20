@@ -10,6 +10,7 @@ import { questions } from "@/constants/questions/questions"
 import { useNotification } from "./notification/NotificationContext"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useEnvironment } from "./EnvironmentContext"
+import { useFriends } from "./FriendContext"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -45,7 +46,9 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [answers, setAnswers] = useState<FriendAnswer[]>([])
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const { user, allUsers } = useUser()
+  const { user } = useUser()
+  const { allUsers } = useFriends()
+
   const { notifications, fetchNotifications, addNotification } =
     useNotification()
   const { isDev } = useEnvironment()
