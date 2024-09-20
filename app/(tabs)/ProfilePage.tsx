@@ -1,18 +1,29 @@
-import React from "react"
+import React, { useState } from "react"
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Modal,
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
+import { useUser } from "@/contexts/UserContext"
+import EmojiSelector from "react-native-emoji-selector"
+import { XCircleIcon, CheckCircleIcon } from "react-native-heroicons/solid"
 
 interface Friend {
   id: string
   name: string
   emoji: string
   isFriend: boolean
+}
+
+interface User {
+  name: string
+  lastName?: string
+  phoneNumber: string
+  emoji: string
 }
 
 const CustomCheckbox: React.FC<{ checked: boolean; onPress: () => void }> = ({
@@ -27,23 +38,15 @@ const CustomCheckbox: React.FC<{ checked: boolean; onPress: () => void }> = ({
 )
 
 const ProfilePage: React.FC = () => {
-  const name = "John Doe"
-  const emoji = "👨‍🦰"
-  const phoneNumber = "555-555-5555"
-  const [friends, setFriends] = React.useState<Friend[]>([
+  const { user } = useUser()
+  const [friends, setFriends] = useState<Friend[]>([
     { id: "1", name: "Jane Doe", emoji: "👩", isFriend: true },
     { id: "2", name: "James Doe", emoji: "👨", isFriend: true },
     { id: "3", name: "Jill Doe", emoji: "👧", isFriend: false },
-    { id: "4", name: "Jane Doe", emoji: "👩", isFriend: true },
-    { id: "5", name: "James Doe", emoji: "👨", isFriend: true },
-    { id: "6", name: "Jill Doe", emoji: "👧", isFriend: false },
-    { id: "7", name: "Jane Doe", emoji: "👩", isFriend: true },
-    { id: "8", name: "James Doe", emoji: "👨", isFriend: true },
-    { id: "9", name: "Jill Doe", emoji: "👧", isFriend: false },
-    { id: "10", name: "Jane Doe", emoji: "👩", isFriend: true },
-    { id: "11", name: "James Doe", emoji: "👨", isFriend: true },
-    { id: "12", name: "Jill Doe", emoji: "👧", isFriend: false },
+    // ... (rest of the friends array)
   ])
+  const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false)
+  const [selectedEmoji, setSelectedEmoji] = useState(user?.emoji ?? "👧")
 
   const toggleFriendStatus = (id: string) => {
     setFriends(
@@ -53,16 +56,32 @@ const ProfilePage: React.FC = () => {
     )
   }
 
+  const handleEditPress = () => {
+    setIsEmojiPickerVisible(true)
+  }
+
+  const handleSelectEmoji = (emoji: string) => {
+    setSelectedEmoji(emoji)
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
           <View style={styles.emojiContainer}>
-            <Text style={styles.emoji}>{emoji}</Text>
+            <Text style={styles.emoji}>{selectedEmoji}</Text>
+            <TouchableOpacity
+              onPress={handleEditPress}
+              style={styles.editButton}
+            >
+              <Text style={styles.editButtonText}>Edit</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.phoneNumber}>{phoneNumber}</Text>
+          <Text style={styles.name}>{`${user?.name} ${
+            user?.lastName ?? ""
+          }`}</Text>
+          <Text style={styles.phoneNumber}>{user?.phoneNumber}</Text>
         </View>
         <View style={styles.friendsContainer}>
           <View style={styles.friendsTitleContainer}>
@@ -83,6 +102,34 @@ const ProfilePage: React.FC = () => {
           ))}
         </View>
       </ScrollView>
+      <Modal
+        visible={isEmojiPickerVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsEmojiPickerVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity
+            onPress={() => {
+              setIsEmojiPickerVisible(false)
+            }}
+            style={styles.closeButton}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+          <View style={styles.emojiPickerContainer}>
+            <EmojiSelector
+              onEmojiSelected={handleSelectEmoji}
+              showSearchBar={true}
+              showHistory={false}
+              showSectionTitles={false}
+              showTabs={false}
+              columns={6}
+              category={undefined}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -100,24 +147,34 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
+    marginBottom: 40,
+    paddingTop: 25,
   },
   emojiContainer: {
     position: "relative",
-    marginBottom: 10,
+    marginBottom: 30,
+    alignItems: "center",
   },
   emoji: {
     fontSize: 100,
   },
+  editButton: {
+    position: "absolute",
+    bottom: -20,
+    zIndex: 1,
+  },
+  editButtonText: {
+    color: "#007AFF",
+    fontSize: 16,
+  },
   name: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: "bold",
   },
   phoneNumber: {
     fontSize: 18,
     marginBottom: 20,
-    paddingTop: 20,
+    paddingTop: 15,
     color: "gray",
   },
   friendsContainer: {
@@ -126,7 +183,6 @@ const styles = StyleSheet.create({
   },
   friendsTitleContainer: {
     flexDirection: "column",
-    // alignItems: "center",
     marginBottom: 20,
     width: "100%",
     paddingBottom: 10,
@@ -172,6 +228,36 @@ const styles = StyleSheet.create({
   checkmark: {
     color: "#fff",
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  emojiPickerContainer: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    width: "90%",
+    height: 300,
+    overflow: "hidden",
+    marginTop: 220,
+    position: "relative",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 160,
+    left: "5%",
+    zIndex: 1,
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 12,
+    paddingHorizontal: 15,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: "black",
+    fontWeight: "bold",
   },
 })
 

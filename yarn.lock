@@ -3718,6 +3718,11 @@ emittery@^0.13.1:
   resolved "https://registry.yarnpkg.com/emittery/-/emittery-0.13.1.tgz#c04b8c3457490e0847ae51fced3af52d338e3dad"
   integrity sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==
 
+emoji-datasource@^6.0.0:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/emoji-datasource/-/emoji-datasource-6.1.1.tgz#95a38737a322bedae130385c26ce291d0833ce62"
+  integrity sha512-fbS3QJpzGHhujvBULSKXcvsYmVg+1ldfI3VVXG3jnFuniZtkp7rz/OcTcQjbp3m43BYxmiJgKmaoOUPxXQupRQ==
+
 emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
@@ -3727,6 +3732,11 @@ emoji-regex@^9.2.2:
   version "9.2.2"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-9.2.2.tgz#840c8803b0d8047f4ff0cf963176b32d4ef3ed72"
   integrity sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==
+
+emoji@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/emoji/-/emoji-0.3.2.tgz#4a1723cbbccf91804257da63cfaf00b5337fe604"
+  integrity sha512-K2yQ5JVmAvVtd8W045sA/bXtWY91SQgGSKw/bwRcZDu0y73GxZ7KR8g2dg/6roT7nElxjxp+GSWBNshPdEkcow==
 
 encodeurl@~1.0.2:
   version "1.0.2"
@@ -6877,6 +6887,11 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
+picker@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/picker/-/picker-0.1.4.tgz#101b890d34dc387823236af9ba7067660b48d9e8"
+  integrity sha512-M9fNs3FYg3buWWGrxtZWBngshiD4cQWqvnO1YIPet/P3VaSrcEkg9I9SwiNXpLhPVkP5b+eLoaWc3DLrRL/VUA==
+
 picocolors@^1.0.0, picocolors@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.1.0.tgz#5358b76a78cde483ba5cef6a9dc9671440b27d59"
@@ -7161,6 +7176,13 @@ react-native-dotenv@^3.4.11:
   dependencies:
     dotenv "^16.4.5"
 
+react-native-emoji-selector@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-emoji-selector/-/react-native-emoji-selector-0.2.0.tgz#b1ed980cd585a3fd0fca1da6a29006c1a5979615"
+  integrity sha512-+rPPWG5vl5AexdH8udEwtzdq9QUGD6kp+dQ8C/459d3ScM0S3UnT/qAvhmpsTgCbgjpdwiJIcrKNxKmGEDb15g==
+  dependencies:
+    emoji-datasource "^6.0.0"
+
 react-native-gesture-handler@~2.16.1:
   version "2.16.2"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.16.2.tgz#032bd2a07334292d7f6cff1dc9d1ec928f72e26d"
@@ -7310,10 +7332,10 @@ react-test-renderer@18.2.0:
     react-shallow-renderer "^16.15.0"
     scheduler "^0.23.0"
 
-react@18.2.0:
-  version "18.2.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"
-  integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
+react@^18.3.1:
+  version "18.3.1"
+  resolved "https://registry.yarnpkg.com/react/-/react-18.3.1.tgz#49ab892009c53933625bd16b2533fc754cab2891"
+  integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
   dependencies:
     loose-envify "^1.1.0"
 

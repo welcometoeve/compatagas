@@ -12,7 +12,8 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { useUser } from "@/contexts/UserContext"
 
 const AccountScreen = () => {
-  const [name, setName] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [phoneNumber, setPhoneNumber] = useState<number | undefined>()
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
@@ -22,18 +23,21 @@ const AccountScreen = () => {
     setError("")
     setSuccess(false)
 
-    if (!name || phoneNumber === undefined) {
+    if (!firstName || !lastName || phoneNumber === undefined) {
       setError("Please fill in all fields.")
       return
     }
 
     try {
-      await createUser(phoneNumber, name)
+      await createUser(phoneNumber, firstName, lastName)
       setSuccess(true)
     } catch (err) {
       setError("Failed to create account. Please try again.")
     }
   }
+
+  const isFormValid =
+    firstName !== "" && lastName !== "" && phoneNumber !== undefined
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,32 +45,42 @@ const AccountScreen = () => {
         <View style={styles.formContainer}>
           <Text style={styles.title}>Create Account</Text>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Name</Text>
             <TextInput
               style={styles.input}
-              value={name}
-              onChangeText={setName}
-              placeholder="Enter your name"
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder="First name"
               placeholderTextColor="#999999"
             />
           </View>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.input}
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder="Last name"
+              placeholderTextColor="#999999"
+            />
+          </View>
+          <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
               value={phoneNumber as any}
               onChangeText={(phoneNumber: string) =>
                 setPhoneNumber(parseInt(phoneNumber))
               }
-              placeholder="Enter your phone number"
+              placeholder="Phone number"
               placeholderTextColor="#999999"
               keyboardType="phone-pad"
             />
           </View>
           <TouchableOpacity
-            style={[styles.button, signingUp && styles.disabledButton]}
+            style={[
+              styles.button,
+              (!isFormValid || signingUp) && styles.disabledButton,
+            ]}
             onPress={handleSubmit}
-            disabled={signingUp}
+            disabled={!isFormValid || signingUp}
           >
             <Text style={styles.buttonText}>
               {signingUp ? "Creating Account..." : "Create Account"}
@@ -144,7 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
-    marginTop: 24,
+    marginTop: 10,
   },
   disabledButton: {
     opacity: 0.5,

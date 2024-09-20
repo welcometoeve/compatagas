@@ -204,7 +204,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF", paddingTop: 60 }}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 24, paddingBottom: 20 }}
@@ -329,7 +329,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           />
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

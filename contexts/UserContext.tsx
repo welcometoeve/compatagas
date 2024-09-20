@@ -17,7 +17,9 @@ export type UserProfile = {
   id: number
   phoneNumber: number
   name: string | null
+  lastName: string | null
   notificationToken?: string
+  emoji: string | null
 }
 
 type UserContextType = {
@@ -25,7 +27,11 @@ type UserContextType = {
   allUsers: UserProfile[]
   authenticating: boolean
   signingUp: boolean
-  createUser: (phoneNumber: number, name: string) => Promise<UserProfile>
+  createUser: (
+    phoneNumber: number,
+    name: string,
+    lastName: string
+  ) => Promise<UserProfile>
   clearUser: () => void
   requestNotificationPermission: () => Promise<void>
   lastNotification: Notifications.Notification | null
@@ -53,6 +59,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const friendRelationTableName = isDev
     ? "_FriendRelation_dev"
     : "FriendRelation"
+
   const authenticate = async (
     phoneNumber: number
   ): Promise<UserProfile | null> => {
@@ -75,33 +82,24 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   const createUser = async (
     phoneNumber: number,
-    name: string
+    name: string,
+    lastName: string
   ): Promise<UserProfile> => {
     setSigningUp(true)
     try {
-      const { data: existingUser, error: fetchError } = await supabase
-        .from(tableName)
-        .select("*")
-        .eq("phoneNumber", parseInt(phoneNumber.toString()))
-        .single()
-
-      if (fetchError && fetchError.code !== "PGRST116") {
-        throw new Error("Failed to check for existing user")
-      }
-
-      if (existingUser) {
-        setUser(existingUser)
-        await AsyncStorage.setItem(`phoneNumber`, phoneNumber.toString())
-        return existingUser
-      }
+      await AsyncStorage.setItem(`phoneNumber`, phoneNumber.toString())
 
       const { data: newUser, error: insertError } = await supabase
         .from(tableName)
-        .insert({ phoneNumber: phoneNumber, name: name })
+        .upsert(
+          { phoneNumber: phoneNumber, name: name, lastName: lastName },
+          { onConflict: "phoneNumber", ignoreDuplicates: false }
+        )
         .select()
         .single()
 
       if (insertError || !newUser) {
+        console.log("Error creating user:", insertError)
         throw new Error("Failed to create user")
       }
 
