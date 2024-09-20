@@ -54,13 +54,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     phoneNumber: number
   ): Promise<UserProfile | null> => {
     setSigningUp(true)
+
     try {
       const { data, error } = await supabase
         .from(tableName)
         .select("*")
         .eq("phoneNumber", phoneNumber)
         .single()
-
       if (error || !data) return null
       setUser(data)
       await AsyncStorage.setItem("phoneNumber", phoneNumber.toString())
@@ -88,10 +88,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
       if (existingUser) {
         setUser(existingUser)
-        await AsyncStorage.setItem(
-          `phoneNumber-${tableName}`,
-          phoneNumber.toString()
-        )
+        await AsyncStorage.setItem(`phoneNumber`, phoneNumber.toString())
         return existingUser
       }
 
