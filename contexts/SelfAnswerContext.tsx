@@ -66,6 +66,8 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
             table: tableName,
           },
           (payload) => {
+            console.log(payload)
+
             fetchAnswers()
           }
         )

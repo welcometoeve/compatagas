@@ -67,6 +67,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
             table: tableName,
           },
           (payload) => {
+            console.log(payload)
             fetchAnswers()
           }
         )

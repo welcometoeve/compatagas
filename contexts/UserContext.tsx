@@ -237,6 +237,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         "postgres_changes",
         { event: "*", schema: "public", table: friendRelationTableName },
         (payload) => {
+          console.log(payload)
           fetchAllUsers()
         }
       )

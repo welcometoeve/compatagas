@@ -13,7 +13,7 @@ const answeredByOthersOnly = false
 const quizIdOrder: number[] = []
 
 export default function selectNextQuestion(
-  currentQuestionRef: MutableRefObject<SelectedQuestion>,
+  currentQuestionRef: MutableRefObject<SelectedQuestion | null>,
   questionsRef: MutableRefObject<SelectedQuestion[]>,
   devMode: boolean
 ): SelectedQuestion | null {
@@ -50,7 +50,7 @@ export default function selectNextQuestion(
     // Priority 2: Select from the same quiz
     if (sameQuizOnly) {
       const sameQuizQuestions = questions.filter(
-        (q) => q.quizId === currentQuestion.quizId && isUniqueUserQuestion(q)
+        (q) => q.quizId === currentQuestion?.quizId && isUniqueUserQuestion(q)
       )
       if (sameQuizQuestions.length > 0) {
         return sameQuizQuestions[
@@ -77,7 +77,7 @@ export default function selectNextQuestion(
   const totalWeight = uniqueQuestions.reduce((sum, question) => {
     let weight = 1
     if (question.answeredBySelf) weight += 1
-    if (question.quizId === currentQuestion.quizId) weight += 1
+    if (question.quizId === currentQuestion?.quizId) weight += 1
     return sum + weight
   }, 0)
 
@@ -86,7 +86,7 @@ export default function selectNextQuestion(
   for (const question of uniqueQuestions) {
     let weight = 1
     if (question.answeredBySelf) weight += 1
-    if (question.quizId === currentQuestion.quizId) weight += 1
+    if (question.quizId === currentQuestion?.quizId) weight += 1
 
     randomWeight -= weight
     if (randomWeight <= 0) {

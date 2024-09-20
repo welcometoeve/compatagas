@@ -43,49 +43,58 @@ export default function App() {
   const [completionAnimation] = useState(new Animated.Value(1))
   const slideAnimation = useRef(new Animated.Value(0)).current
   const { isDev } = useEnvironment()
+  const questionsRef = useRef<SelectedQuestion[]>([])
+  const nextQuestionRef = useRef<SelectedQuestion | null>(null)
 
-  const questionUserCombos: { questionId: number; selfId: number }[] =
-    questions.flatMap((q) => {
-      const questionsPerUser = allUsers
-        .map((u) => {
-          return { questionId: q.id, selfId: u.id }
-        })
-        .filter((q) => q.selfId !== user?.id)
+  useEffect(() => {
+    const questionUserCombos: { questionId: number; selfId: number }[] =
+      questions.flatMap((q) => {
+        const questionsPerUser = allUsers
+          .map((u) => {
+            return { questionId: q.id, selfId: u.id }
+          })
+          .filter((q) => q.selfId !== user?.id)
 
-      return questionsPerUser
-    })
-  const userFriendAnswers = friendAnswers.filter(
-    (fa) => fa.friendId === user?.id
-  )
-  const availableQuestions: SelectedQuestion[] = questionUserCombos
-    .map((qu) => {
-      const answered = userFriendAnswers.some(
-        (fa) =>
-          fa.questionId === qu.questionId &&
-          fa.selfId === qu.selfId &&
-          fa.friendId === user?.id
-      )
-      return { questionId: qu.questionId, selfId: qu.selfId, answered }
-    })
-    .map((qu) => {
-      const answeredBySelf = selfAnswers.some(
-        (sa) => sa.questionId === qu.questionId && sa.userId === qu.selfId
-      )
-      return {
-        questionId: qu.questionId,
-        selfId: qu.selfId,
-        answered: qu.answered,
-        answeredBySelf,
-        quizId: questions.find((q) => q.id === qu.questionId)?.quizId || 0,
-      }
-    })
+        return questionsPerUser
+      })
+    const userFriendAnswers = friendAnswers.filter(
+      (fa) => fa.friendId === user?.id
+    )
 
-  const nextQuestionRef = useRef<SelectedQuestion>(
-    cardState.currentQuestion || availableQuestions[0]
-  )
-  const questionsRef = useRef<SelectedQuestion[]>(availableQuestions)
+    const availableQuestions: SelectedQuestion[] = questionUserCombos
+      .map((qu) => {
+        const answered = userFriendAnswers.some(
+          (fa) =>
+            fa.questionId === qu.questionId &&
+            fa.selfId === qu.selfId &&
+            fa.friendId === user?.id
+        )
+        return { questionId: qu.questionId, selfId: qu.selfId, answered }
+      })
+      .map((qu) => {
+        const answeredBySelf = selfAnswers.some(
+          (sa) => sa.questionId === qu.questionId && sa.userId === qu.selfId
+        )
+        return {
+          questionId: qu.questionId,
+          selfId: qu.selfId,
+          answered: qu.answered,
+          answeredBySelf,
+          quizId: questions.find((q) => q.id === qu.questionId)?.quizId || 0,
+        }
+      })
+    console.log("users", allUsers.length)
+    console.log(availableQuestions.length)
+    nextQuestionRef.current = cardState.currentQuestion || availableQuestions[0]
+
+    questionsRef.current = availableQuestions
+  }, [allUsers, selfAnswers])
 
   const selectNewQuestion = () => {
+    if (questionsRef.current.filter((q) => !q.answered).length === 0) {
+      nextQuestionRef.current = null
+      return null
+    }
     const newQuestion = selectNextQuestion(
       nextQuestionRef,
       questionsRef,
@@ -155,12 +164,10 @@ export default function App() {
       useNativeDriver: true,
     }).start(() => {
       slideAnimation.setValue(0)
-      if (q) {
-        setCardState((prevState) => ({
-          currentQuestion: prevState.nextQuestion,
-          nextQuestion: q,
-        }))
-      }
+      setCardState((prevState) => ({
+        currentQuestion: prevState.nextQuestion ?? null,
+        nextQuestion: q ?? null,
+      }))
     })
   }
 
