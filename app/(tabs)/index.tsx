@@ -83,8 +83,7 @@ export default function App() {
           quizId: questions.find((q) => q.id === qu.questionId)?.quizId || 0,
         }
       })
-    console.log("users", allUsers.length)
-    console.log(availableQuestions.length)
+
     nextQuestionRef.current = cardState.currentQuestion || availableQuestions[0]
 
     questionsRef.current = availableQuestions
