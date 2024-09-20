@@ -51,10 +51,8 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const { isDev } = useEnvironment()
 
   const tableName = isDev ? "_FriendAnswer_dev" : "FriendAnswer"
-
   useEffect(() => {
     let subscription: RealtimeChannel | null = null
-
     if (user) {
       fetchAnswers()
 
@@ -69,20 +67,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
             table: tableName,
           },
           (payload) => {
-            const newAnswer = payload.new as FriendAnswer
-            setAnswers((prevAnswers) => {
-              // Check if the answer already exists
-              const exists = prevAnswers.some(
-                (a) =>
-                  a.friendId === newAnswer.friendId &&
-                  a.selfId === newAnswer.selfId &&
-                  a.questionId === newAnswer.questionId
-              )
-              if (!exists) {
-                return [...prevAnswers, newAnswer]
-              }
-              return prevAnswers
-            })
+            fetchAnswers()
           }
         )
         .subscribe()
@@ -101,7 +86,13 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase.from(tableName).select("*")
+    const friendIds = allUsers.map((u) => u.id)
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("*")
+      .or(
+        `and(selfId.eq.${user.id},friendId.in.(${friendIds})),and(friendId.eq.${user.id},selfId.in.(${friendIds}))`
+      )
 
     if (error) {
       console.error("Error fetching friend answers:", error)
