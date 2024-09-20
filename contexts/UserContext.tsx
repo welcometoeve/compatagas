@@ -50,6 +50,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const { isDev } = useEnvironment()
 
   const tableName = isDev ? "_User_dev" : "User"
+  const friendRelationTableName = isDev
+    ? "_FriendRelation_dev"
+    : "FriendRelation"
   const authenticate = async (
     phoneNumber: number
   ): Promise<UserProfile | null> => {
@@ -112,20 +115,33 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   const fetchAllUsers = async () => {
     if (!user) return
-    let query = supabase.from(tableName).select("*").eq("deleted", false)
+    const { data: friendRelations, error: friendRelationsError } =
+      await supabase
+        .from(friendRelationTableName)
+        .select("userId1, userId2")
+        .or(`userId1.eq.${user.id},userId2.eq.${user.id}`)
 
-    if (user.name && user.name.toLowerCase().includes("leah")) {
-      query = query.eq("id", 11)
+    if (friendRelationsError) {
+      console.error("Error fetching friend relations:", friendRelationsError)
+      return
     }
 
-    if (user.phoneNumber === 333 || user.phoneNumber === 666) {
-      query = query.in("phoneNumber", [333, 666])
-    } else {
-      query = query.not("phoneNumber", "eq", 333).not("phoneNumber", "eq", 666)
-    }
+    const friendIds = new Set([
+      ...friendRelations.flatMap((relation) => [
+        relation.userId1,
+        relation.userId2,
+      ]),
+      user.id,
+    ])
+
+    let query = supabase
+      .from(tableName)
+      .select("*")
+      .eq("deleted", false)
+      .in("id", Array.from(friendIds))
+      .order("name")
 
     const { data, error } = await query
-
     if (error) {
       console.error("Error fetching users:", error)
     } else {
@@ -204,7 +220,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         console.log("Notification response received:", response)
       })
 
-    const subscription = supabase
+    const userSubscription = supabase
       .channel(tableName)
       .on(
         "postgres_changes",
@@ -215,12 +231,24 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       )
       .subscribe()
 
+    const friendRelationSubscription = supabase
+      .channel(friendRelationTableName)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: friendRelationTableName },
+        (payload) => {
+          fetchAllUsers()
+        }
+      )
+      .subscribe()
+
     return () => {
-      subscription.unsubscribe()
+      userSubscription.unsubscribe()
+      friendRelationSubscription.unsubscribe()
       Notifications.removeNotificationSubscription(notificationListener)
       Notifications.removeNotificationSubscription(responseListener)
     }
-  }, [isDev, tableName])
+  }, [isDev, tableName, friendRelationTableName])
 
   return (
     <UserContext.Provider
