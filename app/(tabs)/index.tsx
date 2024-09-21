@@ -29,7 +29,7 @@ interface CardState {
 }
 
 // Add this boolean to control showing dummy info in the completion screen
-const SHOW_DUMMY_COMPLETION = true
+const SHOW_DUMMY_COMPLETION = false
 
 export default function App() {
   const { friendAnswers, addFriendAnswer, isLoading } = useFriendAnswers()
