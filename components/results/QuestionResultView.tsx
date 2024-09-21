@@ -28,7 +28,7 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
   const { friends } = useFriends()
 
   const namesHidden =
-    quizType === "your" && user?.unlockedQuizIds.includes(question.quizId)
+    quizType === "your" && !user?.unlockedQuizIds.includes(question.quizId)
 
   const getUsersForOption = (optionIndex: number) => {
     const names: string[] = []
@@ -53,6 +53,9 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
 
     names.push(...friendsWhoSelected)
 
+    if (namesHidden && names.includes("You")) {
+      return names.map((name) => (name === "You" ? "You" : "???")).join(", ")
+    }
     return names.join(", ")
   }
 

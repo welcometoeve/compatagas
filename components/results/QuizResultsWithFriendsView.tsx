@@ -34,7 +34,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
 
   const { user } = useUser()
   const namesHidden =
-    quizType === "your" && user?.unlockedQuizIds.includes(quiz.id)
+    quizType === "your" && !user?.unlockedQuizIds.includes(quiz.id)
 
   // Group results by their value
   const groupedResults = results.reduce((acc, result) => {
@@ -74,7 +74,14 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
           <View style={[{ left: `${sliderPosition}%` }]} />
           {Object.entries(groupedResults).map(([value, groupResults]) => {
             const position = ((parseFloat(value) + 1) / 2) * 100
-            const names = groupResults.map((r) => r.name).join(", ")
+            let names = groupResults.map((r) => r.name).join(", ")
+
+            if (namesHidden && groupResults.some((r) => r.isSelf)) {
+              names = names
+                .split(", ")
+                .map((name) => (name === "You" ? "You" : "???"))
+                .join(", ")
+            }
 
             // Sort the results to put self results first
             const sortedResults = groupResults.sort(
@@ -98,9 +105,9 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
                     {!result.isSelf && index === 0 ? (
                       <Text style={styles.dotText}>{groupResults.length}</Text>
                     ) : result.isSelf && groupResults.length > 1 ? (
-                      <Text
-                        style={styles.dotText}
-                      >{`+${groupResults.length}`}</Text>
+                      <Text style={styles.dotText}>{`+${
+                        groupResults.length - 1
+                      }`}</Text>
                     ) : null}
                   </View>
                 ))}

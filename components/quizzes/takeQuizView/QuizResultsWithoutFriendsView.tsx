@@ -54,7 +54,8 @@ const QuizResultsWithoutFriendsView: React.FC<
       {friendsWhoTookQuiz.length > 0 ? (
         <>
           <Text style={[styles.friendsText, , { color: "gray" }]}>
-            {friendNames} {verb} taken this quiz about you!
+            {friends.length === 1 ? "Someone has" : "People have"} taken this
+            quiz about you!
           </Text>
           <TouchableOpacity
             onPress={() => {
@@ -107,6 +108,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 16,
     paddingTop: 16,
+    paddingHorizontal: 16,
   },
   resultContainer: {
     marginBottom: 16,

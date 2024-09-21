@@ -3,6 +3,7 @@ import { useNotification } from "@/contexts/notification/NotificationContext"
 import { QuizItem } from "../proccessQuizLists"
 import * as Haptics from "expo-haptics"
 import { TouchableOpacity, View, Image, Text, StyleSheet } from "react-native"
+import { BlurView } from "expo-blur"
 import NotificationDot from "../NotificationDot"
 import { ChevronRight } from "lucide-react-native"
 import { LockClosedIcon } from "react-native-heroicons/outline"
@@ -24,6 +25,9 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
 }) => {
   const { notifications, markAsOpened } = useNotification()
   const { user } = useUser()
+  const isLocked =
+    !user?.unlockedQuizIds.find((id) => id === item.quiz.id) &&
+    activeTab === "your"
   const relevantNs = notifications.filter(
     (n) =>
       (activeTab === "your" &&
@@ -44,6 +48,30 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
     } catch (error) {
       console.error("Failed to trigger haptic:", error)
     }
+  }
+
+  const renderSubtitle = () => {
+    const prefix = activeTab === "your" ? "Taken by" : "Taken for"
+    const names =
+      activeTab === "your"
+        ? item.friendIds
+            .map((id) => friends.find((user) => user?.id === id)?.name)
+            .join(", ")
+        : friends.find((user) => user?.id === item.selfId)?.name
+
+    return (
+      <View style={styles.subtitleContainer}>
+        <Text style={styles.quizSubtitle}>{prefix}</Text>
+        <View style={styles.blurContainer}>
+          <Text style={styles.quizSubtitle}>{names}</Text>
+          <BlurView
+            intensity={isLocked ? 12 : 0}
+            tint="light"
+            style={styles.absoluteFill}
+          />
+        </View>
+      </View>
+    )
   }
 
   return (
@@ -75,15 +103,7 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
       <View style={styles.contentContainer}>
         <View style={styles.quizInfo}>
           <Text style={styles.quizTitle}>{item.quiz.name}</Text>
-          <Text style={styles.quizSubtitle}>
-            {activeTab === "your"
-              ? `Taken by ${item.friendIds
-                  .map((id) => friends.find((user) => user?.id === id)?.name)
-                  .join(", ")}`
-              : `Taken for ${
-                  friends.find((user) => user?.id === item.selfId)?.name
-                }`}
-          </Text>
+          {renderSubtitle()}
         </View>
         <View style={styles.chevronContainer}>
           <ChevronRight color="#000" size={24} />
@@ -171,6 +191,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
     zIndex: 1,
+  },
+  subtitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  blurContainer: {
+    flex: 1,
+    overflow: "hidden",
+    paddingLeft: 8,
+    paddingVertical: 4,
+  },
+  absoluteFill: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 })
 
