@@ -17,8 +17,8 @@ import { useNotification } from "@/contexts/notification/NotificationContext"
 import { questions, quizzes } from "../../../constants/questions/questions"
 import NotificationDot from "../NotificationDot"
 import collect from "../../collect"
-import QuizItemComponent from "./QuizItemComponent"
 import { useFriends } from "@/contexts/FriendsContext"
+import QuizItemComponent from "./QuizItemComponent"
 
 interface ResultsListProps {
   setQuizItem: (quizItem: QuizItem) => void
@@ -34,7 +34,7 @@ const ResultsList: React.FC<ResultsListProps> = ({
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
   const { user } = useUser()
-  const { friends: friends } = useFriends()
+  const { friends } = useFriends()
 
   const { notifications } = useNotification()
 

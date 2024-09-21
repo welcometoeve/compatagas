@@ -66,29 +66,19 @@ const NavBar: React.FC = () => {
       notification.friendId === user?.id && notification.friendOpened === false
   ).length
 
+  // Hard-coded lemon count
+  const lemonCount = 42
+
   return (
     <View style={[styles.container]}>
       <View style={[styles.tabContainer]}>
-        {tabs.map((tab, index) => (
+        {tabs.slice(0, 2).map((tab, index) => (
           <TouchableOpacity
             key={tab.name}
-            style={[
-              styles.tabItem,
-              { flex: 1 },
-
-              {
-                paddingTop:
-                  tab.page === "results" ? 0 : tab.page === "questions" ? 0 : 0,
-              },
-            ]}
+            style={[styles.tabItem, { flex: 1 }]}
             onPress={() => setPage(tab.page)}
           >
-            <View
-              style={[
-                styles.iconContainer,
-                { marginTop: tab.page === "results" ? 0 : 0 },
-              ]}
-            >
+            <View style={styles.iconContainer}>
               {tab.page === "questions" ? (
                 <View style={styles.flippedIcon}>
                   {page === tab.page ? (
@@ -97,17 +87,49 @@ const NavBar: React.FC = () => {
                     <RectangleStackIconOutline color={"#8E8E93"} size={28} />
                   )}
                 </View>
-              ) : tab.page === "quizzes" || tab.page === "profile" ? (
+              ) : (
                 <Ionicons
                   name={
                     (page === tab.page
                       ? tab.activeIcon
                       : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
                   }
-                  size={tab.page === "quizzes" ? 27 : 29}
+                  size={27}
                   color={page === tab.page ? "#007AFF" : "#8E8E93"}
                 />
-              ) : (
+              )}
+            </View>
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: page === tab.page ? "#007AFF" : "#8E8E93",
+                  width: 80,
+                  textAlign: "center",
+                },
+              ]}
+            >
+              {tab.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+
+        {/* Lemon Counter with Pink Circle Backing */}
+        <View style={[styles.tabItem, styles.lemonCounter, { flex: 1 }]}>
+          <View style={styles.pinkCircle}>
+            <Text style={styles.lemonEmoji}>🍋</Text>
+            <Text style={styles.lemonCount}>x{user?.numLemons}</Text>
+          </View>
+        </View>
+
+        {tabs.slice(2).map((tab, index) => (
+          <TouchableOpacity
+            key={tab.name}
+            style={[styles.tabItem, { flex: 1 }]}
+            onPress={() => setPage(tab.page)}
+          >
+            <View style={styles.iconContainer}>
+              {tab.page === "results" ? (
                 <FontAwesome
                   name={
                     (page === tab.page
@@ -115,6 +137,16 @@ const NavBar: React.FC = () => {
                       : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
                   }
                   size={26}
+                  color={page === tab.page ? "#007AFF" : "#8E8E93"}
+                />
+              ) : (
+                <Ionicons
+                  name={
+                    (page === tab.page
+                      ? tab.activeIcon
+                      : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
+                  }
+                  size={29}
                   color={page === tab.page ? "#007AFF" : "#8E8E93"}
                 />
               )}
@@ -189,6 +221,30 @@ const styles = StyleSheet.create({
   },
   flippedIcon: {
     transform: [{ rotate: "180deg" }],
+  },
+  lemonCounter: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 0, // Move the counter up to extend above the nav bar
+  },
+  pinkCircle: {
+    backgroundColor: "rgb(240, 240, 240)",
+    borderRadius: 40, // Half of the width and height to create a circle
+    width: 80,
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: "rgb(180, 180, 180)",
+    borderWidth: 1,
+  },
+  lemonEmoji: {
+    fontSize: 24,
+  },
+  lemonCount: {
+    fontSize: 14,
+    marginTop: 0,
+    color: "black",
+    fontWeight: "bold",
   },
 })
 

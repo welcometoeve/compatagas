@@ -72,28 +72,28 @@ export default function selectNextQuestion(
     }
   }
 
-  // Weighted random selection
-  const uniqueQuestions = questions.filter(isUniqueUserQuestion)
-  const totalWeight = uniqueQuestions.reduce((sum, question) => {
-    let weight = 1
+  const weightedQuestions = questions.map((question) => {
+    let weight = Math.random()
     if (question.answeredBySelf) weight += 1
-    if (question.quizId === currentQuestion?.quizId) weight += 1
-    return sum + weight
-  }, 0)
+    if (
+      question.quizId === currentQuestion?.quizId &&
+      question.selfId === currentQuestion?.selfId
+    ) {
+      weight += 1
+    }
+    return { question, weight }
+  })
 
-  let randomWeight = Math.random() * totalWeight
-
-  for (const question of uniqueQuestions) {
-    let weight = 1
-    if (question.answeredBySelf) weight += 1
-    if (question.quizId === currentQuestion?.quizId) weight += 1
-
-    randomWeight -= weight
-    if (randomWeight <= 0) {
-      return question
+  // find question with highest weight
+  let maxWeight = -1
+  let selectedQuestion = null
+  for (const { question, weight } of weightedQuestions) {
+    if (weight > maxWeight) {
+      maxWeight = weight
+      selectedQuestion = question
     }
   }
 
   // Fallback: return the last unique question (this should rarely happen)
-  return uniqueQuestions[uniqueQuestions.length - 1] || null
+  return selectedQuestion || null
 }

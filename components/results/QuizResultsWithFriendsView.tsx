@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Quiz } from "@/constants/questions/types"
 import { Entypo, Ionicons } from "@expo/vector-icons"
+import { useUser } from "@/contexts/UserContext"
 
 type Result = {
   id: number
@@ -17,19 +18,23 @@ type QuizResultsWithFriendsViewProps = {
   quiz: Quiz
   results: Result[]
   quizResult: number
+  quizType: "your" | "their"
 }
-
-const namesHidden = true
 
 const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
   quiz,
   results,
   quizResult,
+  quizType,
 }) => {
   const sliderPosition = ((quizResult + 1) / 2) * 100
   const resultLabel = quiz.resultLabels
     ? quiz.resultLabels[getResultLabel(quizResult)]
     : null
+
+  const { user } = useUser()
+  const namesHidden =
+    quizType === "your" && user?.unlockedQuizIds.includes(quiz.id)
 
   // Group results by their value
   const groupedResults = results.reduce((acc, result) => {

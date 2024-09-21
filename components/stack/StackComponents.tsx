@@ -55,14 +55,16 @@ export const CardContents: React.FC<CardContentsProps> = ({
         {question?.options.map((option, index) => (
           <TouchableOpacity
             key={index}
-            style={styles.button}
+            style={styles.buttonWrapper}
             onPress={() => handleAnswer(index)}
             disabled={isLoading}
           >
-            <Text style={styles.buttonEmoji}>{`${option.emoji}`}</Text>
-            <Text style={styles.buttonText}>
-              {insertName(option.label.thirdPerson, selfUser?.name ?? "")}
-            </Text>
+            <View style={styles.button}>
+              <Text style={styles.buttonEmoji}>{`${option.emoji}`}</Text>
+              <Text style={styles.buttonText}>
+                {insertName(option.label.thirdPerson, selfUser?.name ?? "")}
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
       </View>
@@ -73,6 +75,7 @@ export const CardContents: React.FC<CardContentsProps> = ({
           justifyContent: "center",
           bottom: 30,
           position: "absolute",
+          padding: 10,
         }}
         onPress={onSkip}
       >
@@ -189,11 +192,13 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 7,
   },
+  buttonWrapper: {
+    marginVertical: 5,
+    width: "100%",
+  },
   button: {
     padding: 12,
     borderRadius: 16,
-    marginVertical: 5,
-    width: "100%",
     flexDirection: "row",
     backgroundColor: "transparent",
     borderColor: "rgb(200, 200, 200)",
@@ -278,7 +283,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
     elevation: 3,
     borderWidth: 1,
-    backgroundColor: "white", //"rgb(240, 240, 240)",
+    backgroundColor: "white",
   },
   contentContainer: {
     flex: 1,

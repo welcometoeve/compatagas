@@ -16,8 +16,6 @@ interface QuizItemComponentProps {
   friends: any[] // Replace 'any' with the correct type for users
 }
 
-const namesHidden = true
-
 const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
   item,
   setQuizItem,
@@ -66,11 +64,12 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
             <NotificationDot count={1} showCount={false} />
           </View>
         )}
-        {!user?.unlockedQuizIds.find((id) => item.quiz.id) && (
-          <View style={styles.lockIconContainer}>
-            <LockClosedIcon color="gray" size={16} />
-          </View>
-        )}
+        {!user?.unlockedQuizIds.find((id) => id === item.quiz.id) &&
+          activeTab === "your" && (
+            <View style={styles.lockIconContainer}>
+              <LockClosedIcon color="gray" size={16} />
+            </View>
+          )}
       </View>
 
       <View style={styles.contentContainer}>

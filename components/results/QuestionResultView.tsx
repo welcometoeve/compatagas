@@ -16,8 +16,6 @@ type QuestionResultViewProps = {
   quizType: "your" | "their"
 }
 
-const namesHidden = true
-
 const QuestionResultView: React.FC<QuestionResultViewProps> = ({
   question,
   selfAnswer,
@@ -28,6 +26,9 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
   const isLocked = lockedAnswers.has(question.id)
   const { user } = useUser()
   const { friends } = useFriends()
+
+  const namesHidden =
+    quizType === "your" && user?.unlockedQuizIds.includes(question.quizId)
 
   const getUsersForOption = (optionIndex: number) => {
     const names: string[] = []
