@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   continueButton: {
-    backgroundColor: "gray",
+    backgroundColor: "#3A93F4",
     padding: 12,
     borderRadius: 8,
     marginRight: 10,

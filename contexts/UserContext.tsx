@@ -94,6 +94,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         .from(tableName)
         .select("*")
         .eq("phoneNumber", phoneNumber)
+        .single()
 
       if (fetchError) {
         console.error("Error fetching user:", fetchError)
@@ -102,7 +103,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
       const addingEmoji = emoji
         ? emoji
-        : existingUser[0]?.emoji
+        : existingUser.emoji
         ? undefined
         : getRandomEmoji()
 
