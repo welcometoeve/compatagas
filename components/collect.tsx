@@ -20,15 +20,3 @@ export default function collect<T extends Record<string, any>>(
 
   return Array.from(groupMap.values())
 }
-
-// // Example usage:
-// const answers: Answer[] = [
-//   { quizId: 1, userId: 3, optionIndex: 0 },
-//   { quizId: 1, userId: 3, optionIndex: 1 },
-//   { quizId: 2, userId: 3, optionIndex: 2 },
-//   { quizId: 3, userId: 0, optionIndex: 2 },
-//   { quizId: 3, userId: 0, optionIndex: 3 },
-// ]
-
-// const result = collect(answers, ["quizId", "userId"])
-// console.log(JSON.stringify(result, null, 2))

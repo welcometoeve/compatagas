@@ -173,29 +173,31 @@ export default function App() {
     })
   }
 
-  const handleAnswer = async (optionIndex: number) => {
+  const handleAnswer = async (optionIndex?: number) => {
     if (!cardState.currentQuestion) return
 
     const { questionId, quizId, selfId } = cardState.currentQuestion
 
     try {
-      addFriendAnswer(selfId, questionId, optionIndex)
-      const result = addFriendAnswerInitiatedNotification(
-        friends,
-        friendAnswers,
-        selfAnswers,
-        quizId,
-        selfId,
-        user?.id || 0,
-        notifications,
-        addNotification
-      )
-      if (result !== undefined) {
-        await triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy)
-        setCompletedQuizFriendId(result.friendId)
-        setCompletedQuizId(result.quizId)
-      } else {
-        await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
+      if (optionIndex !== undefined) {
+        addFriendAnswer(selfId, questionId, optionIndex)
+        const result = addFriendAnswerInitiatedNotification(
+          friends,
+          friendAnswers,
+          selfAnswers,
+          quizId,
+          selfId,
+          user?.id || 0,
+          notifications,
+          addNotification
+        )
+        if (result !== undefined) {
+          await triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy)
+          setCompletedQuizFriendId(result.friendId)
+          setCompletedQuizId(result.quizId)
+        } else {
+          await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
+        }
       }
 
       const newQuestion = selectNewQuestion()
@@ -241,6 +243,7 @@ export default function App() {
         question={question}
         isLoading={isLoading}
         handleAnswer={handleAnswer}
+        onSkip={() => handleAnswer()}
       />
     )
   }

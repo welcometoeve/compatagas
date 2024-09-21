@@ -19,6 +19,7 @@ interface CardContentsProps {
   question: Question | undefined
   isLoading: boolean
   handleAnswer: (index: number) => void
+  onSkip: () => void
 }
 
 export const CardContents: React.FC<CardContentsProps> = ({
@@ -26,6 +27,7 @@ export const CardContents: React.FC<CardContentsProps> = ({
   question,
   isLoading,
   handleAnswer,
+  onSkip,
 }) => {
   const quizId = question?.quizId
   const quizName = quizzes.find((q) => q.id === quizId)?.name
@@ -72,9 +74,7 @@ export const CardContents: React.FC<CardContentsProps> = ({
           bottom: 30,
           position: "absolute",
         }}
-        onPress={() => {
-          /* Add skip functionality here */
-        }}
+        onPress={onSkip}
       >
         <Text style={{ color: "gray", marginRight: 5 }}>SKIP</Text>
         <Ionicons name="arrow-forward" color="gray" size={16} />
