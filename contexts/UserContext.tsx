@@ -166,13 +166,19 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       }
     }
 
-    // Set up notification handler
     Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-      }),
+      handleNotification: async (notification) => {
+        let currentBadge = await Notifications.getBadgeCountAsync()
+        if (notification.request.content.data?.incrementBadge) {
+          currentBadge += 1
+          await Notifications.setBadgeCountAsync(currentBadge)
+        }
+        return {
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false, // We're handling the badge manually
+        }
+      },
     })
   }
 

@@ -11,6 +11,7 @@ import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useUser } from "../UserContext"
 import { useEnvironment } from "../EnvironmentContext"
 import { useFriends } from "../FriendsContext"
+import * as Notifications from "expo-notifications"
 
 // Initialize Supabase client
 const supabase: SupabaseClient = createClient(SupabaseUrl, SupabaseKey)
@@ -35,7 +36,6 @@ interface NotificationContextType {
     friendId: number,
     quizId: number
   ) => Promise<CustomNotification | null>
-  removeNotification: (id: number) => Promise<boolean>
   markAsOpened: (
     notification: CustomNotification,
     isSelf: boolean
@@ -101,28 +101,18 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       }
 
       const newNotification = data[0] as CustomNotification
-      setNotifications((prevNotifications) => [
-        ...prevNotifications,
-        newNotification,
-      ])
+      const newNotifications = [...notifications, newNotification]
+      setNotifications(newNotifications)
+
+      const numNotificationsActive = newNotifications.filter(
+        (n) =>
+          (n.selfId === user?.id && !n.selfOpened) ||
+          (n.friendId === user?.id && !n.friendOpened)
+      ).length
+
+      await Notifications.setBadgeCountAsync(numNotificationsActive)
+
       return newNotification
-    },
-    [tableName]
-  )
-
-  const removeNotification = useCallback(
-    async (id: number): Promise<boolean> => {
-      const { error } = await supabase.from(tableName).delete().match({ id })
-
-      if (error) {
-        console.error("Error removing notification:", error)
-        return false
-      }
-
-      setNotifications((prevNotifications) =>
-        prevNotifications.filter((notification) => notification.id !== id)
-      )
-      return true
     },
     [tableName]
   )
@@ -153,13 +143,19 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         }
 
         if (data && data.length > 0) {
-          setNotifications((prevNotifications) =>
-            prevNotifications.map((n) =>
-              n.id === notification.id
-                ? { ...notification, ...updateObject }
-                : n
-            )
+          const newNotifications = notifications.map((n) =>
+            n.id === notification.id ? { ...notification, ...updateObject } : n
           )
+          setNotifications(newNotifications)
+
+          const numNotificationsActive = newNotifications.filter(
+            (n) =>
+              (n.selfId === user?.id && !n.selfOpened) ||
+              (n.friendId === user?.id && !n.friendOpened)
+          ).length
+
+          await Notifications.setBadgeCountAsync(numNotificationsActive)
+
           return true
         } else {
           console.error("No data returned from upsert operation")
@@ -205,7 +201,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     notifications,
     fetchNotifications,
     addNotification,
-    removeNotification,
     markAsOpened,
   }
 
