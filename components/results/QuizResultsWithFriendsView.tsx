@@ -17,6 +17,8 @@ type QuizResultsWithFriendsViewProps = {
   quizResult: number
 }
 
+const hidden = true
+
 const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
   quiz,
   results,
@@ -37,14 +39,16 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
     return acc
   }, {} as Record<string, Result[]>)
 
+  const namesNames: string[] = Object.values(groupedResults).map((group) =>
+    group.map((result) => result.name).join(", ")
+  )
+
+  const longestLength = Math.max(...namesNames.map((item) => item.length))
   return (
     <View style={styles.container}>
-      <View style={styles.resultContainer}>
-        {/* <Text style={styles.title}>You Are:</Text>
-        <Text style={styles.subtitle}>
-          {`${resultLabel?.label} ${resultLabel?.emoji}`}
-        </Text> */}
-
+      <View
+        style={[styles.resultContainer, { paddingBottom: longestLength * 2.5 }]}
+      >
         <View style={styles.labelContainer}>
           <Text style={styles.label}>{quiz.leftLabel}</Text>
           <Text style={styles.label}>{quiz.rightLabel}</Text>
@@ -72,16 +76,26 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
                       { marginTop: -8 },
                       {
                         backgroundColor: groupResults.find((r) => r.isSelf)
-                          ? "#FF4457"
-                          : "rgba(255, 255, 255, 0.5)",
+                          ? "#007AFF"
+                          : "#75B7FF",
                         borderWidth: 2,
-                        borderColor: result.isSelf ? "transparent" : "#FF4457",
+                        borderColor: result.isSelf
+                          ? "transparent"
+                          : "transparent",
                       },
-                      // result.isSelf ? styles.selfDot : null,
                     ]}
                   />
                 ))}
-                <Text style={[styles.resultName, { left: `${position}%` }]}>
+                <Text
+                  style={[
+                    styles.resultName,
+                    {
+                      left: `${position + 7}%`,
+                      paddingLeft: 35,
+                      textAlign: "left",
+                    },
+                  ]}
+                >
                   {names}
                 </Text>
               </React.Fragment>
@@ -89,23 +103,6 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
           })}
         </View>
       </View>
-      {/* <View style={styles.friendsResultContainer}>
-        {results.map((result) => (
-          <View key={result.id} style={styles.friendResult}>
-            <Text style={styles.friendName}>{result.name}</Text>
-            <View style={styles.scoreContainer}>
-              {result.correctPercentage !== undefined && (
-                <Text style={styles.friendScore}>
-                  {`${result.correctPercentage.toFixed(0)}% correct`}
-                </Text>
-              )}
-              <Text style={styles.friendValue}>
-                {`${(((result.value + 1) / 2) * 100).toFixed(0)}%`}
-              </Text>
-            </View>
-          </View>
-        ))}
-      </View> */}
     </View>
   )
 }
@@ -170,22 +167,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 12,
   },
-  // sliderThumb: {
-  //   position: "absolute",
-  //   top: -4,
-  //   transform: [{ translateX: -16 }],
-  //   width: 32,
-  //   height: 32,
-  //   backgroundColor: "#1E90FF",
-  //   borderRadius: 16,
-  //   borderWidth: 2,
-  //   borderColor: "#FFFFFF",
-  //   shadowColor: "#000",
-  //   shadowOffset: { width: 0, height: 2 },
-  //   shadowOpacity: 0.1,
-  //   shadowRadius: 3.84,
-  //   elevation: 3,
-  // },
   dot: {
     position: "absolute",
     top: 0,
@@ -200,7 +181,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 3,
   },
-
   resultName: {
     position: "absolute",
     top: 24,
@@ -209,33 +189,7 @@ const styles = StyleSheet.create({
     marginLeft: -50,
     textAlign: "center",
     width: 100,
-  },
-  friendsResultContainer: {
-    marginTop: 24,
-  },
-  friendResult: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  friendName: {
-    fontSize: 16,
-    color: "#333333",
-  },
-  scoreContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  friendScore: {
-    fontSize: 14,
-    color: "#666666",
-    marginRight: 8,
-  },
-  friendValue: {
-    fontSize: 16,
-    color: "#FF4457",
-    fontWeight: "bold",
+    transform: [{ rotate: "45deg" }],
   },
 })
 
