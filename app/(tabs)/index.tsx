@@ -19,6 +19,7 @@ import selectNextQuestion, {
 } from "@/components/stack/selectNextQuestion"
 import { useEnvironment } from "@/contexts/EnvironmentContext"
 import { useFriends } from "@/contexts/FriendsContext"
+import { Quiz } from "@/constants/questions/types"
 
 const { width } = Dimensions.get("window")
 
@@ -26,6 +27,9 @@ interface CardState {
   currentQuestion: SelectedQuestion | null
   nextQuestion: SelectedQuestion | null
 }
+
+// Add this boolean to control showing dummy info in the completion screen
+const SHOW_DUMMY_COMPLETION = true
 
 export default function App() {
   const { friendAnswers, addFriendAnswer, isLoading } = useFriendAnswers()
@@ -271,15 +275,20 @@ export default function App() {
         </View>
       )}
 
-      {completedQuiz && completedQuizFriendId && (
-        <CompletionScreen
-          completionAnimation={completionAnimation}
-          completedQuiz={completedQuiz}
-          completedQuizSelfId={completedQuizFriendId}
-          onDismiss={() => setCompletedQuizFriendId(undefined)}
-          onContinue={handleContinue}
-        />
-      )}
+      {(completedQuiz || SHOW_DUMMY_COMPLETION) &&
+        (completedQuizFriendId || SHOW_DUMMY_COMPLETION) && (
+          <CompletionScreen
+            completionAnimation={completionAnimation}
+            completedQuiz={
+              SHOW_DUMMY_COMPLETION ? dummyQuiz : (completedQuiz as Quiz)
+            }
+            completedQuizSelfId={
+              SHOW_DUMMY_COMPLETION ? 1 : completedQuizFriendId!
+            }
+            onDismiss={() => setCompletedQuizFriendId(undefined)}
+            onContinue={handleContinue}
+          />
+        )}
     </View>
   )
 }
@@ -297,3 +306,22 @@ const styles = StyleSheet.create({
     backgroundColor: "rgb(245, 245, 245)",
   },
 })
+
+const dummyQuiz: Quiz = {
+  id: 5,
+  name: "Style Pack",
+  subtitle: {
+    secondPerson: "How stylish are you?",
+    thirdPerson: "How stylish is {name}?",
+  },
+  src: require("../../assets/images/stylePack.jpg"),
+  leftLabel: "Style Novice",
+  rightLabel: "Fashion Forward",
+  resultLabels: [
+    { label: "Comfort Seeker", emoji: "🛋️" },
+    { label: "Practical Dresser", emoji: "👕" },
+    { label: "Casual Chic", emoji: "😎" },
+    { label: "Style Enthusiast", emoji: "🎨" },
+    { label: "Fashion Savvy", emoji: "✨" },
+  ],
+}

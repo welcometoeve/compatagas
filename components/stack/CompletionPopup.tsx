@@ -55,7 +55,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
         <Text style={styles.completionTitle}>Pack Completed!</Text>
         <Text style={styles.completionText}>
           You've finished the {completedQuiz.name} for{" "}
-          {friends.find((u) => u.id === completedQuizSelfId)?.name}!
+          {friends.find((u) => u.id === completedQuizSelfId)?.name}
         </Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.continueButton} onPress={onContinue}>
@@ -77,6 +77,8 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
             {/* <Ionicons name="chevron-forward" size={24} color="white" /> */}
           </TouchableOpacity>
         </View>
+        {/* Add this new text */}
+        <Text style={styles.earnedText}>You've earned one 🍋</Text>
       </Animated.View>
     </View>
   )
@@ -127,7 +129,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   continueButton: {
-    backgroundColor: "gray",
+    backgroundColor: "rgb(150, 150, 150)",
     padding: 12,
     borderRadius: 8,
     marginRight: 10,
@@ -164,6 +166,13 @@ const styles = StyleSheet.create({
     color: "#999",
     fontSize: 20,
     fontWeight: "bold",
+  },
+  earnedText: {
+    color: "#FF4457", // Same pink color as the viewResultsButton
+    fontSize: 18,
+    marginTop: 20,
+    textAlign: "center",
+    // fontWeight: "bold",
   },
 })
 
