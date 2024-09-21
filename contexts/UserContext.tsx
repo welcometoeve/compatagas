@@ -11,6 +11,7 @@ import * as Notifications from "expo-notifications"
 import { Alert } from "react-native"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useEnvironment } from "./EnvironmentContext"
+import getRandomEmoji from "@/components/profile/getRandomEmoji"
 
 // Define types
 export type UserProfile = {
@@ -89,10 +90,32 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     try {
       await AsyncStorage.setItem(`phoneNumber`, phoneNumber.toString())
 
+      const { data: existingUser, error: fetchError } = await supabase
+        .from(tableName)
+        .select("*")
+        .eq("phoneNumber", phoneNumber)
+        .single()
+
+      if (fetchError) {
+        console.error("Error fetching user:", fetchError)
+        throw new Error("Failed to fetch user")
+      }
+
+      const addingEmoji = emoji
+        ? emoji
+        : existingUser.emoji
+        ? undefined
+        : getRandomEmoji()
+
       const { data: newUser, error: insertError } = await supabase
         .from(tableName)
         .upsert(
-          { phoneNumber: phoneNumber, name: name, lastName: lastName, emoji },
+          {
+            phoneNumber: phoneNumber,
+            name: name,
+            lastName: lastName,
+            emoji: addingEmoji,
+          },
           { onConflict: "phoneNumber", ignoreDuplicates: false }
         )
         .select()

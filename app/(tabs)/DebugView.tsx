@@ -32,6 +32,7 @@ export function DebugView({
   const { clearUser } = useUser()
   const { user } = useUser()
   const { isDev, setDev } = useEnvironment()
+  const { setRefresh, refresh } = useEnvironment()
 
   return (
     <Modal
@@ -73,7 +74,12 @@ export function DebugView({
             value={isDev}
           />
         </View>
-
+        <Button
+          title="Refresh"
+          onPress={() => {
+            setRefresh(refresh + 1)
+          }}
+        />
         <Button
           title="Log Out"
           onPress={() => {

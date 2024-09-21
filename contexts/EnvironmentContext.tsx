@@ -10,6 +10,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 interface EnvironmentContextType {
   isDev: boolean
   setDev: (value: boolean) => Promise<void>
+  setRefresh: (value: number) => void
+  refresh: number
 }
 
 const EnvironmentContext = createContext<EnvironmentContextType | undefined>(
@@ -61,6 +63,8 @@ export const EnvironmentProvider: React.FC<EnvironmentProviderProps> = ({
       setRefresh(refresh + 1)
       setDev(!isDev)
     },
+    setRefresh,
+    refresh,
   }
 
   return (

@@ -35,7 +35,7 @@ export default function App() {
   })
   const [addError, setAddError] = useState<string | undefined>()
   const { user } = useUser()
-  const { friends: friends } = useFriends()
+  const { friends } = useFriends()
 
   const { addNotification, notifications } = useNotification()
   const { selfAnswers } = useSelfAnswers()
@@ -284,7 +284,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgb(245, 245, 245)",
   },
   contentContainer: {
     flex: 1,

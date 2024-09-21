@@ -11,6 +11,8 @@ import { UserProfile } from "@/contexts/UserContext"
 import { Question } from "@/constants/questions/types"
 import { insertName, quizzes } from "@/constants/questions/questions"
 import { Ionicons } from "@expo/vector-icons"
+import { useFriends } from "@/contexts/FriendsContext"
+import { usePage } from "@/contexts/PageContext"
 
 interface CardContentsProps {
   selfUser: UserProfile | undefined
@@ -124,11 +126,42 @@ export const CardStack: React.FC<CardStackProps> = ({
   </View>
 )
 
-export const OutOfQuestionsView: React.FC = () => (
-  <View style={styles.contentContainer}>
-    <Text style={styles.outOfQuestionsText}>Out of questions for now!</Text>
-  </View>
-)
+export const OutOfQuestionsView: React.FC = () => {
+  const { friends } = useFriends()
+  const { setPage } = usePage()
+  return (
+    <View style={styles.contentContainer}>
+      {friends.length <= 1 ? (
+        <>
+          <Text style={styles.outOfQuestionsText}>
+            Add friends to start answering questions
+          </Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#007AFF",
+              padding: 20,
+              marginTop: 30,
+              borderRadius: 12,
+            }}
+            onPress={() => setPage("profile")}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "bold",
+                fontSize: 18,
+              }}
+            >
+              Add Friends
+            </Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <Text style={styles.outOfQuestionsText}>Out of questions for now!</Text>
+      )}
+    </View>
+  )
+}
 
 export const ExplanationText: React.FC = () => (
   <Text style={styles.explanationText}>
@@ -251,7 +284,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 30,
   },
   outOfQuestionsText: {
     fontSize: 24,

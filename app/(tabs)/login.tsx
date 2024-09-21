@@ -30,8 +30,7 @@ const AccountScreen = () => {
     }
 
     try {
-      const emoji = getRandomEmoji()
-      await createUser(phoneNumber, firstName, lastName, emoji)
+      await createUser(phoneNumber, firstName, lastName)
       setSuccess(true)
     } catch (err) {
       setError("Failed to create account. Please try again.")

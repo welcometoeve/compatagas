@@ -5,11 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Modal,
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { useUser } from "@/contexts/UserContext"
-import EmojiSelector from "react-native-emoji-selector"
+import { UserProfile, useUser } from "@/contexts/UserContext"
+import { useFriends } from "@/contexts/FriendsContext"
+import EmojiPicker from "@/components/profile/EmojiPicker"
+import FriendListItem from "@/components/profile/FriendListItem"
 
 interface Friend {
   id: string
@@ -25,36 +26,13 @@ interface User {
   emoji: string
 }
 
-const CustomCheckbox: React.FC<{ checked: boolean; onPress: () => void }> = ({
-  checked,
-  onPress,
-}) => (
-  <TouchableOpacity onPress={onPress} style={styles.checkboxContainer}>
-    <View style={[styles.checkbox, checked && styles.checked]}>
-      {checked && <Text style={styles.checkmark}>✓</Text>}
-    </View>
-  </TouchableOpacity>
-)
-
 const ProfilePage: React.FC = () => {
   const { user, createUser } = useUser()
+  const { friends, allUsers, addFriendRelationship, removeFriendRelationship } =
+    useFriends()
 
-  const [friends, setFriends] = useState<Friend[]>([
-    { id: "1", name: "Jane Doe", emoji: "👩", isFriend: true },
-    { id: "2", name: "James Doe", emoji: "👨", isFriend: true },
-    { id: "3", name: "Jill Doe", emoji: "👧", isFriend: false },
-    // ... (rest of the friends array)
-  ])
   const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false)
   const [selectedEmoji, setSelectedEmoji] = useState(user?.emoji ?? "👧")
-
-  const toggleFriendStatus = (id: string) => {
-    setFriends(
-      friends.map((friend) =>
-        friend.id === id ? { ...friend, isFriend: !friend.isFriend } : friend
-      )
-    )
-  }
 
   const handleEditPress = () => {
     setIsEmojiPickerVisible(true)
@@ -62,6 +40,17 @@ const ProfilePage: React.FC = () => {
 
   const handleSelectEmoji = (emoji: string) => {
     setSelectedEmoji(emoji)
+  }
+
+  const handleCloseEmojiPicker = () => {
+    user &&
+      createUser(
+        user.phoneNumber,
+        user.name ?? "",
+        user.lastName ?? "",
+        selectedEmoji
+      )
+    setIsEmojiPickerVisible(false)
   }
 
   return (
@@ -86,57 +75,23 @@ const ProfilePage: React.FC = () => {
         <View style={styles.friendsContainer}>
           <View style={styles.friendsTitleContainer}>
             <Text style={styles.friendsTitle}>Friends</Text>
-            <Text style={styles.friendsSubtitle}>
-              (check everyone you know)
-            </Text>
+            <Text
+              style={styles.friendsSubtitle}
+            >{`(check everyone you know)`}</Text>
           </View>
-          {friends.map((item) => (
-            <View key={item.id} style={styles.friendItem}>
-              <Text style={styles.friendEmoji}>{item.emoji}</Text>
-              <Text style={styles.friendName}>{item.name}</Text>
-              <CustomCheckbox
-                checked={item.isFriend}
-                onPress={() => toggleFriendStatus(item.id)}
-              />
-            </View>
-          ))}
+          {allUsers
+            .filter((u) => u.id !== user?.id)
+            .map((item) => (
+              <FriendListItem friend={item} key={item.id} />
+            ))}
         </View>
       </ScrollView>
-      <Modal
-        visible={isEmojiPickerVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setIsEmojiPickerVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              user &&
-                createUser(
-                  user.phoneNumber,
-                  user.name ?? "",
-                  user.lastName ?? "",
-                  selectedEmoji
-                )
-              setIsEmojiPickerVisible(false)
-            }}
-            style={styles.closeButton}
-          >
-            <Text style={styles.closeButtonText}>Done</Text>
-          </TouchableOpacity>
-          <View style={styles.emojiPickerContainer}>
-            <EmojiSelector
-              onEmojiSelected={handleSelectEmoji}
-              showSearchBar={true}
-              showHistory={false}
-              showSectionTitles={false}
-              showTabs={false}
-              columns={6}
-              category={undefined}
-            />
-          </View>
-        </View>
-      </Modal>
+      <EmojiPicker
+        isVisible={isEmojiPickerVisible}
+        onClose={handleCloseEmojiPicker}
+        onEmojiSelected={handleSelectEmoji}
+        selectedEmoji={selectedEmoji}
+      />
     </View>
   )
 }
@@ -203,68 +158,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "gray",
     paddingTop: 12,
-  },
-  friendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  friendEmoji: {
-    fontSize: 32,
-    marginRight: 10,
-  },
-  friendName: {
-    fontSize: 19,
-    flex: 1,
-  },
-  checkboxContainer: {
-    padding: 10,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: "#007AFF",
-    borderRadius: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checked: {
-    backgroundColor: "#007AFF",
-  },
-  checkmark: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  emojiPickerContainer: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    width: "90%",
-    height: 300,
-    overflow: "hidden",
-    marginTop: 220,
-    position: "relative",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 160,
-    right: "5%",
-    zIndex: 1,
-    padding: 10,
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingHorizontal: 15,
-  },
-  closeButtonText: {
-    fontSize: 18,
-    color: "black",
-    fontWeight: "bold",
   },
 })
 
