@@ -10,7 +10,7 @@ export interface SelectedQuestion {
 
 const sameQuizOnly = false
 const answeredByOthersOnly = true
-const quizIdOrder: number[] = [20]
+const quizIdOrder: number[] = []
 
 export default function selectNextQuestion(
   currentQuestionRef: MutableRefObject<SelectedQuestion | null>,
