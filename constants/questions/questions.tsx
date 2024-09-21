@@ -4,6 +4,7 @@ import { charlesStreetQuestions, charlesStreetQuiz } from "./charleStreetPack"
 import { goodStudentQuestions, goodStudentQuiz } from "./goodStudentPack"
 import { musicQuestions, musicQuiz } from "./musicPack"
 import { neighborQuestions, NeighborQuiz } from "./neighborPack"
+import { pettyQuestions, pettyQuiz } from "./pettyPack"
 import { styleQuestions, styleQuiz } from "./stylePack"
 import { Question, Quiz } from "./types"
 
@@ -15,13 +16,16 @@ export const questions: Question[] = [
   ...chadQuestions,
   ...neighborQuestions,
   ...charlesStreetQuestions,
+  ...pettyQuestions,
 ]
 
 export const quizzes: Quiz[] = [
   charlesStreetQuiz,
+  pettyQuiz,
+
   goodStudentQuiz,
-  badPersonQuiz,
   NeighborQuiz,
+  badPersonQuiz,
   styleQuiz,
   musicQuiz,
   chadQuiz,
