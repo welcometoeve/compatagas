@@ -102,6 +102,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error fetching friend answers:", error)
       setFetchError("Error fetching friend answers")
     } else {
+      console.log("")
       setAnswers(data)
     }
 

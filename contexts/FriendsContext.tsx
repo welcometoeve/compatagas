@@ -62,7 +62,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
       .from(tableName)
       .select("*")
       .eq("deleted", false)
-      .order("name")
+      .order("createdAt", { ascending: false }) // Sort by created_at, most recent first
 
     const { data, error } = await query
     if (error) {
@@ -70,6 +70,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
     } else {
       setAllUsers(data)
       setFriends(data.filter((u) => friendIds.has(u.id)))
+      console.log("")
     }
   }
 
@@ -155,8 +156,21 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
       )
       .subscribe()
 
+    const allUsersSubscription = supabase
+      .channel(tableName)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: tableName },
+        (payload) => {
+          console.log(payload)
+          fetchAllUsers()
+        }
+      )
+      .subscribe()
+
     return () => {
       friendRelationSubscription.unsubscribe()
+      allUsersSubscription.unsubscribe()
     }
   }, [isDev, tableName, friendRelationTableName])
 

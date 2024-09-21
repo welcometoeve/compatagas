@@ -80,6 +80,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
 
     setNotifications(data as CustomNotification[])
+    console.log("")
     return data as CustomNotification[]
   }, [user, tableName])
 

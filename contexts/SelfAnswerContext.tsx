@@ -100,6 +100,8 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error fetching self answers:", error)
       setFetchError("Error fetching self answers")
     } else {
+      console.log("")
+
       setAnswers(data)
     }
 
