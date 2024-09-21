@@ -1,8 +1,9 @@
 import React from "react"
-import { View, Text, StyleSheet } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Quiz } from "@/constants/questions/types"
+import { Entypo, Ionicons } from "@expo/vector-icons"
 
 type Result = {
   id: number
@@ -17,6 +18,8 @@ type QuizResultsWithFriendsViewProps = {
   results: Result[]
   quizResult: number
 }
+
+const namesHidden = true
 
 const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
   quiz,
@@ -49,6 +52,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
 
   return (
     <View style={styles.container}>
+      <Text style={styles.resultsTitle}>Results:</Text>
       <View
         style={[styles.resultContainer, { marginBottom: longestLength * 5 }]}
       >
@@ -107,7 +111,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
                   ]}
                 >
                   <Text style={styles.resultName}>{names}</Text>
-                  {!groupResults.find((r) => r.isSelf) && (
+                  {!groupResults.find((r) => r.isSelf) && namesHidden && (
                     <BlurView
                       tint="extraLight"
                       intensity={15}
@@ -120,6 +124,25 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
           })}
         </View>
       </View>
+
+      <TouchableOpacity
+        style={[
+          styles.revealButton,
+          { backgroundColor: namesHidden ? "#FF4457" : "#FF7C89" },
+        ]}
+      >
+        <Text
+          style={[
+            styles.revealButtonText,
+            {
+              color: namesHidden ? "white" : "white",
+              fontSize: namesHidden ? 16 : 16,
+            },
+          ]}
+        >
+          {namesHidden ? "Reveal Names 🍋x3" : "Names Revealed 😊"}
+        </Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -138,11 +161,38 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 24,
     padding: 16,
-    paddingVertical: 24,
+    paddingVertical: 32,
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#E0E0E0",
+    paddingBottom: 36,
+  },
+  resultsTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333333",
+    marginBottom: 32,
+    textAlign: "center",
+  },
+  revealButton: {
+    backgroundColor: "#FF4457",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignSelf: "center",
+    marginTop: 36,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  revealButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  checkmark: {
+    marginLeft: 8,
   },
   resultContainer: {
     marginBottom: 16,

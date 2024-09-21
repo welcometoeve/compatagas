@@ -1,5 +1,6 @@
 import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { BlurView } from "expo-blur"
 import { Question } from "@/constants/questions/types"
 import { SelfAnswer } from "@/contexts/SelfAnswerContext"
 import { FriendAnswer } from "@/contexts/FriendAnswerContext"
@@ -14,6 +15,8 @@ type QuestionResultViewProps = {
   lockedAnswers: Set<number>
   quizType: "your" | "their"
 }
+
+const namesHidden = true
 
 const QuestionResultView: React.FC<QuestionResultViewProps> = ({
   question,
@@ -96,14 +99,23 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
                     )}
               </Text>
               {usersWhoSelected && (
-                <Text
-                  style={[
-                    styles.usersText,
-                    isSelected && styles.selectedOptionText,
-                  ]}
-                >
-                  {usersWhoSelected}
-                </Text>
+                <View style={styles.usersContainer}>
+                  <Text
+                    style={[
+                      styles.usersText,
+                      isSelected && styles.selectedOptionText,
+                    ]}
+                  >
+                    {usersWhoSelected}
+                  </Text>
+                  {namesHidden && !isSelected && (
+                    <BlurView
+                      intensity={15}
+                      tint="light"
+                      style={[styles.blurView]}
+                    />
+                  )}
+                </View>
               )}
             </TouchableOpacity>
           )
@@ -151,14 +163,26 @@ const styles = StyleSheet.create({
     color: "#333333",
     flex: 1,
   },
+  usersContainer: {
+    flex: 1,
+    position: "relative",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
   usersText: {
     color: "#666666",
-    marginLeft: 8,
     textAlign: "right",
-    flex: 1,
+    width: "90%",
   },
   selectedOptionText: {
     color: "#333333",
+  },
+  blurView: {
+    position: "absolute",
+    top: -5,
+    bottom: -5,
+    left: 0,
+    right: -5,
   },
 })
 
