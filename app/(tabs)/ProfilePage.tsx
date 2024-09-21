@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { UserProfile, useUser } from "@/contexts/UserContext"
 import { useFriends } from "@/contexts/FriendsContext"
 import EmojiPicker from "@/components/profile/EmojiPicker"
 import FriendListItem from "@/components/profile/FriendListItem"
+import Tooltip from "@/components/profile/CustomTooltip"
 
 interface Friend {
   id: string
@@ -24,6 +25,7 @@ interface User {
   lastName?: string
   phoneNumber: string
   emoji: string
+  lemons?: number
 }
 
 const ProfilePage: React.FC = () => {
@@ -33,6 +35,8 @@ const ProfilePage: React.FC = () => {
 
   const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false)
   const [selectedEmoji, setSelectedEmoji] = useState(user?.emoji ?? "👧")
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
+  const lemonsRef = useRef<any>(null)
 
   const handleEditPress = () => {
     setIsEmojiPickerVisible(true)
@@ -53,6 +57,10 @@ const ProfilePage: React.FC = () => {
     setIsEmojiPickerVisible(false)
   }
 
+  const toggleTooltip = () => {
+    setIsTooltipVisible(!isTooltipVisible)
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -71,6 +79,15 @@ const ProfilePage: React.FC = () => {
             user?.lastName ?? ""
           }`}</Text>
           <Text style={styles.phoneNumber}>{user?.phoneNumber}</Text>
+
+          <TouchableOpacity
+            onPress={toggleTooltip}
+            style={styles.lemonsButton}
+            ref={lemonsRef}
+          >
+            <Text style={styles.lemonsText}>You Have: 🍋x3</Text>
+            {/* <Info size={18} color="#FFFFFF" /> */}
+          </TouchableOpacity>
         </View>
         <View style={styles.friendsContainer}>
           <View style={styles.friendsTitleContainer}>
@@ -91,6 +108,11 @@ const ProfilePage: React.FC = () => {
         onClose={handleCloseEmojiPicker}
         onEmojiSelected={handleSelectEmoji}
         selectedEmoji={selectedEmoji}
+      />
+      <Tooltip
+        isVisible={isTooltipVisible}
+        content="Lemons are used to unlock who answered packs about you. You can earn lemons by answering questions in the stack."
+        targetRef={lemonsRef}
       />
     </View>
   )
@@ -135,9 +157,25 @@ const styles = StyleSheet.create({
   },
   phoneNumber: {
     fontSize: 18,
-    marginBottom: 20,
+    marginBottom: 10,
     paddingTop: 15,
     color: "gray",
+  },
+  lemonsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FF4457", // Pink color
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    // marginBottom: 20,
+    marginTop: 10,
+  },
+  lemonsText: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    marginRight: 8,
+    fontWeight: "bold",
   },
   friendsContainer: {
     width: "100%",
