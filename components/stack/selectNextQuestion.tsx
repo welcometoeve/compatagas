@@ -73,7 +73,7 @@ export default function selectNextQuestion(
   }
 
   const weightedQuestions = questions.map((question) => {
-    let weight = Math.random()
+    let weight = Math.random() * 2.5
     if (question.answeredBySelf) weight += 1
     if (
       question.quizId === currentQuestion?.quizId &&
