@@ -49,7 +49,7 @@ export function DebugView({
         <Text style={styles.debugText}>App State: {AppState.currentState}</Text>
         <Text style={styles.debugText}>Update: {JSON.stringify(update)}</Text>
         {update && (
-          <Text style={styles.debugText}>
+          <Text style={styles.debugText} selectable>
             Update Info: {JSON.stringify(update, null, 2)}
           </Text>
         )}
