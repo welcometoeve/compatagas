@@ -29,7 +29,8 @@ type UserContextType = {
   createUser: (
     phoneNumber: number,
     name: string,
-    lastName: string
+    lastName: string,
+    emoji?: string
   ) => Promise<UserProfile>
   clearUser: () => void
   requestNotificationPermission: () => Promise<void>
@@ -81,7 +82,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const createUser = async (
     phoneNumber: number,
     name: string,
-    lastName: string
+    lastName: string,
+    emoji?: string
   ): Promise<UserProfile> => {
     setSigningUp(true)
     try {
@@ -90,7 +92,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       const { data: newUser, error: insertError } = await supabase
         .from(tableName)
         .upsert(
-          { phoneNumber: phoneNumber, name: name, lastName: lastName },
+          { phoneNumber: phoneNumber, name: name, lastName: lastName, emoji },
           { onConflict: "phoneNumber", ignoreDuplicates: false }
         )
         .select()

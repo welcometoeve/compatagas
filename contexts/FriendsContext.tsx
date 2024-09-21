@@ -76,8 +76,6 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
     fetchAllUsers()
   }, [user, tableName])
 
-  console.log(friends.length)
-
   useEffect(() => {
     const friendRelationSubscription = supabase
       .channel(friendRelationTableName)

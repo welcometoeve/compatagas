@@ -10,7 +10,6 @@ import {
 import { StatusBar } from "expo-status-bar"
 import { useUser } from "@/contexts/UserContext"
 import EmojiSelector from "react-native-emoji-selector"
-import { XCircleIcon, CheckCircleIcon } from "react-native-heroicons/solid"
 
 interface Friend {
   id: string
@@ -38,7 +37,8 @@ const CustomCheckbox: React.FC<{ checked: boolean; onPress: () => void }> = ({
 )
 
 const ProfilePage: React.FC = () => {
-  const { user } = useUser()
+  const { user, createUser } = useUser()
+
   const [friends, setFriends] = useState<Friend[]>([
     { id: "1", name: "Jane Doe", emoji: "👩", isFriend: true },
     { id: "2", name: "James Doe", emoji: "👨", isFriend: true },
@@ -111,11 +111,18 @@ const ProfilePage: React.FC = () => {
         <View style={styles.modalContainer}>
           <TouchableOpacity
             onPress={() => {
+              user &&
+                createUser(
+                  user.phoneNumber,
+                  user.name ?? "",
+                  user.lastName ?? "",
+                  selectedEmoji
+                )
               setIsEmojiPickerVisible(false)
             }}
             style={styles.closeButton}
           >
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text style={styles.closeButtonText}>Done</Text>
           </TouchableOpacity>
           <View style={styles.emojiPickerContainer}>
             <EmojiSelector
@@ -247,7 +254,7 @@ const styles = StyleSheet.create({
   closeButton: {
     position: "absolute",
     top: 160,
-    left: "5%",
+    right: "5%",
     zIndex: 1,
     padding: 10,
     backgroundColor: "white",

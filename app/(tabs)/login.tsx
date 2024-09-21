@@ -10,6 +10,7 @@ import {
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useUser } from "@/contexts/UserContext"
+import getRandomEmoji from "../../components/profile/getRandomEmoji"
 
 const AccountScreen = () => {
   const [firstName, setFirstName] = useState("")
@@ -29,7 +30,8 @@ const AccountScreen = () => {
     }
 
     try {
-      await createUser(phoneNumber, firstName, lastName)
+      const emoji = getRandomEmoji()
+      await createUser(phoneNumber, firstName, lastName, emoji)
       setSuccess(true)
     } catch (err) {
       setError("Failed to create account. Please try again.")
