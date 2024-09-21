@@ -10,7 +10,6 @@ import "react-native-reanimated"
 import { View, Button, AppState, StyleSheet, Alert } from "react-native"
 import * as Updates from "expo-updates"
 import { StatusBar } from "expo-status-bar"
-
 import { useColorScheme } from "@/hooks/useColorScheme"
 import App from "./(tabs)"
 import NavBar from "./NavBar"
@@ -34,6 +33,7 @@ import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
 import { PageProvider, usePage } from "@/contexts/PageContext"
 import ProfilePage from "./(tabs)/ProfilePage"
 import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
+import IntroScreen, { useAccessGranted } from "./(tabs)/IntroScreen"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -57,6 +57,7 @@ function RootLayout() {
 
   const [errorMessage, setErrorMessage] = useState<string>("")
   const { page } = usePage()
+  const { accessGranted, setAccessGranted } = useAccessGranted()
 
   useEffect(() => {
     if (loaded) {
@@ -138,8 +139,26 @@ function RootLayout() {
     return null
   }
 
+  if (!accessGranted) {
+    return <IntroScreen onAccessGranted={() => setAccessGranted(true)} />
+  }
+
   if (!authenticating && !user) {
-    return <AccountScreen />
+    return (
+      <>
+        <View style={styles.debugButtonContainer}>
+          <Button title="Debug" onPress={() => setIsDebugVisible(true)} />
+        </View>
+        <AccountScreen />
+        <DebugView
+          isVisible={isDebugVisible}
+          onClose={() => setIsDebugVisible(false)}
+          update={update}
+          updateString={updateString}
+          setAccessGranted={setAccessGranted}
+        />
+      </>
+    )
   }
 
   return (
@@ -166,6 +185,7 @@ function RootLayout() {
           onClose={() => setIsDebugVisible(false)}
           update={update}
           updateString={updateString}
+          setAccessGranted={setAccessGranted}
         />
         <ErrorModal
           visible={isErrorModalVisible}

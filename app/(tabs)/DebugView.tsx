@@ -11,16 +11,15 @@ import {
 } from "react-native"
 import { UpdateCheckResult } from "expo-updates"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { createClient } from "@supabase/supabase-js"
 import { useUser } from "@/contexts/UserContext"
 import { useEnvironment } from "@/contexts/EnvironmentContext"
-import * as Updates from "expo-updates"
 
 interface DebugViewProps {
   isVisible: boolean
   onClose: () => void
   update: UpdateCheckResult | null
   updateString: string
+  setAccessGranted: (value: boolean) => void
 }
 
 export function DebugView({
@@ -28,6 +27,7 @@ export function DebugView({
   onClose,
   update,
   updateString,
+  setAccessGranted,
 }: DebugViewProps) {
   const { clearUser } = useUser()
   const { user } = useUser()
@@ -74,20 +74,37 @@ export function DebugView({
             value={isDev}
           />
         </View>
-        <Button
-          title="Refresh"
-          onPress={() => {
-            setRefresh(refresh + 1)
-          }}
-        />
-        <Button
-          title="Log Out"
-          onPress={() => {
-            AsyncStorage.removeItem("phoneNumber")
-            clearUser()
-            onClose()
-          }}
-        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "gray" }]}
+            onPress={() => {
+              AsyncStorage.clear()
+              clearUser()
+              setAccessGranted(false)
+              onClose()
+            }}
+          >
+            <Text style={styles.buttonText}>Get OUT</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              setRefresh(refresh + 1)
+            }}
+          >
+            <Text style={styles.buttonText}>Refresh</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              AsyncStorage.removeItem("phoneNumber")
+              clearUser()
+              onClose()
+            }}
+          >
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Modal>
   )
@@ -135,5 +152,21 @@ const styles = StyleSheet.create({
     alignContent: "center",
     justifyContent: "center",
     gap: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
+  },
+  button: {
+    backgroundColor: "dodgerblue",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
   },
 })

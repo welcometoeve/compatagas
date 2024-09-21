@@ -87,7 +87,7 @@ const ProfilePage: React.FC = () => {
           >
             <Text
               style={styles.lemonsText}
-            >{`You Have ${user?.numLemons}x🍋`}</Text>
+            >{`You Have 🍋x${user?.numLemons}`}</Text>
             {/* <Info size={18} color="#FFFFFF" /> */}
           </TouchableOpacity>
         </View>

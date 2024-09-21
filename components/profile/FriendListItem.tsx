@@ -54,10 +54,10 @@ export default function FriendListItem({ friend }: FriendListItemProps) {
   )
 }
 
-const CustomCheckbox: React.FC<{ checked: boolean; onPress: () => void }> = ({
-  checked,
-  onPress,
-}) => (
+export const CustomCheckbox: React.FC<{
+  checked: boolean
+  onPress: () => void
+}> = ({ checked, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.checkbox}>
     <View style={[styles.checkboxInner, checked && styles.checked]}>
       {checked && <Text style={styles.checkmark}>✓</Text>}

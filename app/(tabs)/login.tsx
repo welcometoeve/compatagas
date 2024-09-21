@@ -44,7 +44,7 @@ const AccountScreen = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.formContainer}>
-          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.title}>Nice! Now create an account</Text>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#333333",
     textAlign: "center",
