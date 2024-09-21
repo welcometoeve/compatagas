@@ -10,6 +10,8 @@ import {
   ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft } from "lucide-react-native"
+import { LockClosedIcon } from "react-native-heroicons/solid"
+
 import { Question, Quiz, Side } from "@/constants/questions/types"
 import { useUser } from "@/contexts/UserContext"
 import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
@@ -51,6 +53,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   const { friendAnswers } = useFriendAnswers()
 
   const [results, setResults] = useState<Result[]>([])
+  const [namesHidden, setNamesHidden] = useState(true)
 
   useEffect(() => {
     if (user && selfAnswers && friendAnswers) {
@@ -178,11 +181,18 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         </TouchableOpacity>
 
         <View style={styles.quizHeader}>
-          <Image
-            source={quiz.src as ImageSourcePropType}
-            style={styles.quizImage}
-            resizeMode="cover"
-          />
+          <View style={styles.imageContainer}>
+            <Image
+              source={quiz.src as ImageSourcePropType}
+              style={styles.quizImage}
+              resizeMode="cover"
+            />
+            {namesHidden && (
+              <View style={styles.overlay}>
+                <LockClosedIcon size={48} color="#FF4457" />
+              </View>
+            )}
+          </View>
           <Text style={styles.quizTitle}>{`${userName} ${quiz.name}`}</Text>
           <Text style={styles.quizSubtitle}>
             {quizType === "your"
@@ -193,6 +203,25 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
                 )}
           </Text>
         </View>
+        <TouchableOpacity
+          style={[
+            styles.revealButton,
+            { backgroundColor: namesHidden ? "#FF4457" : "#FF7C89" },
+          ]}
+          onPress={() => setNamesHidden(!namesHidden)}
+        >
+          <Text
+            style={[
+              styles.revealButtonText,
+              {
+                color: namesHidden ? "white" : "white",
+                fontSize: namesHidden ? 16 : 16,
+              },
+            ]}
+          >
+            {namesHidden ? "Unlock Names 🍋x3" : "Names Unlocked 😊"}
+          </Text>
+        </TouchableOpacity>
 
         <QuizResultsWithFriendsView
           quiz={quiz}
@@ -248,14 +277,28 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   quizHeader: {
-    marginBottom: 24,
+    marginBottom: 20,
     alignItems: "center",
+  },
+  imageContainer: {
+    position: "relative",
+    marginBottom: 16,
   },
   quizImage: {
     width: 200,
     height: 200,
     borderRadius: 16,
-    marginBottom: 16,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 16,
   },
   quizTitle: {
     fontSize: 32,
@@ -284,6 +327,23 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: "#000000",
     fontWeight: "bold",
+  },
+  revealButton: {
+    backgroundColor: "#FF4457",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignSelf: "center",
+    marginTop: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 36,
+  },
+  revealButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
 })
 

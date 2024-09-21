@@ -1,9 +1,11 @@
+import React from "react"
 import { useNotification } from "@/contexts/notification/NotificationContext"
 import { QuizItem } from "../proccessQuizLists"
 import * as Haptics from "expo-haptics"
 import { TouchableOpacity, View, Image, Text, StyleSheet } from "react-native"
 import NotificationDot from "../NotificationDot"
 import { ChevronRight } from "lucide-react-native"
+import { LockClosedIcon } from "react-native-heroicons/solid"
 
 interface QuizItemComponentProps {
   item: QuizItem
@@ -13,11 +15,13 @@ interface QuizItemComponentProps {
   user: any // Replace 'any' with the correct type for user
 }
 
+const namesHidden = true
+
 const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
   item,
   setQuizItem,
   activeTab,
-  friends: friends,
+  friends,
   user,
 }) => {
   const { notifications, markAsOpened } = useNotification()
@@ -62,6 +66,11 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
             <NotificationDot count={1} showCount={false} />
           </View>
         )}
+        {namesHidden && (
+          <View style={styles.lockIconContainer}>
+            <LockClosedIcon color="#FF4457" size={16} />
+          </View>
+        )}
       </View>
 
       <View style={styles.contentContainer}>
@@ -93,18 +102,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "#FFFFFF",
     marginVertical: 5,
-    height: 120, // Fixed height for consistent sizing
+    height: 120,
+    position: "relative",
   },
   imageContainer: {
-    width: 100,
-    height: 100,
+    width: 90,
+    height: 90,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 15,
+    position: "relative",
   },
   quizImage: {
     width: 90,
     height: 90,
+    borderRadius: 5,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.0)",
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 5,
   },
   contentContainer: {
@@ -141,6 +163,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 40,
     right: -7,
+  },
+  lockIconContainer: {
+    position: "absolute",
+    bottom: -10,
+    left: -10,
+    backgroundColor: "rgba(255, 255, 255, 1)",
+    borderRadius: 12,
+    padding: 4,
+    zIndex: 1,
   },
 })
 

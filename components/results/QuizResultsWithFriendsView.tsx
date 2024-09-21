@@ -52,7 +52,6 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.resultsTitle}>Results:</Text>
       <View
         style={[styles.resultContainer, { marginBottom: longestLength * 5 }]}
       >
@@ -124,25 +123,6 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
           })}
         </View>
       </View>
-
-      <TouchableOpacity
-        style={[
-          styles.revealButton,
-          { backgroundColor: namesHidden ? "#FF4457" : "#FF7C89" },
-        ]}
-      >
-        <Text
-          style={[
-            styles.revealButtonText,
-            {
-              color: namesHidden ? "white" : "white",
-              fontSize: namesHidden ? 16 : 16,
-            },
-          ]}
-        >
-          {namesHidden ? "Reveal Names 🍋x3" : "Names Revealed 😊"}
-        </Text>
-      </TouchableOpacity>
     </View>
   )
 }
@@ -162,6 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     padding: 16,
     paddingVertical: 32,
+    paddingTop: 36,
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1,
@@ -173,22 +154,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333333",
     marginBottom: 32,
-    textAlign: "center",
-  },
-  revealButton: {
-    backgroundColor: "#FF4457",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    alignSelf: "center",
-    marginTop: 36,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  revealButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
     textAlign: "center",
   },
   checkmark: {
