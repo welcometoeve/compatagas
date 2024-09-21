@@ -151,9 +151,7 @@ function RootLayout() {
 
         <View style={[styles.fullPageView, styles.cameraView]}>
           {page === "questions" ? (
-            friends.length > 0 ? (
-              <App />
-            ) : null
+            <App />
           ) : page === "results" ? (
             <ResultsView />
           ) : page === "profile" ? (

@@ -35,9 +35,9 @@ export default function FriendListItem({ friend }: FriendListItemProps) {
   return (
     <View key={friend.id} style={styles.friendItem}>
       <Text style={styles.friendEmoji}>{friend.emoji}</Text>
-      <Text
-        style={styles.friendName}
-      >{`${friend.name} ${friend.lastName}`}</Text>
+      <Text style={styles.friendName}>{`${friend.name} ${
+        friend.lastName ?? ""
+      }`}</Text>
       <View style={styles.checkboxContainer}>
         {loading ? (
           <ActivityIndicator
