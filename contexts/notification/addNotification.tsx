@@ -48,7 +48,7 @@ export async function addSelfAnswerInitiatedNotification(
     await sendNotification(
       friendId.toString(),
       "New Pack Results!",
-      `One of ${selfUser?.name}'s pack results are available.`,
+      `${selfUser?.name}'s pack results are available.`,
       selfUser?.notificationToken
     )
   })
@@ -97,9 +97,7 @@ export function addFriendAnswerInitiatedNotification(
     sendNotification(
       selfId.toString(),
       "New Pack Results!",
-      `${
-        friends.find((u) => u.id === friendId)?.name
-      } has finished one of your packs.`,
+      `Somenones has answered one of your packs.`,
       selfUser?.notificationToken
     )
 

@@ -111,6 +111,7 @@ function RootLayout() {
       const updateResult = await Updates.checkForUpdateAsync()
       setUpdateString(updateString + "\nFound update result")
       setUpdate(updateResult)
+      setUpdateString(updateString + JSON.stringify(updateResult))
       if (updateResult.isAvailable) {
         setUpdateString(updateString + "\nUpdating")
         await Updates.fetchUpdateAsync()
