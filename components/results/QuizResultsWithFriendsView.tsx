@@ -42,11 +42,15 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
     group.map((result) => result.name).join(", ")
   )
 
-  const longestLength = Math.max(...namesNames.map((item) => item.length))
+  const longestLength =
+    namesNames.length > 0
+      ? Math.max(...namesNames.map((item) => item.length))
+      : 0
+
   return (
     <View style={styles.container}>
       <View
-        style={[styles.resultContainer, { paddingBottom: longestLength * 2.6 }]}
+        style={[styles.resultContainer, { marginBottom: longestLength * 5 }]}
       >
         <View style={styles.labelContainer}>
           <Text style={styles.label}>{quiz.leftLabel}</Text>
@@ -107,7 +111,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
                     <BlurView
                       tint="extraLight"
                       intensity={15}
-                      style={styles.blurView}
+                      style={[styles.blurView, { width: longestLength * 6 }]}
                     />
                   )}
                 </View>
