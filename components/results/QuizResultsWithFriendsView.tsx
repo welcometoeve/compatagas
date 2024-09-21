@@ -114,7 +114,7 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
                     <BlurView
                       tint="extraLight"
                       intensity={15}
-                      style={[styles.blurView, { width: longestLength * 6 }]}
+                      style={[styles.blurView, { width: longestLength * 8 }]}
                     />
                   )}
                 </View>

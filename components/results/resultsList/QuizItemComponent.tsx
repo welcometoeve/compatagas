@@ -5,14 +5,15 @@ import * as Haptics from "expo-haptics"
 import { TouchableOpacity, View, Image, Text, StyleSheet } from "react-native"
 import NotificationDot from "../NotificationDot"
 import { ChevronRight } from "lucide-react-native"
-import { LockClosedIcon } from "react-native-heroicons/solid"
+import { LockClosedIcon } from "react-native-heroicons/outline"
+import { User } from "@supabase/supabase-js"
+import { UserProfile, useUser } from "@/contexts/UserContext"
 
 interface QuizItemComponentProps {
   item: QuizItem
   setQuizItem: (item: QuizItem) => void
   activeTab: "your" | "their"
   friends: any[] // Replace 'any' with the correct type for users
-  user: any // Replace 'any' with the correct type for user
 }
 
 const namesHidden = true
@@ -22,10 +23,9 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
   setQuizItem,
   activeTab,
   friends,
-  user,
 }) => {
   const { notifications, markAsOpened } = useNotification()
-
+  const { user } = useUser()
   const relevantNs = notifications.filter(
     (n) =>
       (activeTab === "your" &&
@@ -66,9 +66,9 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
             <NotificationDot count={1} showCount={false} />
           </View>
         )}
-        {namesHidden && (
+        {!user?.unlockedQuizIds.find((id) => item.quiz.id) && (
           <View style={styles.lockIconContainer}>
-            <LockClosedIcon color="#FF4457" size={16} />
+            <LockClosedIcon color="gray" size={16} />
           </View>
         )}
       </View>

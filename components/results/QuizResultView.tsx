@@ -53,7 +53,8 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   const { friendAnswers } = useFriendAnswers()
 
   const [results, setResults] = useState<Result[]>([])
-  const [namesHidden, setNamesHidden] = useState(true)
+
+  const namesHidden = user?.unlockedQuizIds.includes(quiz.id) ? false : true
 
   useEffect(() => {
     if (user && selfAnswers && friendAnswers) {
@@ -160,11 +161,6 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
       ? "Your"
       : `${friends.find((u) => u.id === selfId)?.name}'s` || "Friend"
 
-  const plainUserName =
-    selfId === user?.id
-      ? "you"
-      : `${friends.find((u) => u.id === selfId)?.name}` || "Friend"
-
   const quizFriendAnswers = collect(
     friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quiz.id),
     ["questionId"]
@@ -206,22 +202,38 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         <TouchableOpacity
           style={[
             styles.revealButton,
-            { backgroundColor: namesHidden ? "#FF4457" : "#FF7C89" },
+            {
+              backgroundColor: !namesHidden
+                ? "white"
+                : (user?.numLemons ?? 0) < 3
+                ? "rgb(150, 150, 150)"
+                : "#FF4457",
+            },
           ]}
-          onPress={() => setNamesHidden(!namesHidden)}
+          onPress={() => undefined}
         >
           <Text
             style={[
               styles.revealButtonText,
               {
-                color: namesHidden ? "white" : "white",
+                color: !namesHidden ? "#FF4457" : "white",
                 fontSize: namesHidden ? 16 : 16,
               },
             ]}
           >
-            {namesHidden ? "Unlock Names 🍋x3" : "Names Unlocked 😊"}
+            {namesHidden
+              ? `Unlock Names 🍋x${user?.numLemons ?? 0}`
+              : "Names Unlocked 😊"}
           </Text>
         </TouchableOpacity>
+        <Text style={styles.lemonCount}>
+          {`You Have 🍋x${user?.numLemons ?? 0}`}
+        </Text>
+        {(user?.numLemons ?? 0) < 3 && (
+          <Text style={styles.lemonCount}>
+            {`Anwser questions in the stack to get more.`}
+          </Text>
+        )}
 
         <QuizResultsWithFriendsView
           quiz={quiz}
@@ -337,13 +349,20 @@ const styles = StyleSheet.create({
     marginTop: 0,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 36,
+    marginBottom: 8,
   },
   revealButtonText: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#FFFFFF",
     textAlign: "center",
+  },
+  lemonCount: {
+    fontSize: 14,
+    color: "#666666",
+    textAlign: "center",
+    marginBottom: 28,
+    paddingTop: 2,
   },
 })
 

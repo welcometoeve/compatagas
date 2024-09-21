@@ -71,7 +71,6 @@ const ResultsList: React.FC<ResultsListProps> = ({
       setQuizItem={setQuizItem}
       activeTab={activeTab}
       friends={friends}
-      user={user}
     />
   )
 

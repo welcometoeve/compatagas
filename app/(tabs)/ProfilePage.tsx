@@ -85,7 +85,9 @@ const ProfilePage: React.FC = () => {
             style={styles.lemonsButton}
             ref={lemonsRef}
           >
-            <Text style={styles.lemonsText}>You Have: 🍋x3</Text>
+            <Text
+              style={styles.lemonsText}
+            >{`You Have 🍋x${user?.numLemons}`}</Text>
             {/* <Info size={18} color="#FFFFFF" /> */}
           </TouchableOpacity>
         </View>
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#FFFFFF",
     marginRight: 8,
-    fontWeight: "bold",
+    // fontWeight: "bold",
   },
   friendsContainer: {
     width: "100%",

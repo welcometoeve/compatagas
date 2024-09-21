@@ -21,6 +21,8 @@ export type UserProfile = {
   lastName: string | null
   notificationToken?: string
   emoji: string | null
+  numLemons: number
+  unlockedQuizIds: number[]
 }
 
 type UserContextType = {
