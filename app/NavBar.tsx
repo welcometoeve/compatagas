@@ -59,7 +59,13 @@ const NavBar: React.FC = () => {
     ),
     ["quizId"]
   ).length
-  const { page, setPage } = usePage()
+  const {
+    page,
+    setPage,
+    setCurQuizResultItem,
+    setActiveResultsTab,
+    setCurquizId,
+  } = usePage()
 
   const numTheirNotifications = notifications.filter(
     (notification) =>
@@ -76,7 +82,11 @@ const NavBar: React.FC = () => {
           <TouchableOpacity
             key={tab.name}
             style={[styles.tabItem, { flex: 1 }]}
-            onPress={() => setPage(tab.page)}
+            onPress={() => {
+              setPage(tab.page)
+              setCurQuizResultItem(null)
+              setCurquizId(null)
+            }}
           >
             <View style={styles.iconContainer}>
               {tab.page === "questions" ? (
@@ -126,7 +136,11 @@ const NavBar: React.FC = () => {
           <TouchableOpacity
             key={tab.name}
             style={[styles.tabItem, { flex: 1 }]}
-            onPress={() => setPage(tab.page)}
+            onPress={() => {
+              setPage(tab.page)
+              setCurQuizResultItem(null)
+              setCurquizId(null)
+            }}
           >
             <View style={styles.iconContainer}>
               {tab.page === "results" ? (

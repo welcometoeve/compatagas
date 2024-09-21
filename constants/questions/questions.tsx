@@ -1,5 +1,6 @@
 import { badPersonQuestions, badPersonQuiz } from "./badPersonPack"
 import { chadQuestions, chadQuiz } from "./chadPack"
+import { charlesStreetQuestions, charlesStreetQuiz } from "./charleStreetPack"
 import { goodStudentQuestions, goodStudentQuiz } from "./goodStudentPack"
 import { musicQuestions, musicQuiz } from "./musicPack"
 import { neighborQuestions, NeighborQuiz } from "./neighborPack"
@@ -13,15 +14,17 @@ export const questions: Question[] = [
   ...musicQuestions,
   ...chadQuestions,
   ...neighborQuestions,
+  ...charlesStreetQuestions,
 ]
 
 export const quizzes: Quiz[] = [
+  charlesStreetQuiz,
+  goodStudentQuiz,
+  badPersonQuiz,
   NeighborQuiz,
   styleQuiz,
-  goodStudentQuiz,
   musicQuiz,
   chadQuiz,
-  badPersonQuiz,
 ]
 
 export function insertName(text: string, name: string): string {
