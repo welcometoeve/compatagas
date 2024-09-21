@@ -1,6 +1,7 @@
 import React from "react"
 import { View, Text, StyleSheet } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
+import { BlurView } from "expo-blur"
 import { Quiz } from "@/constants/questions/types"
 
 type Result = {
@@ -37,14 +38,16 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
     return acc
   }, {} as Record<string, Result[]>)
 
+  const namesNames: string[] = Object.values(groupedResults).map((group) =>
+    group.map((result) => result.name).join(", ")
+  )
+
+  const longestLength = Math.max(...namesNames.map((item) => item.length))
   return (
     <View style={styles.container}>
-      <View style={styles.resultContainer}>
-        {/* <Text style={styles.title}>You Are:</Text>
-        <Text style={styles.subtitle}>
-          {`${resultLabel?.label} ${resultLabel?.emoji}`}
-        </Text> */}
-
+      <View
+        style={[styles.resultContainer, { paddingBottom: longestLength * 2.6 }]}
+      >
         <View style={styles.labelContainer}>
           <Text style={styles.label}>{quiz.leftLabel}</Text>
           <Text style={styles.label}>{quiz.rightLabel}</Text>
@@ -61,51 +64,58 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
             const position = ((parseFloat(value) + 1) / 2) * 100
             const names = groupResults.map((r) => r.name).join(", ")
 
+            // Sort the results to put self results first
+            const sortedResults = groupResults.sort(
+              (a, b) => (b.isSelf ? 1 : 0) - (a.isSelf ? 1 : 0)
+            )
+
             return (
               <React.Fragment key={value}>
-                {groupResults.map((result) => (
+                {sortedResults.map((result, index) => (
                   <View
                     key={result.id}
                     style={[
                       styles.dot,
                       { left: `${position}%` },
-                      { marginTop: -8 },
+                      { marginTop: -8, zIndex: result.isSelf ? 2 : 1 },
                       {
-                        backgroundColor: groupResults.find((r) => r.isSelf)
-                          ? "#FF4457"
-                          : "rgba(255, 255, 255, 0.5)",
-                        borderWidth: 2,
-                        borderColor: result.isSelf ? "transparent" : "#FF4457",
+                        backgroundColor: result.isSelf ? "#007AFF" : "#75B7FF",
                       },
-                      // result.isSelf ? styles.selfDot : null,
                     ]}
-                  />
+                  >
+                    {!result.isSelf && index === 0 ? (
+                      <Text style={styles.dotText}>{groupResults.length}</Text>
+                    ) : result.isSelf && groupResults.length > 1 ? (
+                      <Text
+                        style={styles.dotText}
+                      >{`+${groupResults.length}`}</Text>
+                    ) : null}
+                  </View>
                 ))}
-                <Text style={[styles.resultName, { left: `${position}%` }]}>
-                  {names}
-                </Text>
+                <View
+                  style={[
+                    styles.resultNameContainer,
+                    { left: `${position + 7}%` },
+                    {
+                      paddingLeft: 35,
+                      zIndex: groupResults.some((r) => r.isSelf) ? 2 : 1,
+                    },
+                  ]}
+                >
+                  <Text style={styles.resultName}>{names}</Text>
+                  {!groupResults.find((r) => r.isSelf) && (
+                    <BlurView
+                      tint="extraLight"
+                      intensity={15}
+                      style={styles.blurView}
+                    />
+                  )}
+                </View>
               </React.Fragment>
             )
           })}
         </View>
       </View>
-      {/* <View style={styles.friendsResultContainer}>
-        {results.map((result) => (
-          <View key={result.id} style={styles.friendResult}>
-            <Text style={styles.friendName}>{result.name}</Text>
-            <View style={styles.scoreContainer}>
-              {result.correctPercentage !== undefined && (
-                <Text style={styles.friendScore}>
-                  {`${result.correctPercentage.toFixed(0)}% correct`}
-                </Text>
-              )}
-              <Text style={styles.friendValue}>
-                {`${(((result.value + 1) / 2) * 100).toFixed(0)}%`}
-              </Text>
-            </View>
-          </View>
-        ))}
-      </View> */}
     </View>
   )
 }
@@ -170,71 +180,46 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 12,
   },
-  // sliderThumb: {
-  //   position: "absolute",
-  //   top: -4,
-  //   transform: [{ translateX: -16 }],
-  //   width: 32,
-  //   height: 32,
-  //   backgroundColor: "#1E90FF",
-  //   borderRadius: 16,
-  //   borderWidth: 2,
-  //   borderColor: "#FFFFFF",
-  //   shadowColor: "#000",
-  //   shadowOffset: { width: 0, height: 2 },
-  //   shadowOpacity: 0.1,
-  //   shadowRadius: 3.84,
-  //   elevation: 3,
-  // },
   dot: {
     position: "absolute",
-    top: 0,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    top: -1,
+    width: 26,
+    height: 26,
+    borderRadius: 200000,
     backgroundColor: "#FF4457",
-    transform: [{ translateX: -12 }],
+    transform: [{ translateX: -13 }],
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 3,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
-
-  resultName: {
+  resultNameContainer: {
     position: "absolute",
     top: 24,
+    marginLeft: -50,
+    width: 100,
+    transform: [{ rotate: "45deg" }],
+  },
+  resultName: {
     color: "#333333",
     fontSize: 12,
-    marginLeft: -50,
-    textAlign: "center",
-    width: 100,
+    textAlign: "left",
   },
-  friendsResultContainer: {
-    marginTop: 24,
+  blurView: {
+    position: "absolute",
+    top: 0,
+    left: 31,
+    right: 0,
+    bottom: 0,
+    height: 40,
   },
-  friendResult: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  friendName: {
-    fontSize: 16,
-    color: "#333333",
-  },
-  scoreContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  friendScore: {
-    fontSize: 14,
-    color: "#666666",
-    marginRight: 8,
-  },
-  friendValue: {
-    fontSize: 16,
-    color: "#FF4457",
+  dotText: {
+    color: "#FFFFFF",
+    fontSize: 12,
     fontWeight: "bold",
   },
 })
