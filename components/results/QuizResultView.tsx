@@ -47,7 +47,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   quizType,
   selfId,
 }) => {
-  const { user } = useUser()
+  const { user, unlockQuiz, addLemon } = useUser()
   const { friends } = useFriends()
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
@@ -200,6 +200,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           </Text>
         </View>
         <TouchableOpacity
+          disabled={!namesHidden || (user?.numLemons ?? 0) < 3}
           style={[
             styles.revealButton,
             {
@@ -210,14 +211,14 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
                 : "#FF4457",
             },
           ]}
-          onPress={() => undefined}
+          onPress={() => unlockQuiz(quiz.id)}
         >
           <Text
             style={[
               styles.revealButtonText,
               {
                 color: !namesHidden ? "#FF4457" : "white",
-                fontSize: namesHidden ? 16 : 16,
+                fontSize: namesHidden ? 16 : 20,
               },
             ]}
           >

@@ -97,7 +97,7 @@ export function addFriendAnswerInitiatedNotification(
     sendNotification(
       selfId.toString(),
       "New Pack Results!",
-      `Somenones has answered one of your packs.`,
+      `Someones has answered one of your packs.`,
       selfUser?.notificationToken
     )
 

@@ -38,6 +38,8 @@ type UserContextType = {
   clearUser: () => void
   requestNotificationPermission: () => Promise<void>
   lastNotification: Notifications.Notification | null
+  addLemon: () => Promise<void>
+  unlockQuiz: (quizId: number) => Promise<void>
 }
 
 // Create Supabase client
@@ -174,6 +176,57 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     })
   }
 
+  const addLemon = async () => {
+    if (!user) return
+
+    const { data, error } = await supabase
+      .from(tableName)
+      .update({ numLemons: user.numLemons + 1 })
+      .eq("id", user.id)
+      .select()
+      .single()
+    if (error) {
+      console.error("Error adding lemon:", error)
+      Alert.alert("Failed to add lemon")
+    } else if (data) {
+      setUser(data)
+    }
+  }
+
+  const unlockQuiz = async (quizId: number) => {
+    if (!user) return
+
+    if (user.unlockedQuizIds.includes(quizId)) {
+      Alert.alert("Quiz already unlocked")
+      return
+    }
+
+    if (user.numLemons < 3) {
+      Alert.alert("Not enough lemons to unlock quiz")
+      return
+    }
+
+    const newUnlockedQuizIds = [...user.unlockedQuizIds, quizId]
+    const newNumLemons = user.numLemons - 3
+
+    const { data, error } = await supabase
+      .from(tableName)
+      .update({
+        unlockedQuizIds: newUnlockedQuizIds,
+        numLemons: newNumLemons,
+      })
+      .eq("id", user.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error unlocking quiz:", error)
+      Alert.alert("Failed to unlock quiz")
+    } else if (data) {
+      setUser(data)
+    }
+  }
+
   useEffect(() => {
     const initializeUser = async () => {
       setAuthenticating(true)
@@ -197,6 +250,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       setLastNotification(notification)
     }
   )
+
   return (
     <UserContext.Provider
       value={{
@@ -207,6 +261,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         clearUser: () => setUser(null),
         requestNotificationPermission,
         lastNotification,
+        addLemon,
+        unlockQuiz,
       }}
     >
       {children}

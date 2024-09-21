@@ -38,7 +38,7 @@ export default function App() {
     nextQuestion: null,
   })
   const [addError, setAddError] = useState<string | undefined>()
-  const { user } = useUser()
+  const { user, addLemon } = useUser()
   const { friends } = useFriends()
 
   const { addNotification, notifications } = useNotification()
@@ -199,6 +199,7 @@ export default function App() {
           await triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy)
           setCompletedQuizFriendId(result.friendId)
           setCompletedQuizId(result.quizId)
+          addLemon()
         } else {
           await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
         }
