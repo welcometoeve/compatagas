@@ -1,5 +1,6 @@
 import { questions } from "@/constants/questions/questions"
 import { Quiz } from "@/constants/questions/types"
+import { useFriends } from "@/contexts/FriendsContext"
 import { usePage } from "@/contexts/PageContext"
 import { useUser } from "@/contexts/UserContext"
 import { Ionicons } from "@expo/vector-icons"
@@ -28,7 +29,8 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
   onContinue,
 }) => {
   const { setPage, setActiveResultsTab, setCurQuizResultItem } = usePage()
-  const { allUsers, user } = useUser()
+  const { user } = useUser()
+  const { friends } = useFriends()
   return (
     <View style={styles.completionOverlay}>
       <Animated.View
@@ -53,7 +55,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
         <Text style={styles.completionTitle}>Pack Completed!</Text>
         <Text style={styles.completionText}>
           You've finished the {completedQuiz.name} for{" "}
-          {allUsers.find((u) => u.id === completedQuizSelfId)?.name}!
+          {friends.find((u) => u.id === completedQuizSelfId)?.name}!
         </Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.continueButton} onPress={onContinue}>

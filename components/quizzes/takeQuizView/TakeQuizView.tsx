@@ -21,7 +21,7 @@ import { useNotification } from "@/contexts/notification/NotificationContext"
 import * as Haptics from "expo-haptics"
 import collect from "@/components/collect"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { useFriends } from "@/contexts/FriendContext"
+import { useFriends } from "@/contexts/FriendsContext"
 
 export type SelfAnswer = {
   id: number
@@ -48,7 +48,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
 
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
   const { user } = useUser()
-  const { allUsers } = useFriends()
+  const { friends: friends } = useFriends()
 
   const { friendAnswers } = useFriendAnswers()
   const { addNotification, notifications } = useNotification()
@@ -187,7 +187,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           quiz.id,
           friendAnswers,
           user,
-          allUsers,
+          friends,
           addNotification
         )
         if (fs.length > 0) {
@@ -273,7 +273,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
             quiz={quiz}
             quizResult={quizResult}
             friendsWhoTookQuiz={friendsWhoTookQuiz}
-            allUsers={allUsers}
+            friends={friends}
           />
         )}
 

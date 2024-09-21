@@ -18,7 +18,7 @@ import selectNextQuestion, {
   SelectedQuestion,
 } from "@/components/stack/selectNextQuestion"
 import { useEnvironment } from "@/contexts/EnvironmentContext"
-import { useFriends } from "@/contexts/FriendContext"
+import { useFriends } from "@/contexts/FriendsContext"
 
 const { width } = Dimensions.get("window")
 
@@ -35,7 +35,7 @@ export default function App() {
   })
   const [addError, setAddError] = useState<string | undefined>()
   const { user } = useUser()
-  const { allUsers } = useFriends()
+  const { friends: friends } = useFriends()
 
   const { addNotification, notifications } = useNotification()
   const { selfAnswers } = useSelfAnswers()
@@ -52,7 +52,7 @@ export default function App() {
   useEffect(() => {
     const questionUserCombos: { questionId: number; selfId: number }[] =
       questions.flatMap((q) => {
-        const questionsPerUser = allUsers
+        const questionsPerUser = friends
           .map((u) => {
             return { questionId: q.id, selfId: u.id }
           })
@@ -90,7 +90,7 @@ export default function App() {
     nextQuestionRef.current = cardState.currentQuestion || availableQuestions[0]
 
     questionsRef.current = availableQuestions
-  }, [allUsers, selfAnswers])
+  }, [friends, selfAnswers])
 
   const selectNewQuestion = () => {
     if (questionsRef.current.filter((q) => !q.answered).length === 0) {
@@ -181,7 +181,7 @@ export default function App() {
     try {
       addFriendAnswer(selfId, questionId, optionIndex)
       const result = addFriendAnswerInitiatedNotification(
-        allUsers,
+        friends,
         friendAnswers,
         selfAnswers,
         quizId,
@@ -233,7 +233,7 @@ export default function App() {
 
     const question = questions.find((q) => q.id === selectedQuestion.questionId)
     const quiz = quizzes.find((q) => q.id === selectedQuestion.quizId)
-    const selfUser = allUsers.find((u) => u.id === selectedQuestion.selfId)
+    const selfUser = friends.find((u) => u.id === selectedQuestion.selfId)
 
     return (
       <CardContents

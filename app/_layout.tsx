@@ -33,7 +33,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
 import { PageProvider, usePage } from "@/contexts/PageContext"
 import ProfilePage from "./(tabs)/ProfilePage"
-import { FriendsProvider, useFriends } from "@/contexts/FriendContext"
+import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -48,7 +48,7 @@ function RootLayout() {
   const [updateString, setUpdateString] = useState<string>("")
   const { user, authenticating, signingUp, requestNotificationPermission } =
     useUser()
-  const { allUsers } = useFriends()
+  const { friends: friends } = useFriends()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchFriendAnswers } =
     useFriendAnswers()
@@ -151,7 +151,7 @@ function RootLayout() {
 
         <View style={[styles.fullPageView, styles.cameraView]}>
           {page === "questions" ? (
-            allUsers.length > 0 ? (
+            friends.length > 0 ? (
               <App />
             ) : null
           ) : page === "results" ? (

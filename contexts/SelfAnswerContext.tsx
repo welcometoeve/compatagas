@@ -11,7 +11,7 @@ import { FriendAnswer, useFriendAnswers } from "./FriendAnswerContext"
 import collect from "@/components/collect"
 import { useEnvironment } from "./EnvironmentContext"
 import { useNotification } from "./notification/NotificationContext"
-import { useFriends } from "./FriendContext"
+import { useFriends } from "./FriendsContext"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -46,7 +46,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
-  const { allUsers } = useFriends()
+  const { friends: friends } = useFriends()
 
   const { addNotification } = useNotification()
   const { isDev } = useEnvironment()
@@ -82,7 +82,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, allUsers, isDev, tableName])
+  }, [user, friends, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
@@ -90,7 +90,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const friendIds = allUsers.map((u) => u.id)
+    const friendIds = friends.map((u) => u.id)
     const { data, error } = await supabase
       .from(tableName)
       .select("*")

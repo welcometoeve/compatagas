@@ -8,16 +8,16 @@ import { usePage } from "@/contexts/PageContext"
 
 interface QuizResultsWithoutFriendsViewProps {
   friendsWhoTookQuiz: number[]
-  allUsers: UserProfile[]
+  friends: UserProfile[]
   quiz: Quiz
   quizResult: number
 }
 
 const QuizResultsWithoutFriendsView: React.FC<
   QuizResultsWithoutFriendsViewProps
-> = ({ friendsWhoTookQuiz, allUsers, quiz, quizResult }) => {
+> = ({ friendsWhoTookQuiz, friends: friends, quiz, quizResult }) => {
   const friendNames = friendsWhoTookQuiz
-    .map((f) => allUsers.find((u) => u.id === f)?.name ?? "")
+    .map((f) => friends.find((u) => u.id === f)?.name ?? "")
     .filter(Boolean)
     .join(", ")
   const verb = friendsWhoTookQuiz.length === 1 ? "has" : "have"

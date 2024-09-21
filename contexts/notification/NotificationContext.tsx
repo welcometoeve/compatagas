@@ -10,7 +10,7 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js"
 import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useUser } from "../UserContext"
 import { useEnvironment } from "../EnvironmentContext"
-import { useFriends } from "../FriendContext"
+import { useFriends } from "../FriendsContext"
 
 // Initialize Supabase client
 const supabase: SupabaseClient = createClient(SupabaseUrl, SupabaseKey)
@@ -56,7 +56,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const [notifications, setNotifications] = useState<CustomNotification[]>([])
   const { user } = useUser()
   const { isDev } = useEnvironment()
-  const { allUsers } = useFriends()
+  const { friends: friends } = useFriends()
 
   const tableName = isDev ? "_Notification_dev" : "Notification"
 
@@ -65,7 +65,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   > => {
     if (!user) return []
 
-    const friendIds = allUsers.map((f) => f.id)
+    const friendIds = friends.map((f) => f.id)
     const { data, error } = await supabase
       .from(tableName)
       .select("*")

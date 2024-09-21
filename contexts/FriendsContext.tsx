@@ -14,7 +14,7 @@ import { useEnvironment } from "./EnvironmentContext"
 import { UserProfile, useUser } from "./UserContext"
 
 type FriendsContextType = {
-  allUsers: UserProfile[]
+  friends: UserProfile[]
 }
 
 // Create Supabase client
@@ -29,7 +29,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const { isDev } = useEnvironment()
   const { user } = useUser()
-  const [allUsers, setAllUsers] = useState<UserProfile[]>([])
+  const [friends, setFriends] = useState<UserProfile[]>([])
 
   const tableName = isDev ? "_User_dev" : "User"
   const friendRelationTableName = isDev
@@ -68,13 +68,15 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
     if (error) {
       console.error("Error fetching users:", error)
     } else {
-      setAllUsers(data)
+      setFriends(data)
     }
   }
 
   useEffect(() => {
     fetchAllUsers()
   }, [user, tableName])
+
+  console.log(friends.length)
 
   useEffect(() => {
     const friendRelationSubscription = supabase
@@ -97,7 +99,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
   return (
     <UserContext.Provider
       value={{
-        allUsers,
+        friends: friends,
       }}
     >
       {children}
