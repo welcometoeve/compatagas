@@ -1,51 +1,54 @@
 import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons"
+import { Ionicons, FontAwesome } from "@expo/vector-icons"
 import NotificationDot from "@/components/results/NotificationDot"
 import { useNotification } from "@/contexts/notification/NotificationContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
-import { RectangleStackIcon as RectangleStackIconOutline } from "react-native-heroicons/outline"
-import { RectangleStackIcon as RectangleStackIconSolid } from "react-native-heroicons/solid"
+import { HomeIcon as HomeIconOutline } from "react-native-heroicons/outline"
+import { HomeIcon as HomeIconSolid } from "react-native-heroicons/solid"
 import { Page, usePage } from "@/contexts/PageContext"
 
 interface TabItem {
   name: string
-  activeIcon:
-    | keyof typeof Ionicons.glyphMap
-    | keyof typeof AntDesign.glyphMap
-    | keyof typeof FontAwesome.glyphMap
-  inactiveIcon:
-    | keyof typeof Ionicons.glyphMap
-    | keyof typeof AntDesign.glyphMap
-    | keyof typeof FontAwesome.glyphMap
   page: Page
+  icon: (props: { color: string; size: number }) => React.ReactNode
 }
 
 const tabs: TabItem[] = [
   {
     name: "Packs",
     page: "quizzes",
-    activeIcon: "document-text",
-    inactiveIcon: "document-text-outline",
+    icon: ({ color, size }) => (
+      <Ionicons
+        name={color === "#007AFF" ? "document-text" : "document-text-outline"}
+        size={size}
+        color={color}
+      />
+    ),
   },
   {
-    name: "Stack",
+    name: "Home",
     page: "questions",
-    activeIcon: "questioncircle",
-    inactiveIcon: "questioncircleo",
+    icon: ({ color, size }) =>
+      color === "#007AFF" ? (
+        <HomeIconSolid color={color} size={size} />
+      ) : (
+        <HomeIconSolid color={color} size={size} />
+      ),
   },
   {
-    name: "Results",
-    page: "results",
-    activeIcon: "folder-open",
-    inactiveIcon: "folder-open-o",
-  },
-  {
-    name: "Profile",
+    name: "You",
     page: "profile",
-    activeIcon: "person-circle-sharp",
-    inactiveIcon: "person-circle-outline",
+    icon: ({ color, size }) => (
+      <Ionicons
+        name={
+          color === "#007AFF" ? "person-circle-sharp" : "person-circle-outline"
+        }
+        size={size + 2}
+        color={color}
+      />
+    ),
   },
 ]
 
@@ -59,26 +62,17 @@ const NavBar: React.FC = () => {
     ),
     ["quizId"]
   ).length
-  const {
-    page,
-    setPage,
-    setCurQuizResultItem,
-    setActiveResultsTab,
-    setCurquizId,
-  } = usePage()
+  const { page, setPage, setCurQuizResultItem, setCurquizId } = usePage()
 
   const numTheirNotifications = notifications.filter(
     (notification) =>
       notification.friendId === user?.id && notification.friendOpened === false
   ).length
 
-  // Hard-coded lemon count
-  const lemonCount = 42
-
   return (
     <View style={[styles.container]}>
       <View style={[styles.tabContainer]}>
-        {tabs.slice(0, 2).map((tab, index) => (
+        {tabs.map((tab) => (
           <TouchableOpacity
             key={tab.name}
             style={[styles.tabItem, { flex: 1 }]}
@@ -89,73 +83,10 @@ const NavBar: React.FC = () => {
             }}
           >
             <View style={styles.iconContainer}>
-              {tab.page === "questions" ? (
-                <View style={styles.flippedIcon}>
-                  {page === tab.page ? (
-                    <RectangleStackIconSolid color={"#007AFF"} size={28} />
-                  ) : (
-                    <RectangleStackIconOutline color={"#8E8E93"} size={28} />
-                  )}
-                </View>
-              ) : (
-                <Ionicons
-                  name={
-                    (page === tab.page
-                      ? tab.activeIcon
-                      : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
-                  }
-                  size={27}
-                  color={page === tab.page ? "#007AFF" : "#8E8E93"}
-                />
-              )}
-            </View>
-            <Text
-              style={[
-                styles.tabText,
-                {
-                  color: page === tab.page ? "#007AFF" : "#8E8E93",
-                  width: 80,
-                  textAlign: "center",
-                },
-              ]}
-            >
-              {tab.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-
-        {tabs.slice(2).map((tab, index) => (
-          <TouchableOpacity
-            key={tab.name}
-            style={[styles.tabItem, { flex: 1 }]}
-            onPress={() => {
-              setPage(tab.page)
-              setCurQuizResultItem(null)
-              setCurquizId(null)
-            }}
-          >
-            <View style={styles.iconContainer}>
-              {tab.page === "results" ? (
-                <FontAwesome
-                  name={
-                    (page === tab.page
-                      ? tab.activeIcon
-                      : tab.inactiveIcon) as keyof typeof FontAwesome.glyphMap
-                  }
-                  size={26}
-                  color={page === tab.page ? "#007AFF" : "#8E8E93"}
-                />
-              ) : (
-                <Ionicons
-                  name={
-                    (page === tab.page
-                      ? tab.activeIcon
-                      : tab.inactiveIcon) as keyof typeof Ionicons.glyphMap
-                  }
-                  size={29}
-                  color={page === tab.page ? "#007AFF" : "#8E8E93"}
-                />
-              )}
+              {tab.icon({
+                color: page === tab.page ? "#007AFF" : "#8E8E93",
+                size: 28,
+              })}
               {tab.page === "results" && (
                 <View style={styles.notificationDotContainer}>
                   <NotificationDot
@@ -231,11 +162,11 @@ const styles = StyleSheet.create({
   lemonCounter: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 0, // Move the counter up to extend above the nav bar
+    marginTop: 0,
   },
   pinkCircle: {
     backgroundColor: "rgb(240, 240, 240)",
-    borderRadius: 40, // Half of the width and height to create a circle
+    borderRadius: 40,
     width: 80,
     height: 80,
     justifyContent: "center",

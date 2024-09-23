@@ -5,13 +5,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import { useFriends } from "@/contexts/FriendsContext"
-import EmojiPicker from "@/components/profile/EmojiPicker"
 import FriendListItem from "@/components/profile/FriendListItem"
 import Tooltip from "@/components/profile/CustomTooltip"
+import * as ImagePicker from "expo-image-picker"
 
 interface Friend {
   id: string
@@ -24,7 +25,7 @@ interface User {
   name: string
   lastName?: string
   phoneNumber: string
-  emoji: string
+  profilePicture: string
   lemons?: number
 }
 
@@ -33,32 +34,29 @@ const ProfilePage: React.FC = () => {
   const { friends, allUsers, addFriendRelationship, removeFriendRelationship } =
     useFriends()
 
-  const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false)
-  const [selectedEmoji, setSelectedEmoji] = useState(user?.emoji ?? "👧")
+  const [profileImage, setProfileImage] = useState<string | null>(null)
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const lemonsRef = useRef<any>(null)
+  const [activeTab, setActiveTab] = useState<"results" | "friends">("results")
 
-  const handleEditPress = () => {
-    setIsEmojiPickerVisible(true)
-  }
+  const handleEditPress = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    })
 
-  const handleSelectEmoji = (emoji: string) => {
-    setSelectedEmoji(emoji)
-  }
-
-  const handleCloseEmojiPicker = () => {
-    user &&
-      createUser(
-        user.phoneNumber,
-        user.name ?? "",
-        user.lastName ?? "",
-        selectedEmoji
-      )
-    setIsEmojiPickerVisible(false)
-  }
-
-  const toggleTooltip = () => {
-    setIsTooltipVisible(!isTooltipVisible)
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri)
+      user &&
+        createUser(
+          user.phoneNumber,
+          user.name ?? "",
+          user.lastName ?? "",
+          result.assets[0].uri
+        )
+    }
   }
 
   return (
@@ -66,8 +64,19 @@ const ProfilePage: React.FC = () => {
       <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
-          <View style={styles.emojiContainer}>
-            <Text style={styles.emoji}>{selectedEmoji}</Text>
+          <View style={styles.profileImageContainer}>
+            {profileImage ? (
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <View style={styles.placeholderImage}>
+                <Text style={styles.placeholderText}>
+                  {user?.name?.[0] ?? "U"}
+                </Text>
+              </View>
+            )}
             <TouchableOpacity
               onPress={handleEditPress}
               style={styles.editButton}
@@ -80,31 +89,55 @@ const ProfilePage: React.FC = () => {
           }`}</Text>
           <Text style={styles.phoneNumber}>{user?.phoneNumber}</Text>
         </View>
-        <View style={styles.friendsContainer}>
-          <View style={styles.friendsTitleContainer}>
-            <Text style={styles.friendsTitle}>Friends</Text>
+
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "results" && styles.activeTab]}
+            onPress={() => setActiveTab("results")}
+          >
             <Text
-              style={styles.friendsSubtitle}
-            >{`(check everyone you know)`}</Text>
-          </View>
-          {allUsers
-            .filter((u) => u.id !== user?.id)
-            .map((item) => (
-              <FriendListItem friend={item} key={item.id} />
-            ))}
+              style={[
+                styles.tabText,
+                activeTab === "results" && styles.activeTabText,
+              ]}
+            >
+              Results
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "friends" && styles.activeTab]}
+            onPress={() => setActiveTab("friends")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "friends" && styles.activeTabText,
+              ]}
+            >
+              Friends
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {activeTab === "results" ? (
+          <View style={styles.resultsContainer}>
+            <Text style={styles.resultsText}>Results list is empty</Text>
+          </View>
+        ) : (
+          <View style={styles.friendsContainer}>
+            <View style={styles.friendsTitleContainer}>
+              <Text
+                style={styles.friendsSubtitle}
+              >{`(check everyone you know)`}</Text>
+            </View>
+            {allUsers
+              .filter((u) => u.id !== user?.id)
+              .map((item) => (
+                <FriendListItem friend={item} key={item.id} />
+              ))}
+          </View>
+        )}
       </ScrollView>
-      <EmojiPicker
-        isVisible={isEmojiPickerVisible}
-        onClose={handleCloseEmojiPicker}
-        onEmojiSelected={handleSelectEmoji}
-        selectedEmoji={selectedEmoji}
-      />
-      <Tooltip
-        isVisible={isTooltipVisible}
-        content="Lemons are used to unlock who answered packs about you. You can earn lemons by answering questions in the stack."
-        targetRef={lemonsRef}
-      />
     </View>
   )
 }
@@ -122,21 +155,34 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 20,
     paddingTop: 25,
   },
-  emojiContainer: {
+  profileImageContainer: {
     position: "relative",
     marginBottom: 30,
     alignItems: "center",
   },
-  emoji: {
-    fontSize: 100,
+  profileImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+  },
+  placeholderImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "#E1E1E1",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    fontSize: 60,
+    color: "#757575",
   },
   editButton: {
-    position: "absolute",
-    bottom: -20,
     zIndex: 1,
+    paddingTop: 20,
   },
   editButtonText: {
     color: "#007AFF",
@@ -152,21 +198,30 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     color: "gray",
   },
-  lemonsButton: {
+  tabContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FF4457", // Pink color
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    // marginBottom: 20,
-    marginTop: 10,
+    justifyContent: "center",
+    marginBottom: 20,
+    width: "100%",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E1E1E1",
   },
-  lemonsText: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    marginRight: 8,
-    // fontWeight: "bold",
+  tab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginHorizontal: 10,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#007AFF",
+  },
+  tabText: {
+    fontSize: 16,
+    color: "#757575",
+  },
+  activeTabText: {
+    color: "#007AFF",
+    fontWeight: "bold",
   },
   friendsContainer: {
     width: "100%",
@@ -187,6 +242,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "gray",
     paddingTop: 12,
+    textAlign: "center",
+  },
+  resultsContainer: {
+    width: "100%",
+    paddingHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  resultsText: {
+    fontSize: 18,
+    color: "gray",
   },
 })
 

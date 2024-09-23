@@ -1,6 +1,6 @@
 import { useFriends } from "@/contexts/FriendsContext"
 import { UserProfile } from "@/contexts/UserContext"
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import {
   View,
   StyleSheet,
@@ -13,13 +13,44 @@ interface FriendListItemProps {
   friend: UserProfile
 }
 
+const niceColors = [
+  "#FFB3BA", // Light Pink
+  "#BAFFC9", // Light Green
+  "#BAE1FF", // Light Blue
+  "#FFFFBA", // Light Yellow
+  "#FFD700", // Gold
+  "#E6E6FA", // Lavender
+  "#98FB98", // Pale Green
+  "#DDA0DD", // Plum
+  "#B0E0E6", // Powder Blue
+  "#F0E68C", // Khaki
+  "#FFA07A", // Light Salmon
+  "#20B2AA", // Light Sea Green
+  "#87CEFA", // Light Sky Blue
+  "#778899", // Light Slate Gray
+  "#B0C4DE", // Light Steel Blue
+  "#FAFAD2", // Light Goldenrod Yellow
+  "#D3D3D3", // Light Gray
+  "#90EE90", // Light Green
+  "#FFB6C1", // Light Pink
+  "#FFA500", // Orange
+]
+
+const getColorForFriend = (friendId: number) => {
+  // Use the friend's ID to consistently select a color
+  const colorIndex = friendId % niceColors.length
+  return niceColors[colorIndex]
+}
+
 export default function FriendListItem({ friend }: FriendListItemProps) {
-  const { friends, allUsers, addFriendRelationship, removeFriendRelationship } =
+  const { friends, addFriendRelationship, removeFriendRelationship } =
     useFriends()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const isFriend = friends.some((f) => f.id === friend.id)
+
+  const avatarColor = useMemo(() => getColorForFriend(friend.id), [friend.id])
 
   const handleToggleFriend = () => {
     setLoading(true)
@@ -34,7 +65,11 @@ export default function FriendListItem({ friend }: FriendListItemProps) {
 
   return (
     <View key={friend.id} style={styles.friendItem}>
-      <Text style={styles.friendEmoji}>{friend.emoji}</Text>
+      <View style={[styles.avatarCircle, { backgroundColor: avatarColor }]}>
+        <Text style={styles.avatarText}>
+          {(friend.name ?? "")[0].toUpperCase()}
+        </Text>
+      </View>
       <Text style={styles.friendName}>{`${friend.name} ${
         friend.lastName ?? ""
       }`}</Text>
@@ -71,9 +106,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  friendEmoji: {
-    fontSize: 32,
+  avatarCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 10,
+  },
+  avatarText: {
+    fontSize: 20,
+    color: "#333333", // Darker text for better contrast on light backgrounds
   },
   friendName: {
     fontSize: 19,
