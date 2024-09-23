@@ -1,60 +1,23 @@
-import React from "react"
+import React, { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { Ionicons, FontAwesome } from "@expo/vector-icons"
-import NotificationDot from "@/components/results/NotificationDot"
+import { Ionicons } from "@expo/vector-icons"
 import { useNotification } from "@/contexts/notification/NotificationContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
-import { HomeIcon as HomeIconOutline } from "react-native-heroicons/outline"
 import { HomeIcon as HomeIconSolid } from "react-native-heroicons/solid"
-import { Page, usePage } from "@/contexts/PageContext"
+import { PageEnum, PageStackItem, usePage } from "@/contexts/PageContext"
 
 interface TabItem {
   name: string
-  page: Page
   icon: (props: { color: string; size: number }) => React.ReactNode
+  pageStackItem: PageStackItem
 }
-
-const tabs: TabItem[] = [
-  {
-    name: "Packs",
-    page: "quizzes",
-    icon: ({ color, size }) => (
-      <Ionicons
-        name={color === "#007AFF" ? "document-text" : "document-text-outline"}
-        size={size}
-        color={color}
-      />
-    ),
-  },
-  {
-    name: "Home",
-    page: "questions",
-    icon: ({ color, size }) =>
-      color === "#007AFF" ? (
-        <HomeIconSolid color={color} size={size} />
-      ) : (
-        <HomeIconSolid color={color} size={size} />
-      ),
-  },
-  {
-    name: "You",
-    page: "profile",
-    icon: ({ color, size }) => (
-      <Ionicons
-        name={
-          color === "#007AFF" ? "person-circle-sharp" : "person-circle-outline"
-        }
-        size={size + 2}
-        color={color}
-      />
-    ),
-  },
-]
 
 const NavBar: React.FC = () => {
   const { notifications } = useNotification()
   const { user } = useUser()
+  const { pageStack, pushPage, popPage, resetStack } = usePage()
+  const tabs = getTabs(user?.id ?? 0)
   const numYourNotifications = collect(
     notifications.filter(
       (notification) =>
@@ -62,7 +25,6 @@ const NavBar: React.FC = () => {
     ),
     ["quizId"]
   ).length
-  const { page, setPage, setCurQuizResultItem, setCurquizId } = usePage()
 
   const numTheirNotifications = notifications.filter(
     (notification) =>
@@ -77,29 +39,26 @@ const NavBar: React.FC = () => {
             key={tab.name}
             style={[styles.tabItem, { flex: 1 }]}
             onPress={() => {
-              setPage(tab.page)
-              setCurQuizResultItem(null)
-              setCurquizId(null)
+              resetStack(tab.pageStackItem)
             }}
           >
             <View style={styles.iconContainer}>
               {tab.icon({
-                color: page === tab.page ? "#007AFF" : "#8E8E93",
+                color:
+                  pageStack[0]?.type === tab.pageStackItem.type
+                    ? "#007AFF"
+                    : "#8E8E93",
                 size: 28,
               })}
-              {tab.page === "results" && (
-                <View style={styles.notificationDotContainer}>
-                  <NotificationDot
-                    count={numTheirNotifications + numYourNotifications}
-                  />
-                </View>
-              )}
             </View>
             <Text
               style={[
                 styles.tabText,
                 {
-                  color: page === tab.page ? "#007AFF" : "#8E8E93",
+                  color:
+                    pageStack[0]?.type === tab.pageStackItem.type
+                      ? "#007AFF"
+                      : "#8E8E93",
                   width: 80,
                   textAlign: "center",
                 },
@@ -186,3 +145,51 @@ const styles = StyleSheet.create({
 })
 
 export default NavBar
+
+const getTabs = (userId: number): TabItem[] => {
+  return [
+    {
+      name: "Packs",
+      icon: ({ color, size }) => (
+        <Ionicons
+          name={color === "#007AFF" ? "document-text" : "document-text-outline"}
+          size={size}
+          color={color}
+        />
+      ),
+      pageStackItem: {
+        type: "newPacks",
+      },
+    },
+    {
+      name: "Home",
+      icon: ({ color, size }) =>
+        color === "#007AFF" ? (
+          <HomeIconSolid color={color} size={size} />
+        ) : (
+          <HomeIconSolid color={color} size={size} />
+        ),
+      pageStackItem: {
+        type: "feed",
+      },
+    },
+    {
+      name: "You",
+      icon: ({ color, size }) => (
+        <Ionicons
+          name={
+            color === "#007AFF"
+              ? "person-circle-sharp"
+              : "person-circle-outline"
+          }
+          size={size + 2}
+          color={color}
+        />
+      ),
+      pageStackItem: {
+        type: "profile",
+        userId: userId ?? 0,
+      },
+    },
+  ]
+}

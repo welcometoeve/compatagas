@@ -28,7 +28,6 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
   onDismiss,
   onContinue,
 }) => {
-  const { setPage, setActiveResultsTab, setCurQuizResultItem } = usePage()
   const { user } = useUser()
   const { friends } = useFriends()
   return (
@@ -61,18 +60,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
           <TouchableOpacity style={styles.continueButton} onPress={onContinue}>
             <Text style={styles.continueButtonText}>Continue</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.viewResultsButton}
-            onPress={() => {
-              setPage("results")
-              setActiveResultsTab("their")
-              setCurQuizResultItem({
-                quiz: completedQuiz,
-                friendIds: user ? [user?.id] : [],
-                selfId: completedQuizSelfId,
-              })
-            }}
-          >
+          <TouchableOpacity style={styles.viewResultsButton} onPress={() => {}}>
             <Text style={styles.viewResultsButtonText}>View Results</Text>
             {/* <Ionicons name="chevron-forward" size={24} color="white" /> */}
           </TouchableOpacity>

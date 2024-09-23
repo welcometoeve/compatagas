@@ -68,7 +68,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     phoneNumber: number
   ): Promise<UserProfile | null> => {
     setSigningUp(true)
-
+    console.log("authenticating", tableName)
     try {
       const { data, error } = await supabase
         .from(tableName)
@@ -248,7 +248,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     initializeUser()
-  }, [])
+  }, [tableName])
 
   // Set up notification listeners
   const notificationListener = Notifications.addNotificationReceivedListener(

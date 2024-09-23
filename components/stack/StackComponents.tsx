@@ -131,7 +131,6 @@ export const CardStack: React.FC<CardStackProps> = ({
 
 export const OutOfQuestionsView: React.FC = () => {
   const { friends } = useFriends()
-  const { setPage } = usePage()
   return (
     <View style={styles.contentContainer}>
       {friends.length <= 1 ? (
@@ -146,7 +145,7 @@ export const OutOfQuestionsView: React.FC = () => {
               marginTop: 30,
               borderRadius: 12,
             }}
-            onPress={() => setPage("profile")}
+            onPress={() => undefined}
           >
             <Text
               style={{

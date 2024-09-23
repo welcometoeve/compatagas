@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
 export default IntroScreen
 
 export const useAccessGranted = () => {
-  const [accessGranted, setAccessGranted] = useState<boolean | null>(null)
+  const [accessGranted, setAccessGranted] = useState<boolean | null>(true)
 
   useEffect(() => {
     const loadAccessGranted = async () => {

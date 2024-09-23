@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useMemo } from "react"
 import {
   View,
   Text,
@@ -13,31 +13,31 @@ import { useFriends } from "@/contexts/FriendsContext"
 import FriendListItem from "@/components/profile/FriendListItem"
 import Tooltip from "@/components/profile/CustomTooltip"
 import * as ImagePicker from "expo-image-picker"
+import processQuizLists, {
+  QuizItem,
+} from "@/components/results/proccessQuizLists"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { questions, quizzes } from "@/constants/questions/questions"
+import QuizResultsView from "@/components/results/QuizResultView"
+import QuizItemComponent from "@/components/results/resultsList/QuizItemComponent"
 
-interface Friend {
-  id: string
-  name: string
-  emoji: string
-  isFriend: boolean
+interface ProfilePageProps {
+  userId: number
 }
 
-interface User {
-  name: string
-  lastName?: string
-  phoneNumber: string
-  profilePicture: string
-  lemons?: number
-}
-
-const ProfilePage: React.FC = () => {
-  const { user, createUser } = useUser()
-  const { friends, allUsers, addFriendRelationship, removeFriendRelationship } =
-    useFriends()
+const ProfilePage: React.FC<ProfilePageProps> = ({
+  userId,
+}: ProfilePageProps) => {
+  const { allUsers } = useFriends()
 
   const [profileImage, setProfileImage] = useState<string | null>(null)
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
-  const lemonsRef = useRef<any>(null)
   const [activeTab, setActiveTab] = useState<"results" | "friends">("results")
+  const { selfAnswers } = useSelfAnswers()
+  const { friendAnswers } = useFriendAnswers()
+
+  const { user, createUser } = useUser()
+  const currentUser = allUsers.find((u) => u.id === userId)
 
   const handleEditPress = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -49,15 +49,31 @@ const ProfilePage: React.FC = () => {
 
     if (!result.canceled) {
       setProfileImage(result.assets[0].uri)
-      user &&
+      currentUser &&
         createUser(
-          user.phoneNumber,
-          user.name ?? "",
-          user.lastName ?? "",
+          currentUser.phoneNumber,
+          currentUser.name ?? "",
+          currentUser.lastName ?? "",
           result.assets[0].uri
         )
     }
   }
+
+  const { yourQuizzes } = useMemo(
+    () =>
+      currentUser
+        ? processQuizLists(
+            friendAnswers,
+            selfAnswers,
+            quizzes,
+            questions,
+            currentUser?.id
+          )
+        : { yourQuizzes: [], theirQuizzes: [] },
+    [selfAnswers, friendAnswers, quizzes, currentUser]
+  )
+
+  const isThisUser = currentUser?.id == user?.id
 
   return (
     <View style={styles.container}>
@@ -65,29 +81,23 @@ const ProfilePage: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
           <View style={styles.profileImageContainer}>
-            {profileImage ? (
-              <Image
-                source={{ uri: profileImage }}
-                style={styles.profileImage}
-              />
-            ) : (
-              <View style={styles.placeholderImage}>
-                <Text style={styles.placeholderText}>
-                  {user?.name?.[0] ?? "U"}
-                </Text>
-              </View>
-            )}
+            <View style={styles.placeholderImage}>
+              <Text style={styles.placeholderText}>
+                {currentUser?.name?.[0] ?? "U"}
+              </Text>
+            </View>
+
             <TouchableOpacity
               onPress={handleEditPress}
               style={styles.editButton}
             >
-              <Text style={styles.editButtonText}>Edit</Text>
+              {isThisUser && <Text style={styles.editButtonText}>Edit</Text>}
             </TouchableOpacity>
           </View>
-          <Text style={styles.name}>{`${user?.name} ${
-            user?.lastName ?? ""
+          <Text style={styles.name}>{`${currentUser?.name} ${
+            currentUser?.lastName ?? ""
           }`}</Text>
-          <Text style={styles.phoneNumber}>{user?.phoneNumber}</Text>
+          <Text style={styles.phoneNumber}>{currentUser?.phoneNumber}</Text>
         </View>
 
         <View style={styles.tabContainer}>
@@ -101,7 +111,7 @@ const ProfilePage: React.FC = () => {
                 activeTab === "results" && styles.activeTabText,
               ]}
             >
-              Results
+              Packs
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -120,20 +130,34 @@ const ProfilePage: React.FC = () => {
         </View>
 
         {activeTab === "results" ? (
-          <View style={styles.resultsContainer}>
-            <Text style={styles.resultsText}>Results list is empty</Text>
-          </View>
+          <>
+            {yourQuizzes.length === 0 ? (
+              <View style={styles.resultsContainer}>
+                <Text style={styles.resultsText}>Results list is empty</Text>
+              </View>
+            ) : (
+              yourQuizzes.map((quiz) => (
+                <QuizItemComponent
+                  quizId={quiz.quiz.id}
+                  userId={quiz.selfId}
+                  friendIds={quiz.friendIds}
+                />
+              ))
+            )}
+          </>
         ) : (
           <View style={styles.friendsContainer}>
             <View style={styles.friendsTitleContainer}>
-              <Text
-                style={styles.friendsSubtitle}
-              >{`(check everyone you know)`}</Text>
+              {isThisUser && (
+                <Text
+                  style={styles.friendsSubtitle}
+                >{`(check everyone you know)`}</Text>
+              )}
             </View>
             {allUsers
-              .filter((u) => u.id !== user?.id)
+              .filter((u) => u.id !== currentUser?.id)
               .map((item) => (
-                <FriendListItem friend={item} key={item.id} />
+                <FriendListItem friend={item} key={item.id} userId={userId} />
               ))}
           </View>
         )}
@@ -160,17 +184,17 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     position: "relative",
-    marginBottom: 30,
+    marginBottom: 10,
     alignItems: "center",
   },
   profileImage: {
-    width: 150,
-    height: 150,
+    width: 100,
+    height: 100,
     borderRadius: 75,
   },
   placeholderImage: {
-    width: 150,
-    height: 150,
+    width: 100,
+    height: 100,
     borderRadius: 75,
     backgroundColor: "#E1E1E1",
     justifyContent: "center",

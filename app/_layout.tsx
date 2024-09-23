@@ -26,19 +26,18 @@ import {
   SelfAnswerProvider,
   useSelfAnswers,
 } from "@/contexts/SelfAnswerContext"
-import { ResultsView } from "./(tabs)/ResultsView"
 import { NotificationProvider } from "@/contexts/notification/NotificationContext"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { EnvironmentProvider } from "@/contexts/EnvironmentContext"
-import { PageProvider, usePage } from "@/contexts/PageContext"
+import { PageProvider, PageStackItem, usePage } from "@/contexts/PageContext"
 import ProfilePage from "./(tabs)/ProfilePage"
 import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
 import IntroScreen, { useAccessGranted } from "./(tabs)/IntroScreen"
+import TakeQuizView from "@/components/quizzes/takeQuizView/TakeQuizView"
 
 SplashScreen.preventAutoHideAsync()
 
 function RootLayout() {
-  const colorScheme = useColorScheme()
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   })
@@ -56,7 +55,7 @@ function RootLayout() {
     useSelfAnswers()
 
   const [errorMessage, setErrorMessage] = useState<string>("")
-  const { page } = usePage()
+  const { pageStack } = usePage()
   const { accessGranted, setAccessGranted } = useAccessGranted()
 
   useEffect(() => {
@@ -88,10 +87,6 @@ function RootLayout() {
     if (!!user && !authenticating && !signingUp) {
       requestNotificationPermission().catch((error) => {
         console.error("Error requesting notification permission:", error)
-        // Alert.alert(
-        //   "Notification Permission",
-        //   "We couldn't enable notifications. You can enable them in your device settings if you'd like to receive updates."
-        // )
       })
     }
   }, [!!user, authenticating, signingUp])
@@ -161,6 +156,7 @@ function RootLayout() {
     )
   }
 
+  const lastPage = pageStack[pageStack.length - 1] as PageStackItem | null
   return (
     <ThemeProvider value={DefaultTheme}>
       <StatusBar style={"dark"} />
@@ -170,15 +166,16 @@ function RootLayout() {
         </View>
 
         <View style={[styles.fullPageView, styles.cameraView]}>
-          {page === "questions" ? (
-            <App />
-          ) : page === "results" ? (
-            <ResultsView />
-          ) : page === "profile" ? (
-            <ProfilePage />
-          ) : (
+          {lastPage?.type === "profile" ? (
+            <ProfilePage userId={user?.id ?? 0} />
+          ) : lastPage?.type === "newPacks" ? (
             <QuizzesView />
-          )}
+          ) : lastPage?.type === "takeQuiz" ? (
+            <TakeQuizView
+              quizId={lastPage?.quizId ?? 0}
+              userId={user?.id ?? 0}
+            />
+          ) : null}
         </View>
         <DebugView
           isVisible={isDebugVisible}

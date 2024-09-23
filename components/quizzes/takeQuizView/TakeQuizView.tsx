@@ -22,6 +22,8 @@ import * as Haptics from "expo-haptics"
 import collect from "@/components/collect"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useFriends } from "@/contexts/FriendsContext"
+import { questions, quizzes } from "@/constants/questions/questions"
+import { usePage } from "@/contexts/PageContext"
 
 export type SelfAnswer = {
   id: number
@@ -32,42 +34,31 @@ export type SelfAnswer = {
 }
 
 type QuizViewProps = {
-  quiz: Quiz
-  questions: Question[]
-  goBack: () => void
+  quizId: number
+  userId: number
 }
 
-const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
+const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
   const [answers, setAnswers] = useState<Answers>({})
   const [lockedAnswers, setLockedAnswers] = useState<Set<number>>(new Set())
   const [showWarning, setShowWarning] = useState(false)
   const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
-
+  const [submitSucces, setSubmitSuccess] = useState(false)
+  const { popPage } = usePage()
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
   const { user } = useUser()
   const { friends: friends } = useFriends()
 
-  const { friendAnswers } = useFriendAnswers()
-  const { addNotification, notifications } = useNotification()
-
-  const friendsWhoTookQuiz = useMemo(() => {
-    return collect(
-      friendAnswers.filter(
-        (fa) => fa.selfId === user?.id && fa.quizId === quiz.id
-      ),
-      ["friendId"]
-    )
-      .filter((g) => g.length >= questions.length)
-      .map((g) => g[0].friendId)
-  }, [friendAnswers, user, quiz.id, questions.length])
-
+  const quiz = quizzes.find((quiz) => quiz.id === quizId)
+  const quizQuestions: Question[] = questions.filter(
+    (question) => question.quizId === quizId
+  )
   const quizResult = useMemo(() => {
     const calculateQuizResult = (selfAnswers: SelfAnswer[]) => {
       let totalScore = 0
-      questions.forEach((question) => {
+      quizQuestions.forEach((question) => {
         const selfAnswer = selfAnswers.find(
           (sa) => sa.questionId === question.id
         )
@@ -79,30 +70,29 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           totalScore += score
         }
       })
-      const averageScore = totalScore / questions.length
+      const averageScore = totalScore / quizQuestions.length
       return averageScore
     }
 
     const relevantAnswers = selfAnswers.filter(
-      (sa) => sa.quizId === quiz.id && sa.userId === user?.id
+      (sa) => sa.quizId === quiz?.id && sa.userId === user?.id
     )
 
-    return relevantAnswers.length >= questions.length
+    return relevantAnswers.length >= quizQuestions.length
       ? calculateQuizResult(relevantAnswers)
       : null
-  }, [selfAnswers, questions, quiz.id, user])
+  }, [selfAnswers, quizQuestions, quiz?.id, user])
 
   useEffect(() => {
     if (user && selfAnswers) {
       const existingAnswers: Answers = {}
       const lockedQuestions = new Set<number>()
-
-      questions.forEach((question) => {
+      quizQuestions.forEach((question) => {
         const selfAnswer = selfAnswers.find(
           (sa) =>
             sa.userId === user.id &&
             sa.questionId === question.id &&
-            sa.quizId === quiz.id
+            sa.quizId === quiz?.id
         )
         if (selfAnswer) {
           existingAnswers[question.id] = {
@@ -114,17 +104,14 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         }
         // We don't set undefined for unanswered questions anymore
       })
-
-      setAnswers(existingAnswers)
-      setLockedAnswers(lockedQuestions)
     }
-  }, [user, selfAnswers, questions, quiz.id])
+  }, [user, selfAnswers, quiz?.id]) // don't put quiz questions in here for some reason
 
   useEffect(() => {
     setAllQuestionsAnswered(
-      questions.every((question) => answers[question.id] !== undefined)
+      quizQuestions.every((question) => answers[question.id] !== undefined)
     )
-  }, [answers, questions])
+  }, [answers, quizQuestions])
 
   const handleOptionSelect = (
     questionId: number,
@@ -155,7 +142,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
       triggerHaptic()
 
       try {
-        const newSelfAnswersPromises = questions.map(async (question) => {
+        const newSelfAnswersPromises = quizQuestions.map(async (question) => {
           if (!lockedAnswers.has(question.id)) {
             const selectedOption = answers[question.id]
             if (selectedOption) {
@@ -174,25 +161,13 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
                   userId: user.id,
                   questionId: question.id,
                   optionIndex,
-                  quizId: quiz.id,
+                  quizId: quiz?.id,
                 } as SelfAnswer
               }
             }
           }
           return null
         })
-
-        const newSelfAnswers = await Promise.all(newSelfAnswersPromises)
-        const fs = await addSelfAnswerInitiatedNotification(
-          quiz.id,
-          friendAnswers,
-          user,
-          friends,
-          addNotification
-        )
-        if (fs.length > 0) {
-          triggerHaptic()
-        }
 
         setSubmitSuccess(true)
       } catch (error) {
@@ -213,7 +188,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         contentContainerStyle={{ padding: 24, paddingBottom: 20 }}
       >
         <TouchableOpacity
-          onPress={goBack}
+          onPress={popPage}
           style={{
             position: "absolute",
             top: 24,
@@ -225,16 +200,18 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
         </TouchableOpacity>
 
         <View style={{ marginBottom: 24, alignItems: "center" }}>
-          <Image
-            source={quiz.src as ImageSourcePropType}
-            style={{
-              width: 200,
-              height: 200,
-              borderRadius: 16,
-              marginBottom: 16,
-            }}
-            resizeMode="cover"
-          />
+          {quiz && (
+            <Image
+              source={quiz?.src as ImageSourcePropType}
+              style={{
+                width: 200,
+                height: 200,
+                borderRadius: 16,
+                marginBottom: 16,
+              }}
+              resizeMode="cover"
+            />
+          )}
           <Text
             style={{
               fontSize: 32,
@@ -243,7 +220,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               textAlign: "center",
             }}
           >
-            {quiz.name}
+            {quiz?.name}
           </Text>
           <Text
             style={{
@@ -253,11 +230,11 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
               marginTop: 8,
             }}
           >
-            {quiz.subtitle.secondPerson}
+            {quiz?.subtitle.secondPerson}
           </Text>
         </View>
 
-        {questions.map((question) => (
+        {quizQuestions.map((question) => (
           <QuestionView
             key={question.id}
             answers={answers}
@@ -268,11 +245,11 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           />
         ))}
 
-        {quizResult !== null && (
+        {quizResult !== null && quiz && (
           <ResultSlider
             quiz={quiz}
             quizResult={quizResult}
-            friendsWhoTookQuiz={friendsWhoTookQuiz}
+            friendsWhoTookQuiz={[]}
             friends={friends}
           />
         )}
@@ -301,7 +278,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            onPress={goBack}
+            onPress={popPage}
             style={{
               marginTop: 10,
               backgroundColor: "#E0E0E0",
@@ -336,4 +313,4 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, questions, goBack }) => {
   )
 }
 
-export default QuizView
+export default TakeQuizView

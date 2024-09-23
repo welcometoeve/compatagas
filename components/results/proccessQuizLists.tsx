@@ -56,15 +56,13 @@ export default function processQuizLists(
     (q) => q.selfId === userId
   )
 
-  const yourQuizzes = quizzesYouCompletedAboutYourself
-    .map((q) => ({
-      quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
-      friendIds: quizzesYourFriendsCompletedAboutYou
-        .filter((f) => f.quizId === q.quizId)
-        .map((f) => f.friendId),
-      selfId: q.userId,
-    }))
-    .filter((q) => q.friendIds.length > 0)
+  const yourQuizzes = quizzesYouCompletedAboutYourself.map((q) => ({
+    quiz: quizzes.find((quiz) => quiz.id === q.quizId)!,
+    friendIds: quizzesYourFriendsCompletedAboutYou
+      .filter((f) => f.quizId === q.quizId)
+      .map((f) => f.friendId),
+    selfId: q.userId,
+  }))
 
   const theirQuizzes = quizzesYouCompletedAboutYourFriends
     .map((q) => ({

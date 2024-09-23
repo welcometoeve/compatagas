@@ -1,5 +1,5 @@
 import { useFriends } from "@/contexts/FriendsContext"
-import { UserProfile } from "@/contexts/UserContext"
+import { UserProfile, useUser } from "@/contexts/UserContext"
 import React, { useState, useMemo } from "react"
 import {
   View,
@@ -11,6 +11,7 @@ import {
 
 interface FriendListItemProps {
   friend: UserProfile
+  userId: number
 }
 
 const niceColors = [
@@ -42,15 +43,20 @@ const getColorForFriend = (friendId: number) => {
   return niceColors[colorIndex]
 }
 
-export default function FriendListItem({ friend }: FriendListItemProps) {
+export default function FriendListItem({
+  friend,
+  userId,
+}: FriendListItemProps) {
   const { friends, addFriendRelationship, removeFriendRelationship } =
     useFriends()
+  const { user } = useUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const isFriend = friends.some((f) => f.id === friend.id)
 
   const avatarColor = useMemo(() => getColorForFriend(friend.id), [friend.id])
+  const isThisUser = user?.id === userId
 
   const handleToggleFriend = () => {
     setLoading(true)
@@ -62,7 +68,6 @@ export default function FriendListItem({ friend }: FriendListItemProps) {
         setLoading(false)
       })
   }
-
   return (
     <View key={friend.id} style={styles.friendItem}>
       <View style={[styles.avatarCircle, { backgroundColor: avatarColor }]}>
@@ -73,17 +78,19 @@ export default function FriendListItem({ friend }: FriendListItemProps) {
       <Text style={styles.friendName}>{`${friend.name} ${
         friend.lastName ?? ""
       }`}</Text>
-      <View style={styles.checkboxContainer}>
-        {loading ? (
-          <ActivityIndicator
-            size="small"
-            color="#007AFF"
-            style={styles.loader}
-          />
-        ) : (
-          <CustomCheckbox checked={isFriend} onPress={handleToggleFriend} />
-        )}
-      </View>
+      {isThisUser && (
+        <View style={styles.checkboxContainer}>
+          {loading ? (
+            <ActivityIndicator
+              size="small"
+              color="#007AFF"
+              style={styles.loader}
+            />
+          ) : (
+            <CustomCheckbox checked={isFriend} onPress={handleToggleFriend} />
+          )}
+        </View>
+      )}
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   )

@@ -9,52 +9,31 @@ import { ChevronRight } from "lucide-react-native"
 import { LockClosedIcon } from "react-native-heroicons/outline"
 import { User } from "@supabase/supabase-js"
 import { UserProfile, useUser } from "@/contexts/UserContext"
+import { useFriends } from "@/contexts/FriendsContext"
+import { usePage } from "@/contexts/PageContext"
+import { quizzes } from "@/constants/questions/questions"
 
 interface QuizItemComponentProps {
-  item: QuizItem
-  setQuizItem: (item: QuizItem) => void
-  activeTab: "your" | "their"
-  friends: any[] // Replace 'any' with the correct type for users
+  quizId: number
+  userId: number
+  friendIds: number[]
 }
 
 const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
-  item,
-  setQuizItem,
-  activeTab,
-  friends,
+  quizId,
+  userId,
+  friendIds,
 }) => {
   const { notifications, markAsOpened } = useNotification()
   const { user } = useUser()
-  const relevantNs = notifications.filter(
-    (n) =>
-      (activeTab === "your" &&
-        n.selfOpened === false &&
-        n.selfId === user?.id &&
-        item.friendIds.includes(n.friendId) &&
-        n.quizId === item.quiz.id) ||
-      (activeTab === "their" &&
-        n.friendOpened === false &&
-        n.friendId === user?.id &&
-        n.selfId === item.selfId &&
-        n.quizId === item.quiz.id)
-  )
+  const { friends } = useFriends()
+  const { pushPage } = usePage()
 
-  const triggerHaptic = async () => {
-    try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-    } catch (error) {
-      console.error("Failed to trigger haptic:", error)
-    }
-  }
-
+  const names = friendIds
+    .map((id) => friends.find((user) => user?.id === id)?.name)
+    .join(", ")
   const renderSubtitle = () => {
-    const prefix = activeTab === "your" ? "Taken by" : "Taken for"
-    const names =
-      activeTab === "your"
-        ? item.friendIds
-            .map((id) => friends.find((user) => user?.id === id)?.name)
-            .join(", ")
-        : friends.find((user) => user?.id === item.selfId)?.name
+    const prefix = "Taken by"
 
     return (
       <View style={styles.subtitleContainer}>
@@ -63,30 +42,24 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
     )
   }
 
+  const quiz = quizzes.find((quiz) => quiz.id === quizId)
+
   return (
     <TouchableOpacity
       style={styles.quizItem}
       onPress={async () => {
-        setQuizItem(item)
-        relevantNs.forEach((notification) =>
-          markAsOpened(notification, activeTab === "your")
-        )
-        // relevantNs.length > 0 && (await triggerHaptic())
+        pushPage({ type: "quizResult", quizId: quizId, userId: userId })
       }}
+      key={quizId}
     >
       <View style={styles.imageContainer}>
-        <Image source={item.quiz.src} style={styles.quizImage} />
-        {relevantNs.length > 0 && (
-          <View style={styles.notificationContainer}>
-            <NotificationDot count={1} showCount={false} />
-          </View>
-        )}
+        {quiz && <Image source={quiz.src} style={styles.quizImage} />}
       </View>
 
       <View style={styles.contentContainer}>
         <View style={styles.quizInfo}>
-          <Text style={styles.quizTitle}>{item.quiz.name}</Text>
-          {renderSubtitle()}
+          <Text style={styles.quizTitle}>{quiz?.name}</Text>
+          {(names?.length ?? 0) > 0 && renderSubtitle()}
         </View>
         <View style={styles.chevronContainer}>
           <ChevronRight color="#000" size={24} />

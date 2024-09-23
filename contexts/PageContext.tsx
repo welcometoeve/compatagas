@@ -1,48 +1,62 @@
 import React, { createContext, useState, useContext, ReactNode } from "react"
 import { QuizItem } from "@/components/results/proccessQuizLists"
 
-export type Page = "quizzes" | "questions" | "results" | "profile"
-
 interface PageContextType {
-  page: Page
-  setPage: (page: Page) => void
-  curquizId: number | null
-  setCurquizId: (id: number | null) => void
-  activeResultsTab: "your" | "their"
-  setActiveResultsTab: (tab: "your" | "their") => void
-  curQuizResultItem: QuizItem | null
-  setCurQuizResultItem: (item: QuizItem | null) => void
+  pushPage: (page: PageStackItem) => void
+  popPage: () => void
+  resetStack: (page: PageStackItem) => void
+  pageStack: PageStackItem[]
 }
 
+export type PageEnum =
+  | "newPacks"
+  | "feed"
+  | "profile"
+  | "takeQuiz"
+  | "quizResult"
+
 const PageContext = createContext<PageContextType | undefined>(undefined)
+
+export type PageStackItem =
+  | {
+      type: "newPacks" | "feed"
+    }
+  | {
+      type: "profile"
+      userId: number
+    }
+  | {
+      type: "takeQuiz" | "quizResult"
+      quizId: number
+      userId: number
+    }
 
 export const PageProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [page, setCurrentPage] = useState<Page>("questions")
-  const [curquizId, setCurquizId] = useState<number | null>(null)
-  const [activeResultsTab, setActiveResultsTab] = useState<"your" | "their">(
-    "your"
-  )
-  const [curQuizResultItem, setCurQuizResultItem] = useState<QuizItem | null>(
-    null
-  )
+  const [pageStack, setPageStack] = useState<PageStackItem[]>([
+    { type: "feed" },
+  ])
 
-  const setPage = (page: Page) => {
-    setCurrentPage(page)
+  const pushPage = (page: PageStackItem) => {
+    setPageStack([...pageStack, page])
+  }
+
+  const popPage = () => {
+    setPageStack(pageStack.slice(0, pageStack.length - 1))
+  }
+
+  const resetStack = (page: PageStackItem) => {
+    setPageStack([page])
   }
 
   return (
     <PageContext.Provider
       value={{
-        page,
-        setPage,
-        curquizId,
-        setCurquizId,
-        activeResultsTab,
-        setActiveResultsTab,
-        curQuizResultItem,
-        setCurQuizResultItem,
+        pushPage,
+        popPage,
+        resetStack,
+        pageStack,
       }}
     >
       {children}

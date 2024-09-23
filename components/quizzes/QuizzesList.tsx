@@ -12,6 +12,7 @@ import { Quiz } from "@/constants/questions/types"
 import { questions, quizzes } from "@/constants/questions/questions"
 import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
+import { usePage } from "@/contexts/PageContext"
 
 const { width } = Dimensions.get("window")
 const columnWidth = width / 2 - 20
@@ -45,11 +46,11 @@ const QuizItem: React.FC<QuizItemProps> = ({ item, onPress }) => {
   )
 }
 
-type QuizzesViewProps = {
-  setCurQuizId: (id: number) => void
-}
+type QuizzesViewProps = {}
 
-const QuizList: React.FC<QuizzesViewProps> = ({ setCurQuizId }) => {
+const QuizList: React.FC<QuizzesViewProps> = ({}) => {
+  const { pushPage } = usePage()
+  const { user } = useUser()
   return (
     <ScrollView
       style={styles.container}
@@ -67,7 +68,13 @@ const QuizList: React.FC<QuizzesViewProps> = ({ setCurQuizId }) => {
           <QuizItem
             key={quiz.id}
             item={quiz}
-            onPress={() => setCurQuizId(quiz.id)}
+            onPress={() =>
+              pushPage({
+                type: "takeQuiz",
+                quizId: quiz.id,
+                userId: user?.id ?? 0,
+              })
+            }
           />
         ))}
       </View>
