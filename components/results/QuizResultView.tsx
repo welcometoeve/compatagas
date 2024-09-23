@@ -54,9 +54,6 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
   const [results, setResults] = useState<Result[]>([])
 
-  const namesHidden =
-    quizType === "your" && !user?.unlockedQuizIds.includes(quiz.id)
-
   useEffect(() => {
     if (user && selfAnswers && friendAnswers) {
       const allResults: Result[] = []
@@ -184,11 +181,6 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
               style={styles.quizImage}
               resizeMode="cover"
             />
-            {namesHidden && (
-              <View style={styles.overlay}>
-                <LockClosedIcon size={48} color="#FF4457" />
-              </View>
-            )}
           </View>
           <Text style={styles.quizTitle}>{`${userName} ${quiz.name}`}</Text>
           <Text style={styles.quizSubtitle}>
@@ -203,47 +195,12 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         {quizType === "your" ? (
           <View
             style={{
-              marginBottom: (user?.numLemons ?? 0) < 3 ? 10 : 35,
+              marginBottom: 10,
               flexDirection: "column",
               width: "100%",
               alignItems: "center",
             }}
-          >
-            <TouchableOpacity
-              disabled={!namesHidden || (user?.numLemons ?? 0) < 3}
-              style={[
-                styles.revealButton,
-                {
-                  backgroundColor: !namesHidden
-                    ? "white"
-                    : (user?.numLemons ?? 0) < 3
-                    ? "rgb(150, 150, 150)"
-                    : "#FF4457",
-                },
-              ]}
-              onPress={() => unlockQuiz(quiz.id)}
-            >
-              <Text
-                style={[
-                  styles.revealButtonText,
-                  {
-                    color: !namesHidden ? "#FF4457" : "white",
-                    fontSize: namesHidden ? 16 : 20,
-                  },
-                ]}
-              >
-                {namesHidden
-                  ? `Unlock Names 🍋x${user?.numLemons ?? 0}`
-                  : "Names Unlocked 😊"}
-              </Text>
-            </TouchableOpacity>
-
-            {(user?.numLemons ?? 0) < 3 && (
-              <Text style={styles.lemonCount}>
-                {`Anwser questions in the stack to get more 🍋s.`}
-              </Text>
-            )}
-          </View>
+          ></View>
         ) : (
           <View style={{ marginBottom: 35 }} />
         )}

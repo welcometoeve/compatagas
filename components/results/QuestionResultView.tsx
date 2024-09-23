@@ -27,9 +27,6 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
   const { user } = useUser()
   const { friends } = useFriends()
 
-  const namesHidden =
-    quizType === "your" && !user?.unlockedQuizIds.includes(question.quizId)
-
   const getUsersForOption = (optionIndex: number) => {
     const names: string[] = []
 
@@ -52,10 +49,6 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
       )
 
     names.push(...friendsWhoSelected)
-
-    if (namesHidden && names.includes("You")) {
-      return names.map((name) => (name === "You" ? "You" : "???")).join(", ")
-    }
     return names.join(", ")
   }
 
@@ -112,13 +105,6 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
                   >
                     {usersWhoSelected}
                   </Text>
-                  {namesHidden && !isSelected && (
-                    <BlurView
-                      intensity={15}
-                      tint="light"
-                      style={[styles.blurView]}
-                    />
-                  )}
                 </View>
               )}
             </TouchableOpacity>
@@ -180,13 +166,6 @@ const styles = StyleSheet.create({
   },
   selectedOptionText: {
     color: "#333333",
-  },
-  blurView: {
-    position: "absolute",
-    top: -5,
-    bottom: -5,
-    left: 0,
-    right: -5,
   },
 })
 

@@ -79,17 +79,6 @@ const ProfilePage: React.FC = () => {
             user?.lastName ?? ""
           }`}</Text>
           <Text style={styles.phoneNumber}>{user?.phoneNumber}</Text>
-
-          <TouchableOpacity
-            onPress={toggleTooltip}
-            style={styles.lemonsButton}
-            ref={lemonsRef}
-          >
-            <Text
-              style={styles.lemonsText}
-            >{`You Have 🍋x${user?.numLemons}`}</Text>
-            {/* <Info size={18} color="#FFFFFF" /> */}
-          </TouchableOpacity>
         </View>
         <View style={styles.friendsContainer}>
           <View style={styles.friendsTitleContainer}>

@@ -25,9 +25,6 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
 }) => {
   const { notifications, markAsOpened } = useNotification()
   const { user } = useUser()
-  const isLocked =
-    !user?.unlockedQuizIds.find((id) => id === item.quiz.id) &&
-    activeTab === "your"
   const relevantNs = notifications.filter(
     (n) =>
       (activeTab === "your" &&
@@ -61,15 +58,7 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
 
     return (
       <View style={styles.subtitleContainer}>
-        <Text style={styles.quizSubtitle}>{prefix}</Text>
-        <View style={styles.blurContainer}>
-          <Text style={styles.quizSubtitle}>{names}</Text>
-          <BlurView
-            intensity={isLocked ? 12 : 0}
-            tint="light"
-            style={styles.absoluteFill}
-          />
-        </View>
+        <Text style={styles.quizSubtitle}>{`${prefix} ${names}`}</Text>
       </View>
     )
   }
@@ -92,12 +81,6 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
             <NotificationDot count={1} showCount={false} />
           </View>
         )}
-        {!user?.unlockedQuizIds.find((id) => id === item.quiz.id) &&
-          activeTab === "your" && (
-            <View style={styles.lockIconContainer}>
-              <LockClosedIcon color="gray" size={16} />
-            </View>
-          )}
       </View>
 
       <View style={styles.contentContainer}>
@@ -169,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   quizSubtitle: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#79818D",
   },
   chevronContainer: {
@@ -183,24 +166,9 @@ const styles = StyleSheet.create({
     top: 40,
     right: -7,
   },
-  lockIconContainer: {
-    position: "absolute",
-    bottom: -10,
-    left: -10,
-    backgroundColor: "rgba(255, 255, 255, 1)",
-    borderRadius: 12,
-    padding: 4,
-    zIndex: 1,
-  },
   subtitleContainer: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  blurContainer: {
-    flex: 1,
-    overflow: "hidden",
-    paddingLeft: 8,
-    paddingVertical: 4,
   },
   absoluteFill: {
     position: "absolute",

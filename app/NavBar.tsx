@@ -124,14 +124,6 @@ const NavBar: React.FC = () => {
           </TouchableOpacity>
         ))}
 
-        {/* Lemon Counter with Pink Circle Backing */}
-        <View style={[styles.tabItem, styles.lemonCounter, { flex: 1 }]}>
-          <View style={styles.pinkCircle}>
-            <Text style={styles.lemonEmoji}>🍋</Text>
-            <Text style={styles.lemonCount}>x{user?.numLemons}</Text>
-          </View>
-        </View>
-
         {tabs.slice(2).map((tab, index) => (
           <TouchableOpacity
             key={tab.name}

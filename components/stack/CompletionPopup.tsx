@@ -77,8 +77,6 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
             {/* <Ionicons name="chevron-forward" size={24} color="white" /> */}
           </TouchableOpacity>
         </View>
-        {/* Add this new text */}
-        <Text style={styles.earnedText}>You've earned one 🍋</Text>
       </Animated.View>
     </View>
   )

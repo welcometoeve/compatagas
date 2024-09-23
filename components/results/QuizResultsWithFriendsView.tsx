@@ -33,8 +33,6 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
     : null
 
   const { user } = useUser()
-  const namesHidden =
-    quizType === "your" && !user?.unlockedQuizIds.includes(quiz.id)
 
   // Group results by their value
   const groupedResults = results.reduce((acc, result) => {
@@ -76,13 +74,6 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
             const position = ((parseFloat(value) + 1) / 2) * 100
             let names = groupResults.map((r) => r.name).join(", ")
 
-            if (namesHidden && groupResults.some((r) => r.isSelf)) {
-              names = names
-                .split(", ")
-                .map((name) => (name === "You" ? "You" : "???"))
-                .join(", ")
-            }
-
             // Sort the results to put self results first
             const sortedResults = groupResults.sort(
               (a, b) => (b.isSelf ? 1 : 0) - (a.isSelf ? 1 : 0)
@@ -122,13 +113,6 @@ const QuizResultsWithFriendsView: React.FC<QuizResultsWithFriendsViewProps> = ({
                   ]}
                 >
                   <Text style={styles.resultName}>{names}</Text>
-                  {!groupResults.find((r) => r.isSelf) && namesHidden && (
-                    <BlurView
-                      tint="extraLight"
-                      intensity={15}
-                      style={[styles.blurView, { width: longestLength * 8 }]}
-                    />
-                  )}
                 </View>
               </React.Fragment>
             )
@@ -239,14 +223,6 @@ const styles = StyleSheet.create({
     color: "#333333",
     fontSize: 12,
     textAlign: "left",
-  },
-  blurView: {
-    position: "absolute",
-    top: 0,
-    left: 31,
-    right: 0,
-    bottom: 0,
-    height: 40,
   },
   dotText: {
     color: "#FFFFFF",

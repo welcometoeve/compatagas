@@ -199,7 +199,6 @@ export default function App() {
           await triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy)
           setCompletedQuizFriendId(result.friendId)
           setCompletedQuizId(result.quizId)
-          addLemon()
         } else {
           await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
         }
