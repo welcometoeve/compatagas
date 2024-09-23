@@ -1,6 +1,9 @@
 import React from "react"
 import { Question, Side } from "@/constants/questions/types"
 import { TouchableOpacity, View, Text } from "react-native"
+import { useUser } from "@/contexts/UserContext"
+import { useFriends } from "@/contexts/FriendsContext"
+import { insertName } from "@/constants/questions/questions"
 
 export type Answers = {
   [key: number]: { secondPersonLabel: string; side: Side }
@@ -15,6 +18,7 @@ type QuestionViewProps = {
     option: { secondPersonLabel: string; side: Side }
   ) => void
   index: number
+  selfId: number
 }
 
 export default function QuestionView({
@@ -23,7 +27,12 @@ export default function QuestionView({
   lockedAnswers,
   handleOptionSelect,
   index,
+  selfId,
 }: QuestionViewProps) {
+  const { allUsers } = useFriends()
+  const { user } = useUser()
+  const isForYou = selfId === user?.id
+  const personName = allUsers.find((u) => u.id === selfId)?.name || "Friend"
   return (
     <View
       key={question.id}
@@ -38,7 +47,9 @@ export default function QuestionView({
           color: "#000000",
         }}
       >
-        {question.label.secondPerson}
+        {isForYou
+          ? question.label.secondPerson
+          : insertName(question.label.thirdPerson, personName)}
       </Text>
       <View>
         {question.options.map((option, optionIndex) => {
@@ -82,7 +93,14 @@ export default function QuestionView({
               <Text
                 style={{ color: isSelected && !isLocked ? "white" : "black" }}
               >
-                {`${option.emoji} ${option.label.secondPerson}`}
+                {`${option.emoji} ${
+                  isForYou
+                    ? option.label.secondPerson
+                    : insertName(
+                        option.label.thirdPerson,
+                        allUsers.find((u) => u.id === selfId)?.name || "Unknown"
+                      )
+                }`}
               </Text>
             </TouchableOpacity>
           )

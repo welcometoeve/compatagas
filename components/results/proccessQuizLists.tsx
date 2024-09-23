@@ -78,3 +78,55 @@ export default function processQuizLists(
 
   return { yourQuizzes, theirQuizzes }
 }
+
+export function getFeedQuizzes(
+  friendAnswers: FriendAnswer[],
+  selfAnswers: SelfAnswer[],
+  quizzes: Quiz[],
+  questions: Question[],
+  userId: number,
+  friendIds: number[] // your friends
+): { quizId: number; selfId: number; friendIds: number[] }[] {
+  const selfQuizzes = collect(selfAnswers, ["quizId", "userId"]).map(
+    (answers) => ({
+      quizId: answers[0].quizId,
+      userId: answers[0].userId,
+      numAnswers: answers.length,
+    })
+  )
+
+  const friendQuizzes = collect(friendAnswers, [
+    "quizId",
+    "selfId",
+    "friendId",
+  ]).map((answers) => ({
+    quizId: answers[0]?.quizId,
+    selfId: answers[0]?.selfId,
+    friendId: answers[0]?.friendId,
+    numAnswers: answers.length,
+  }))
+
+  const completedSelfQuizzes = selfQuizzes.filter(
+    (q1) =>
+      q1.numAnswers >= questions.filter((q2) => q1.quizId === q2.quizId).length
+  )
+  const completedFriendQuizzes = friendQuizzes.filter(
+    (q1) =>
+      q1.numAnswers >= questions.filter((q2) => q1.quizId === q2.quizId).length
+  )
+
+  const quizzesYourFriendsCompletedAboutThemselves =
+    completedSelfQuizzes.filter((q) => q.userId !== userId)
+
+  const quizzesWithFriendsWhoHaveCompletedThem =
+    quizzesYourFriendsCompletedAboutThemselves
+      .map((q) => {
+        const friendIds = completedFriendQuizzes
+          .filter((q2) => q2.quizId === q.quizId && q2.selfId === q.userId)
+          .map((q2) => q2.friendId)
+        return { quizId: q.quizId, selfId: q.userId, friendIds }
+      })
+      .filter((q) => !q.friendIds.includes(userId))
+
+  return quizzesWithFriendsWhoHaveCompletedThem
+}

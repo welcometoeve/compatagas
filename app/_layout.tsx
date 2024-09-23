@@ -35,6 +35,7 @@ import IntroScreen, { useAccessGranted } from "./(tabs)/IntroScreen"
 import TakeQuizView from "@/components/quizzes/takeQuizView/TakeQuizView"
 import QuizResultsView from "@/components/results/QuizResultView"
 import QuizResultView from "@/components/results/QuizResultView"
+import QuizFeed from "./(tabs)/Feed"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -173,7 +174,7 @@ function RootLayout() {
           ) : lastPage?.type === "takeQuiz" ? (
             <TakeQuizView
               quizId={lastPage?.quizId ?? 0}
-              userId={user?.id ?? 0}
+              userId={lastPage.userId}
             />
           ) : lastPage?.type === "quizResult" ? (
             <QuizResultView
@@ -181,6 +182,8 @@ function RootLayout() {
               selfId={lastPage?.userId ?? 0}
               friendIds={lastPage?.friendIds ?? []}
             />
+          ) : lastPage?.type === "feed" ? (
+            <QuizFeed />
           ) : null}
         </View>
         <DebugView

@@ -4,28 +4,34 @@ import { ChevronRight } from "lucide-react"
 import { LinearGradient } from "expo-linear-gradient"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import { Quiz } from "@/constants/questions/types"
+import { useFriends } from "@/contexts/FriendsContext"
 
 interface QuizResultsWithoutFriendsViewProps {
   friendsWhoTookQuiz: number[]
   quiz: Quiz
   quizResult: number
+  selfId: number
 }
 
 const QuizResultsWithoutFriendsView: React.FC<
   QuizResultsWithoutFriendsViewProps
-> = ({ friendsWhoTookQuiz, quiz, quizResult }) => {
+> = ({ friendsWhoTookQuiz, quiz, quizResult, selfId }) => {
   const verb = friendsWhoTookQuiz.length === 1 ? "has" : "have"
   const { user } = useUser()
+  const { allUsers } = useFriends()
 
   const sliderPosition = mapRange(quizResult, -1, 1, 0, 100)
   const resultLabel = quiz.resultLabels
     ? quiz.resultLabels[getResultLabel(quizResult)]
     : null
 
+  const self = allUsers.find((user) => user.id === selfId)
   return (
     <View style={styles.container}>
       <View style={styles.resultContainer}>
-        <Text style={styles.title}>You Are:</Text>
+        <Text style={styles.title}>
+          {self?.id === user?.id ? "You Are:" : `${self?.name} is:`}
+        </Text>
         <Text style={styles.subtitle}>
           {`${resultLabel?.label} ${resultLabel?.emoji}`}
         </Text>
@@ -44,9 +50,11 @@ const QuizResultsWithoutFriendsView: React.FC<
           <View style={[styles.sliderThumb, { left: `${sliderPosition}%` }]} />
         </View>
       </View>
-      <Text style={[styles.friendsText, { color: "gray" }]}>
-        Wait for your friends to take the quiz to compare results
-      </Text>
+      {selfId === user?.id && (
+        <Text style={[styles.friendsText, { color: "gray" }]}>
+          Wait for your friends to take the quiz to compare results
+        </Text>
+      )}
     </View>
   )
 }
@@ -104,7 +112,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "#333333",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
   },
   sliderContainer: {

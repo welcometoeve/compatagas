@@ -16,13 +16,13 @@ import { CustomAlert } from "./CustomAlert"
 import QuestionView, { Answers } from "./QuestionView"
 import ResultSlider from "./QuizResultsWithoutFriendsView"
 import { addSelfAnswerInitiatedNotification } from "@/contexts/notification/addNotification"
-import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/notification/NotificationContext"
 import * as Haptics from "expo-haptics"
 import collect from "@/components/collect"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useFriends } from "@/contexts/FriendsContext"
-import { questions, quizzes } from "@/constants/questions/questions"
+import { insertName, questions, quizzes } from "@/constants/questions/questions"
 import { usePage } from "@/contexts/PageContext"
 
 export type SelfAnswer = {
@@ -49,14 +49,18 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
   const { popPage } = usePage()
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
   const { user } = useUser()
-  const { getFriends } = useFriends()
-
+  const { allUsers } = useFriends()
+  const { addFriendAnswer, friendAnswers } = useFriendAnswers()
+  const isForYou = userId === user?.id
+  const personName = allUsers.find((u) => u.id === userId)?.name || "Friend"
   const quiz = quizzes.find((quiz) => quiz.id === quizId)
   const quizQuestions: Question[] = questions.filter(
     (question) => question.quizId === quizId
   )
   const quizResult = useMemo(() => {
-    const calculateQuizResult = (selfAnswers: SelfAnswer[]) => {
+    const calculateQuizResult = (
+      selfAnswers: (SelfAnswer | FriendAnswer)[]
+    ) => {
       let totalScore = 0
       quizQuestions.forEach((question) => {
         const selfAnswer = selfAnswers.find(
@@ -74,14 +78,20 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
       return averageScore
     }
 
-    const relevantAnswers = selfAnswers.filter(
-      (sa) => sa.quizId === quiz?.id && sa.userId === user?.id
-    )
-
+    const relevantAnswers = isForYou
+      ? selfAnswers.filter(
+          (sa) => sa.quizId === quiz?.id && sa.userId === user?.id
+        )
+      : friendAnswers.filter(
+          (fa) =>
+            fa.quizId === quiz?.id &&
+            fa.friendId === user?.id &&
+            fa.selfId === userId
+        )
     return relevantAnswers.length >= quizQuestions.length
       ? calculateQuizResult(relevantAnswers)
       : null
-  }, [selfAnswers, quizQuestions, quiz?.id, user])
+  }, [selfAnswers, quizQuestions, quiz?.id, user, friendAnswers])
 
   useEffect(() => {
     if (user && selfAnswers) {
@@ -151,7 +161,8 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
                   opt.label.secondPerson === selectedOption.secondPersonLabel &&
                   opt.side === selectedOption.side
               )
-              const newSelfAnswerId = await addSelfAnswer(
+              const newSelfAnswerId = await addFriendAnswer(
+                userId,
                 question.id,
                 optionIndex
               )
@@ -230,7 +241,9 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
               marginTop: 8,
             }}
           >
-            {quiz?.subtitle.secondPerson}
+            {isForYou
+              ? quiz?.subtitle.secondPerson
+              : insertName(quiz?.subtitle.thirdPerson ?? "", personName)}
           </Text>
         </View>
 
@@ -242,6 +255,7 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
             handleOptionSelect={handleOptionSelect}
             question={question}
             index={question.id}
+            selfId={userId}
           />
         ))}
 
@@ -250,6 +264,7 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
             quiz={quiz}
             quizResult={quizResult}
             friendsWhoTookQuiz={[]}
+            selfId={userId}
           />
         )}
 

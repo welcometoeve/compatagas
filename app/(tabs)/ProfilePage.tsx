@@ -39,10 +39,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const { friendAnswers } = useFriendAnswers()
   const { popPage, pageStack } = usePage()
 
-  useEffect(() => {
-    setActiveTab("results")
-  }, [userId])
-
   const { user, createUser } = useUser()
   const currentUser = allUsers.find((u) => u.id === userId)
   const handleEditPress = async () => {
@@ -81,13 +77,21 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
   const isThisUser = currentUser?.id == user?.id
 
+  const friendCount = allUsers.filter((u) => u.id !== currentUser?.id).length
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="auto" />
 
       <View style={{ zIndex: 1 }}>
         {pageStack.length > 1 && (
-          <TouchableOpacity onPress={popPage} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => {
+              setActiveTab("friends")
+              popPage()
+            }}
+            style={styles.backButton}
+          >
             <ChevronLeft size={32} color="#000000" />
           </TouchableOpacity>
         )}
@@ -126,7 +130,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 activeTab === "results" && styles.activeTabText,
               ]}
             >
-              Packs
+              Packs ({yourQuizzes.length})
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -139,7 +143,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 activeTab === "friends" && styles.activeTabText,
               ]}
             >
-              Friends
+              Friends ({friendCount})
             </Text>
           </TouchableOpacity>
         </View>
@@ -174,7 +178,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
             {allUsers
               .filter((u) => u.id !== currentUser?.id)
               .map((item) => (
-                <FriendListItem friend={item} key={item.id} userId={userId} />
+                <FriendListItem
+                  friend={item}
+                  key={item.id}
+                  userId={userId}
+                  setActiveTab={setActiveTab}
+                />
               ))}
           </View>
         )}

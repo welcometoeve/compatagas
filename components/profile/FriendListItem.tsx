@@ -13,6 +13,7 @@ import {
 interface FriendListItemProps {
   friend: UserProfile
   userId: number
+  setActiveTab: (tab: "results" | "friends") => void
 }
 
 const niceColors = [
@@ -46,6 +47,7 @@ const getColorForFriend = (friendId: number) => {
 export default function FriendListItem({
   friend,
   userId,
+  setActiveTab,
 }: FriendListItemProps) {
   const { addFriendRelationship, removeFriendRelationship } = useFriends()
   const { user } = useUser()
@@ -77,6 +79,7 @@ export default function FriendListItem({
         style={styles.friendContent}
         onPress={() => {
           pushPage({ type: "profile", userId: friend.id })
+          setActiveTab("results")
         }}
       >
         <View style={[styles.avatarCircle, { backgroundColor: avatarColor }]}>

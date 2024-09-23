@@ -164,13 +164,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     textAlign: "center",
   },
-  subtitle: {
-    color: "#333333",
-    fontSize: 24,
-    marginBottom: 35,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
   labelContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -179,7 +172,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "#333333",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
   },
   sliderContainer: {
