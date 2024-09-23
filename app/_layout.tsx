@@ -34,6 +34,8 @@ import ProfilePage from "./(tabs)/ProfilePage"
 import { FriendsProvider, useFriends } from "@/contexts/FriendsContext"
 import IntroScreen, { useAccessGranted } from "./(tabs)/IntroScreen"
 import TakeQuizView from "@/components/quizzes/takeQuizView/TakeQuizView"
+import QuizResultsView from "@/components/results/QuizResultView"
+import QuizResultView from "@/components/results/QuizResultView"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -174,6 +176,12 @@ function RootLayout() {
             <TakeQuizView
               quizId={lastPage?.quizId ?? 0}
               userId={user?.id ?? 0}
+            />
+          ) : lastPage?.type === "quizResult" ? (
+            <QuizResultView
+              quizId={lastPage?.quizId ?? 0}
+              selfId={user?.id ?? 0}
+              friendIds={lastPage?.friendIds ?? []}
             />
           ) : null}
         </View>

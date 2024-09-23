@@ -19,15 +19,13 @@ import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import QuestionResultView from "./QuestionResultView"
 import collect from "../collect"
 import QuizResultsWithFriendsView from "./QuizResultsWithFriendsView"
-import { insertName } from "@/constants/questions/questions"
+import { insertName, questions, quizzes } from "@/constants/questions/questions"
 import { useFriends } from "@/contexts/FriendsContext"
+import { usePage } from "@/contexts/PageContext"
 
 type QuizResultsViewProps = {
-  quiz: Quiz
-  questions: Question[]
-  goBack: () => void
+  quizId: number
   friendIds: number[]
-  quizType: "your" | "their"
   selfId: number
 }
 
@@ -40,28 +38,26 @@ type Result = {
 }
 
 const QuizResultsView: React.FC<QuizResultsViewProps> = ({
-  quiz,
-  questions,
-  goBack,
+  quizId,
   friendIds,
-  quizType,
   selfId,
 }) => {
   const { user, unlockQuiz, addLemon } = useUser()
   const { friends } = useFriends()
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
+  const { popPage } = usePage()
 
   const [results, setResults] = useState<Result[]>([])
 
+  const quiz = quizzes.find((q) => q.id === quizId)
+
   useEffect(() => {
-    if (user && selfAnswers && friendAnswers) {
+    if (user && selfAnswers && friendAnswers && quiz) {
       const allResults: Result[] = []
 
       const selfResult = calculateQuizResult(
-        selfAnswers.filter(
-          (sa) => sa.userId === selfId && sa.quizId === quiz.id
-        )
+        selfAnswers.filter((sa) => sa.userId === selfId && sa.quizId === quizId)
       )
 
       allResults.push({
@@ -77,7 +73,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
       friendIds.forEach((friendId) => {
         const friendResult = calculateQuizResult(
           friendAnswers.filter(
-            (fa) => fa.friendId === friendId && fa.quizId === quiz.id
+            (fa) => fa.friendId === friendId && fa.quizId === quizId
           )
         )
         const friendName =
@@ -92,11 +88,12 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
       setResults(allResults)
     }
-  }, [user, selfAnswers, friendAnswers, questions, quiz.id, friendIds, friends])
+  }, [user, selfAnswers, friendAnswers, quizId, friendIds, friends, quiz])
 
+  const quizQuestions = questions.filter((q) => q.quizId === quizId)
   const calculateQuizResult = (answers: (SelfAnswer | FriendAnswer)[]) => {
     let totalScore = 0
-    questions.forEach((question) => {
+    quizQuestions.forEach((question) => {
       const answer = answers.find((a) => a.questionId === question.id)
       if (answer) {
         const optionIndex = answer.optionIndex
@@ -105,17 +102,17 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         totalScore += score
       }
     })
-    const averageScore = totalScore / questions.length
+    const averageScore = totalScore / quizQuestions.length
     return averageScore
   }
 
   const correctnessScores = useMemo(() => {
     const relevantSelfAnswers = selfAnswers.filter(
-      (sa) => sa.quizId === quiz.id && sa.userId === selfId
+      (sa) => sa.quizId === quizId && sa.userId === selfId
     )
     const relevantFriendAnswers = collect(
       friendAnswers.filter(
-        (fa) => fa.quizId === quiz.id && fa.selfId === selfId
+        (fa) => fa.quizId === quizId && fa.selfId === selfId
       ),
       ["friendId"]
     )
@@ -132,7 +129,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
       return { score: score / g.length, friendId: g[0].friendId }
     })
-  }, [selfAnswers, friendAnswers, quiz.id, selfId])
+  }, [selfAnswers, friendAnswers, quizId, selfId])
 
   const resultsWithCorrectness = results.map((result) => {
     const correctnessScore = correctnessScores.find(
@@ -147,22 +144,27 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   })
 
   const quizSelfAnswers =
-    quizType == "your"
+    selfId === user?.id
       ? selfAnswers.filter(
-          (sa) => sa.userId === selfId && sa.quizId === quiz.id
+          (sa) => sa.userId === selfId && sa.quizId === quiz?.id
         )
       : selfAnswers.filter(
-          (sa) => sa.quizId === quiz.id && selfId === sa.userId
+          (sa) => sa.quizId === quiz?.id && selfId === sa.userId
         )
+
   const userName =
     selfId === user?.id
       ? "Your"
       : `${friends.find((u) => u.id === selfId)?.name}'s` || "Friend"
 
   const quizFriendAnswers = collect(
-    friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quiz.id),
+    friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quizId),
     ["questionId"]
   )
+
+  if (!quiz) {
+    return <Text>Quiz not found</Text>
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -170,7 +172,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
       >
-        <TouchableOpacity onPress={goBack} style={styles.backButton}>
+        <TouchableOpacity onPress={popPage} style={styles.backButton}>
           <ChevronLeft size={32} color="#000000" />
         </TouchableOpacity>
 
@@ -184,7 +186,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           </View>
           <Text style={styles.quizTitle}>{`${userName} ${quiz.name}`}</Text>
           <Text style={styles.quizSubtitle}>
-            {quizType === "your"
+            {selfId === user?.id
               ? quiz.subtitle.secondPerson
               : insertName(
                   quiz.subtitle.thirdPerson,
@@ -192,7 +194,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
                 )}
           </Text>
         </View>
-        {quizType === "your" ? (
+        {selfId === user?.id ? (
           <View
             style={{
               marginBottom: 10,
@@ -209,13 +211,13 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           quiz={quiz}
           results={resultsWithCorrectness}
           quizResult={resultsWithCorrectness.find((r) => r.isSelf)?.value || 0}
-          quizType={quizType}
+          quizType={selfId === user?.id ? "your" : "their"}
         />
         <View style={{ marginBottom: 20 }} />
 
-        {questions.map((question) => (
+        {quizQuestions.map((question) => (
           <QuestionResultView
-            quizType={quizType}
+            quizType={selfId === user?.id ? "your" : "their"}
             key={question.id}
             question={question}
             selfAnswer={
@@ -225,11 +227,11 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
               quizFriendAnswers.find((q) => q[0]?.questionId === question.id) ||
               []
             }
-            lockedAnswers={new Set(questions.map((q) => q.id))}
+            lockedAnswers={new Set(quizQuestions.map((q) => q.id))}
           />
         ))}
 
-        <TouchableOpacity onPress={goBack} style={styles.backToQuizzesButton}>
+        <TouchableOpacity onPress={popPage} style={styles.backToQuizzesButton}>
           <ChevronLeft
             size={20}
             color="#000000"

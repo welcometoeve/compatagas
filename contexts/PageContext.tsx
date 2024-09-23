@@ -26,9 +26,15 @@ export type PageStackItem =
       userId: number
     }
   | {
-      type: "takeQuiz" | "quizResult"
+      type: "takeQuiz"
       quizId: number
       userId: number
+    }
+  | {
+      type: "quizResult"
+      quizId: number
+      userId: number
+      friendIds: number[]
     }
 
 export const PageProvider: React.FC<{ children: ReactNode }> = ({

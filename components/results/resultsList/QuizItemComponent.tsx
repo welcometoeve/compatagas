@@ -48,9 +48,8 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
     <TouchableOpacity
       style={styles.quizItem}
       onPress={async () => {
-        pushPage({ type: "quizResult", quizId: quizId, userId: userId })
+        pushPage({ type: "quizResult", quizId, userId, friendIds })
       }}
-      key={quizId}
     >
       <View style={styles.imageContainer}>
         {quiz && <Image source={quiz.src} style={styles.quizImage} />}

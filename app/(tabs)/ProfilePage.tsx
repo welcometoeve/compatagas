@@ -141,6 +141,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                   quizId={quiz.quiz.id}
                   userId={quiz.selfId}
                   friendIds={quiz.friendIds}
+                  key={quiz.quiz.id}
                 />
               ))
             )}
