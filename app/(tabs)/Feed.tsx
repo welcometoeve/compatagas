@@ -121,6 +121,17 @@ const QuizFeed: React.FC = () => {
     friends.map((f) => f.id)
   )
 
+  if (feedQuizzes.length === 0) {
+    return (
+      <SafeAreaView style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>
+          No packs to take for your friends now. Add more friends or wait for
+          your friends to fill out more packs.
+        </Text>
+      </SafeAreaView>
+    )
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <FlatList
@@ -192,6 +203,17 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#666",
   },
 })
 
