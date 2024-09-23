@@ -20,10 +20,10 @@ import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { questions, quizzes } from "@/constants/questions/questions"
 import QuizResultsView from "@/components/results/QuizResultView"
-import QuizItemComponent from "@/components/results/resultsList/QuizItemComponent"
 import { ChevronLeft } from "lucide-react-native"
 import { usePage } from "@/contexts/PageContext"
 import { SafeAreaView } from "react-native-safe-area-context"
+import QuizItemComponent from "@/components/results/QuizListItemComponent"
 
 interface ProfilePageProps {
   userId: number
@@ -157,6 +157,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                   userId={quiz.selfId}
                   friendIds={quiz.friendIds}
                   key={quiz.quiz.id}
+                  isLast={quiz === yourQuizzes[yourQuizzes.length - 1]}
                 />
               ))
             )}

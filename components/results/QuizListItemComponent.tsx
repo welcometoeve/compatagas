@@ -1,10 +1,10 @@
 import React from "react"
 import { useNotification } from "@/contexts/notification/NotificationContext"
-import { QuizItem } from "../proccessQuizLists"
+import { QuizItem } from "./proccessQuizLists"
 import * as Haptics from "expo-haptics"
 import { TouchableOpacity, View, Image, Text, StyleSheet } from "react-native"
 import { BlurView } from "expo-blur"
-import NotificationDot from "../NotificationDot"
+import NotificationDot from "./NotificationDot"
 import { ChevronRight } from "lucide-react-native"
 import { LockClosedIcon } from "react-native-heroicons/outline"
 import { User } from "@supabase/supabase-js"
@@ -17,12 +17,14 @@ interface QuizItemComponentProps {
   quizId: number
   userId: number
   friendIds: number[]
+  isLast: boolean
 }
 
 const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
   quizId,
   userId,
   friendIds,
+  isLast,
 }) => {
   const { notifications, markAsOpened } = useNotification()
   const { user } = useUser()
@@ -56,7 +58,9 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
         {quiz && <Image source={quiz.src} style={styles.quizImage} />}
       </View>
 
-      <View style={styles.contentContainer}>
+      <View
+        style={[styles.contentContainer, { borderBottomWidth: isLast ? 0 : 1 }]}
+      >
         <View style={styles.quizInfo}>
           <Text style={styles.quizTitle}>{quiz?.name}</Text>
           {(names?.length ?? 0) > 0 && renderSubtitle()}
