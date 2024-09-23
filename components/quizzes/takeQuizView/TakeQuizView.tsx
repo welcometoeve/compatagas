@@ -49,7 +49,7 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
   const { popPage } = usePage()
   const { addSelfAnswer, selfAnswers } = useSelfAnswers()
   const { user } = useUser()
-  const { friends: friends } = useFriends()
+  const { getFriends } = useFriends()
 
   const quiz = quizzes.find((quiz) => quiz.id === quizId)
   const quizQuestions: Question[] = questions.filter(
@@ -250,7 +250,6 @@ const TakeQuizView: React.FC<QuizViewProps> = ({ quizId, userId }) => {
             quiz={quiz}
             quizResult={quizResult}
             friendsWhoTookQuiz={[]}
-            friends={friends}
           />
         )}
 

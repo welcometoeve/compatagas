@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from "react"
+import React, { useState, useRef, useMemo, useEffect } from "react"
 import {
   View,
   Text,
@@ -21,6 +21,9 @@ import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { questions, quizzes } from "@/constants/questions/questions"
 import QuizResultsView from "@/components/results/QuizResultView"
 import QuizItemComponent from "@/components/results/resultsList/QuizItemComponent"
+import { ChevronLeft } from "lucide-react-native"
+import { usePage } from "@/contexts/PageContext"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 interface ProfilePageProps {
   userId: number
@@ -30,15 +33,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   userId,
 }: ProfilePageProps) => {
   const { allUsers } = useFriends()
-
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"results" | "friends">("results")
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
+  const { popPage, pageStack } = usePage()
+
+  useEffect(() => {
+    setActiveTab("results")
+  }, [userId])
 
   const { user, createUser } = useUser()
   const currentUser = allUsers.find((u) => u.id === userId)
-
   const handleEditPress = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -76,8 +82,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const isThisUser = currentUser?.id == user?.id
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar style="auto" />
+
+      <View style={{ zIndex: 1 }}>
+        {pageStack.length > 1 && (
+          <TouchableOpacity onPress={popPage} style={styles.backButton}>
+            <ChevronLeft size={32} color="#000000" />
+          </TouchableOpacity>
+        )}
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
           <View style={styles.profileImageContainer}>
@@ -97,7 +112,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           <Text style={styles.name}>{`${currentUser?.name} ${
             currentUser?.lastName ?? ""
           }`}</Text>
-          <Text style={styles.phoneNumber}>{currentUser?.phoneNumber}</Text>
+          {/* <Text style={styles.phoneNumber}>{currentUser?.phoneNumber}</Text> */}
         </View>
 
         <View style={styles.tabContainer}>
@@ -163,7 +178,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           </View>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -171,11 +186,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 20,
+  },
+  headerContainer: {
+    height: 44,
+    justifyContent: "center",
+  },
+  backButton: {
+    position: "absolute",
+    left: 16,
+    padding: 10,
+    top: 20,
   },
   scrollViewContent: {
     alignItems: "center",
-    paddingTop: 20,
     paddingBottom: 40,
   },
   header: {

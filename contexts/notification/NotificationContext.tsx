@@ -56,7 +56,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const [notifications, setNotifications] = useState<CustomNotification[]>([])
   const { user } = useUser()
   const { isDev } = useEnvironment()
-  const { friends: friends } = useFriends()
 
   const tableName = isDev ? "_Notification_dev" : "Notification"
 
@@ -65,13 +64,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   > => {
     if (!user) return []
 
-    const friendIds = friends.map((f) => f.id)
     const { data, error } = await supabase
       .from(tableName)
       .select("*")
-      .or(
-        `and(selfId.eq.${user.id},friendId.in.(${friendIds})),and(friendId.eq.${user.id},selfId.in.(${friendIds}))`
-      )
       .order("createdAt", { ascending: false })
 
     if (error) {

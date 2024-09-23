@@ -10,18 +10,29 @@ import { SupabaseKey, SupabaseUrl } from "@/constants/constants"
 import { useEnvironment } from "./EnvironmentContext"
 import { UserProfile, useUser } from "./UserContext"
 
+type FriendRelation = {
+  userId1: number
+  userId2: number
+}
+
 type FriendsContextType = {
-  friends: UserProfile[]
   allUsers: UserProfile[]
-  addFriendRelationship: (friendId: number) => Promise<void | any>
-  removeFriendRelationship: (friendId: number) => Promise<void | any>
+  getFriends: (userId: number) => UserProfile[]
+  addFriendRelationship: (
+    userId1: number,
+    userId2: number
+  ) => Promise<void | any>
+  removeFriendRelationship: (
+    userId1: number,
+    userId2: number
+  ) => Promise<void | any>
 }
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
 
 // Create context
-const UserContext = createContext<FriendsContextType | undefined>(undefined)
+const FriendsContext = createContext<FriendsContextType | undefined>(undefined)
 
 // Create provider component
 export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
@@ -29,8 +40,8 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const { isDev } = useEnvironment()
   const { user } = useUser()
-  const [friends, setFriends] = useState<UserProfile[]>([])
   const [allUsers, setAllUsers] = useState<UserProfile[]>([])
+  const [friendRelations, setFriendRelations] = useState<FriendRelation[]>([])
 
   const tableName = isDev ? "_User_dev" : "User"
   const friendRelationTableName = isDev
@@ -38,56 +49,52 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
     : "FriendRelation"
 
   const fetchAllUsers = async () => {
-    if (!user) return
-    const { data: friendRelations, error: friendRelationsError } =
-      await supabase
-        .from(friendRelationTableName)
-        .select("userId1, userId2")
-        .or(`userId1.eq.${user.id},userId2.eq.${user.id}`)
-
-    if (friendRelationsError) {
-      console.error("Error fetching friend relations:", friendRelationsError)
-      return
-    }
-
-    const friendIds = new Set([
-      ...friendRelations.flatMap((relation) => [
-        relation.userId1,
-        relation.userId2,
-      ]),
-      user.id,
-    ])
-
     let query = supabase
       .from(tableName)
       .select("*")
       .eq("deleted", false)
-      .order("createdAt", { ascending: false }) // Sort by created_at, most recent first
+      .order("createdAt", { ascending: false })
 
     const { data, error } = await query
     if (error) {
       console.error("Error fetching users:", error)
     } else {
       setAllUsers(data)
-      setFriends(data.filter((u) => friendIds.has(u.id)))
-      console.log("")
     }
   }
 
-  const addFriendRelationship = async (friendId: number) => {
+  const fetchFriendRelations = async () => {
+    const { data, error } = await supabase
+      .from(friendRelationTableName)
+      .select("userId1, userId2")
+
+    if (error) {
+      console.error("Error fetching friend relations:", error)
+    } else {
+      setFriendRelations(data)
+    }
+  }
+
+  const getFriends = (userId: number): UserProfile[] => {
+    const friendIds = friendRelations
+      .filter(
+        (relation) => relation.userId1 === userId || relation.userId2 === userId
+      )
+      .map((relation) =>
+        relation.userId1 === userId ? relation.userId2 : relation.userId1
+      )
+
+    return allUsers.filter((user) => friendIds.includes(user.id))
+  }
+
+  const addFriendRelationship = async (userId1: number, userId2: number) => {
     try {
       // Check if the relationship already exists
-      const { data: existingRelation, error: checkError } = await supabase
-        .from(friendRelationTableName)
-        .select("*")
-        .or(
-          `and(userId1.eq.${friendId},userId2.eq.${user?.id}),and(userId1.eq.${user?.id},userId2.eq.${friendId})`
-        )
-        .single()
-
-      if (checkError && checkError.code !== "PGRST116") {
-        throw new Error("Error checking existing relationship")
-      }
+      const existingRelation = friendRelations.find(
+        (relation) =>
+          (relation.userId1 === userId1 && relation.userId2 === userId2) ||
+          (relation.userId1 === userId2 && relation.userId2 === userId1)
+      )
 
       if (existingRelation) {
         throw new Error("Friend relationship already exists")
@@ -96,42 +103,40 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
       // Add the new relationship
       const { error: insertError } = await supabase
         .from(friendRelationTableName)
-        .insert([{ userId1: user?.id, userId2: friendId }])
+        .insert([{ userId1, userId2 }])
 
       if (insertError) {
         throw new Error("Error adding friend relationship")
       }
 
-      // Update friends list directly
-      const newFriend = allUsers.find((u) => u.id === friendId)
-      if (newFriend) {
-        setFriends((prevFriends) => [
-          ...prevFriends.filter((u) => u.id !== friendId),
-          newFriend,
-        ])
-      }
+      // Update friend relations locally
+      setFriendRelations((prev) => [...prev, { userId1, userId2 }])
     } catch (error) {
       console.error("Error in addFriendRelationship:", error)
       return error
     }
   }
 
-  const removeFriendRelationship = async (friendId: number) => {
+  const removeFriendRelationship = async (userId1: number, userId2: number) => {
     try {
       const { error } = await supabase
         .from(friendRelationTableName)
         .delete()
         .or(
-          `and(userId1.eq.${friendId},userId2.eq.${user?.id}),and(userId1.eq.${user?.id},userId2.eq.${friendId})`
+          `and(userId1.eq.${userId1},userId2.eq.${userId2}),and(userId1.eq.${userId2},userId2.eq.${userId1})`
         )
 
       if (error) {
         throw new Error("Error removing friend relationship")
       }
 
-      // Update friends list directly
-      setFriends((prevFriends) =>
-        prevFriends.filter((friend) => friend.id !== friendId)
+      // Update friend relations locally
+      setFriendRelations((prev) =>
+        prev.filter(
+          (relation) =>
+            !(relation.userId1 === userId1 && relation.userId2 === userId2) &&
+            !(relation.userId1 === userId2 && relation.userId2 === userId1)
+        )
       )
     } catch (error) {
       console.error("Error in removeFriendRelationship:", error)
@@ -141,6 +146,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     fetchAllUsers()
+    fetchFriendRelations()
   }, [user, tableName])
 
   useEffect(() => {
@@ -151,7 +157,7 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
         { event: "*", schema: "public", table: friendRelationTableName },
         (payload) => {
           console.log(payload)
-          fetchAllUsers()
+          fetchFriendRelations()
         }
       )
       .subscribe()
@@ -175,24 +181,24 @@ export const FriendsProvider: React.FC<{ children: ReactNode }> = ({
   }, [isDev, tableName, friendRelationTableName])
 
   return (
-    <UserContext.Provider
+    <FriendsContext.Provider
       value={{
-        friends,
         allUsers,
+        getFriends,
         addFriendRelationship,
         removeFriendRelationship,
       }}
     >
       {children}
-    </UserContext.Provider>
+    </FriendsContext.Provider>
   )
 }
 
 // Custom hook to use the context
 export const useFriends = () => {
-  const context = useContext(UserContext)
+  const context = useContext(FriendsContext)
   if (context === undefined) {
-    throw new Error("useUser must be used within a UserProvider")
+    throw new Error("useFriends must be used within a FriendsProvider")
   }
   return context
 }

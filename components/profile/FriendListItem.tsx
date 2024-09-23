@@ -1,4 +1,5 @@
 import { useFriends } from "@/contexts/FriendsContext"
+import { usePage } from "@/contexts/PageContext"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import React, { useState, useMemo } from "react"
 import {
@@ -38,7 +39,6 @@ const niceColors = [
 ]
 
 const getColorForFriend = (friendId: number) => {
-  // Use the friend's ID to consistently select a color
   const colorIndex = friendId % niceColors.length
   return niceColors[colorIndex]
 }
@@ -47,12 +47,14 @@ export default function FriendListItem({
   friend,
   userId,
 }: FriendListItemProps) {
-  const { friends, addFriendRelationship, removeFriendRelationship } =
-    useFriends()
+  const { addFriendRelationship, removeFriendRelationship } = useFriends()
   const { user } = useUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { getFriends } = useFriends()
+  const { pushPage, pageStack } = usePage()
 
+  const friends = getFriends(userId)
   const isFriend = friends.some((f) => f.id === friend.id)
 
   const avatarColor = useMemo(() => getColorForFriend(friend.id), [friend.id])
@@ -61,23 +63,31 @@ export default function FriendListItem({
   const handleToggleFriend = () => {
     setLoading(true)
     const action = isFriend ? removeFriendRelationship : addFriendRelationship
-    action(friend.id)
+    action(userId, friend.id)
       .then(() => setLoading(false))
       .catch((e) => {
         setError(e.message)
         setLoading(false)
       })
   }
+
   return (
-    <View key={friend.id} style={styles.friendItem}>
-      <View style={[styles.avatarCircle, { backgroundColor: avatarColor }]}>
-        <Text style={styles.avatarText}>
-          {(friend.name ?? "")[0].toUpperCase()}
-        </Text>
-      </View>
-      <Text style={styles.friendName}>{`${friend.name} ${
-        friend.lastName ?? ""
-      }`}</Text>
+    <View style={styles.friendItem}>
+      <TouchableOpacity
+        style={styles.friendContent}
+        onPress={() => {
+          pushPage({ type: "profile", userId: friend.id })
+        }}
+      >
+        <View style={[styles.avatarCircle, { backgroundColor: avatarColor }]}>
+          <Text style={styles.avatarText}>
+            {(friend.name ?? "")[0].toUpperCase()}
+          </Text>
+        </View>
+        <Text style={styles.friendName}>{`${friend.name} ${
+          friend.lastName ?? ""
+        }`}</Text>
+      </TouchableOpacity>
       {isThisUser && (
         <View style={styles.checkboxContainer}>
           {loading ? (
@@ -113,6 +123,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  friendContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
   avatarCircle: {
     width: 40,
     height: 40,
@@ -123,7 +138,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 20,
-    color: "#333333", // Darker text for better contrast on light backgrounds
+    color: "#333333",
   },
   friendName: {
     fontSize: 19,

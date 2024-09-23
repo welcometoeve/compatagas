@@ -10,7 +10,6 @@ import {
   ImageSourcePropType,
 } from "react-native"
 import { ChevronLeft } from "lucide-react-native"
-import { LockClosedIcon } from "react-native-heroicons/solid"
 
 import { Question, Quiz, Side } from "@/constants/questions/types"
 import { useUser } from "@/contexts/UserContext"
@@ -42,12 +41,11 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
   friendIds,
   selfId,
 }) => {
-  const { user, unlockQuiz, addLemon } = useUser()
-  const { friends } = useFriends()
+  const { user } = useUser()
+  const { allUsers } = useFriends()
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
   const { popPage } = usePage()
-
   const [results, setResults] = useState<Result[]>([])
 
   const quiz = quizzes.find((q) => q.id === quizId)
@@ -65,7 +63,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         name:
           user.id === selfId
             ? "You"
-            : friends.find((u) => u.id === selfId)?.name || "Friend",
+            : allUsers.find((u) => u.id === selfId)?.name || "Friend",
         value: selfResult,
         isSelf: true,
       })
@@ -77,7 +75,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
           )
         )
         const friendName =
-          friends.find((u) => u.id === friendId)?.name || "Friend"
+          allUsers.find((u) => u.id === friendId)?.name || "Friend"
         allResults.push({
           id: friendId,
           name: user.id === friendId ? "You" : friendName,
@@ -88,7 +86,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
 
       setResults(allResults)
     }
-  }, [user, selfAnswers, friendAnswers, quizId, friendIds, friends, quiz])
+  }, []) // don't worry about it
 
   const quizQuestions = questions.filter((q) => q.quizId === quizId)
   const calculateQuizResult = (answers: (SelfAnswer | FriendAnswer)[]) => {
@@ -143,19 +141,14 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
     }
   })
 
-  const quizSelfAnswers =
-    selfId === user?.id
-      ? selfAnswers.filter(
-          (sa) => sa.userId === selfId && sa.quizId === quiz?.id
-        )
-      : selfAnswers.filter(
-          (sa) => sa.quizId === quiz?.id && selfId === sa.userId
-        )
+  const quizSelfAnswers = selfAnswers.filter(
+    (sa) => sa.userId === selfId && sa.quizId === quiz?.id
+  )
 
   const userName =
     selfId === user?.id
       ? "Your"
-      : `${friends.find((u) => u.id === selfId)?.name}'s` || "Friend"
+      : `${allUsers.find((u) => u.id === selfId)?.name}'s` || "Friend"
 
   const quizFriendAnswers = collect(
     friendAnswers.filter((fa) => fa.selfId === selfId && fa.quizId === quizId),
@@ -190,7 +183,7 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
               ? quiz.subtitle.secondPerson
               : insertName(
                   quiz.subtitle.thirdPerson,
-                  friends.find((u) => u.id === selfId)?.name ?? ""
+                  allUsers.find((u) => u.id === selfId)?.name ?? ""
                 )}
           </Text>
         </View>
@@ -215,21 +208,24 @@ const QuizResultsView: React.FC<QuizResultsViewProps> = ({
         />
         <View style={{ marginBottom: 20 }} />
 
-        {quizQuestions.map((question) => (
-          <QuestionResultView
-            quizType={selfId === user?.id ? "your" : "their"}
-            key={question.id}
-            question={question}
-            selfAnswer={
-              quizSelfAnswers.find((sa) => sa.questionId === question.id)!
-            }
-            friendAnswers={
-              quizFriendAnswers.find((q) => q[0]?.questionId === question.id) ||
-              []
-            }
-            lockedAnswers={new Set(quizQuestions.map((q) => q.id))}
-          />
-        ))}
+        {quizQuestions.map((question) =>
+          quizSelfAnswers.find((sa) => sa.questionId === question.id) ? (
+            <QuestionResultView
+              quizType={selfId === user?.id ? "your" : "their"}
+              key={question.id}
+              question={question}
+              selfAnswer={
+                quizSelfAnswers.find((sa) => sa.questionId === question.id)!
+              }
+              friendAnswers={
+                quizFriendAnswers.find(
+                  (q) => q[0]?.questionId === question.id
+                ) || []
+              }
+              lockedAnswers={new Set(quizQuestions.map((q) => q.id))}
+            />
+          ) : null
+        )}
 
         <TouchableOpacity onPress={popPage} style={styles.backToQuizzesButton}>
           <ChevronLeft

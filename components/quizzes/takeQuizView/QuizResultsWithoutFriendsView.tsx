@@ -4,25 +4,18 @@ import { ChevronRight } from "lucide-react"
 import { LinearGradient } from "expo-linear-gradient"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import { Quiz } from "@/constants/questions/types"
-import { usePage } from "@/contexts/PageContext"
 
 interface QuizResultsWithoutFriendsViewProps {
   friendsWhoTookQuiz: number[]
-  friends: UserProfile[]
   quiz: Quiz
   quizResult: number
 }
 
 const QuizResultsWithoutFriendsView: React.FC<
   QuizResultsWithoutFriendsViewProps
-> = ({ friendsWhoTookQuiz, friends: friends, quiz, quizResult }) => {
-  const friendNames = friendsWhoTookQuiz
-    .map((f) => friends.find((u) => u.id === f)?.name ?? "")
-    .filter(Boolean)
-    .join(", ")
+> = ({ friendsWhoTookQuiz, quiz, quizResult }) => {
   const verb = friendsWhoTookQuiz.length === 1 ? "has" : "have"
   const { user } = useUser()
-  const { setPage, setCurQuizResultItem, setActiveResultsTab } = usePage()
 
   const sliderPosition = mapRange(quizResult, -1, 1, 0, 100)
   const resultLabel = quiz.resultLabels
@@ -51,32 +44,9 @@ const QuizResultsWithoutFriendsView: React.FC<
           <View style={[styles.sliderThumb, { left: `${sliderPosition}%` }]} />
         </View>
       </View>
-      {friendsWhoTookQuiz.length > 0 ? (
-        <>
-          <Text style={[styles.friendsText, , { color: "gray" }]}>
-            {friends.length === 1 ? "Someone has" : "People have"} taken this
-            quiz about you!
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              setActiveResultsTab("your")
-              setPage("results")
-              setCurQuizResultItem({
-                quiz,
-                selfId: user?.id ?? 0,
-                friendIds: friendsWhoTookQuiz,
-              })
-            }}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Compare Results</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <Text style={[styles.friendsText, { color: "gray" }]}>
-          Wait for your friends to take the quiz to compare results
-        </Text>
-      )}
+      <Text style={[styles.friendsText, { color: "gray" }]}>
+        Wait for your friends to take the quiz to compare results
+      </Text>
     </View>
   )
 }

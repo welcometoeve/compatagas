@@ -47,7 +47,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
-  const { friends: friends } = useFriends()
+  const { getFriends } = useFriends()
 
   const { notifications, fetchNotifications, addNotification } =
     useNotification()
@@ -82,7 +82,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, friends, isDev, tableName])
+  }, [user, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
@@ -90,13 +90,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const friendIds = friends.map((u) => u.id)
-    const { data, error } = await supabase
-      .from(tableName)
-      .select("*")
-      .or(
-        `and(selfId.eq.${user.id},friendId.in.(${friendIds})),and(friendId.eq.${user.id},selfId.in.(${friendIds}))`
-      )
+    const { data, error } = await supabase.from(tableName).select("*")
 
     if (error) {
       console.error("Error fetching friend answers:", error)

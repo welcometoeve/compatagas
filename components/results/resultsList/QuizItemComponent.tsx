@@ -26,9 +26,10 @@ const QuizItemComponent: React.FC<QuizItemComponentProps> = ({
 }) => {
   const { notifications, markAsOpened } = useNotification()
   const { user } = useUser()
-  const { friends } = useFriends()
+  const { getFriends } = useFriends()
   const { pushPage } = usePage()
 
+  const friends = getFriends(userId)
   const names = friendIds
     .map((id) => friends.find((user) => user?.id === id)?.name)
     .join(", ")

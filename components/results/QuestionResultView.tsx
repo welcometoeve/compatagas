@@ -24,9 +24,8 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
   quizType,
 }) => {
   const isLocked = lockedAnswers.has(question.id)
+  const { allUsers } = useFriends()
   const { user } = useUser()
-  const { friends } = useFriends()
-
   const getUsersForOption = (optionIndex: number) => {
     const names: string[] = []
 
@@ -34,7 +33,7 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
       names.push(
         selfAnswer.userId === user?.id
           ? "You"
-          : friends.find((user) => user.id === selfAnswer.userId)?.name ||
+          : allUsers.find((user) => user.id === selfAnswer.userId)?.name ||
               "Unknown"
       )
     }
@@ -44,7 +43,7 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
       .map((answer) =>
         answer.friendId === user?.id
           ? "You"
-          : friends.find((user) => user.id === answer.friendId)?.name ||
+          : allUsers.find((user) => user.id === answer.friendId)?.name ||
             "Unknown"
       )
 
@@ -59,7 +58,8 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
           ? question.label.secondPerson
           : insertName(
               question.label.thirdPerson,
-              friends.find((u) => u.id === selfAnswer.userId)?.name || "Unknown"
+              allUsers.find((u) => u.id === selfAnswer.userId)?.name ||
+                "Unknown"
             )}
       </Text>
       <View style={styles.optionsContainer}>
@@ -91,7 +91,7 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
                   ? option.label.secondPerson
                   : insertName(
                       option.label.thirdPerson,
-                      friends.find((u) => u.id === selfAnswer.userId)?.name ||
+                      allUsers.find((u) => u.id === selfAnswer.userId)?.name ||
                         "Unknown"
                     )}
               </Text>

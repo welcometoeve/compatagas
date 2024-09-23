@@ -46,7 +46,6 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
-  const { friends: friends } = useFriends()
 
   const { addNotification } = useNotification()
   const { isDev } = useEnvironment()
@@ -82,7 +81,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         supabase.removeChannel(subscription)
       }
     }
-  }, [user, friends, isDev, tableName])
+  }, [user, isDev, tableName])
 
   const fetchAnswers = async () => {
     if (!user) return
@@ -90,11 +89,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const friendIds = friends.map((u) => u.id)
-    const { data, error } = await supabase
-      .from(tableName)
-      .select("*")
-      .or(`and(userId.eq.${user.id}),and(userId.in.(${friendIds}))`)
+    const { data, error } = await supabase.from(tableName).select("*")
 
     if (error) {
       console.error("Error fetching self answers:", error)

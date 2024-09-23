@@ -11,7 +11,6 @@ import { View, Button, AppState, StyleSheet, Alert } from "react-native"
 import * as Updates from "expo-updates"
 import { StatusBar } from "expo-status-bar"
 import { useColorScheme } from "@/hooks/useColorScheme"
-import App from "./(tabs)"
 import NavBar from "./NavBar"
 import { UserProvider, useUser } from "@/contexts/UserContext"
 import AccountScreen from "./(tabs)/login"
@@ -49,7 +48,6 @@ function RootLayout() {
   const [updateString, setUpdateString] = useState<string>("")
   const { user, authenticating, signingUp, requestNotificationPermission } =
     useUser()
-  const { friends: friends } = useFriends()
   const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false)
   const { fetchError: fetchAnswersError, fetchFriendAnswers } =
     useFriendAnswers()
@@ -169,7 +167,7 @@ function RootLayout() {
 
         <View style={[styles.fullPageView, styles.cameraView]}>
           {lastPage?.type === "profile" ? (
-            <ProfilePage userId={user?.id ?? 0} />
+            <ProfilePage userId={lastPage?.userId ?? 0} />
           ) : lastPage?.type === "newPacks" ? (
             <QuizzesView />
           ) : lastPage?.type === "takeQuiz" ? (
@@ -180,7 +178,7 @@ function RootLayout() {
           ) : lastPage?.type === "quizResult" ? (
             <QuizResultView
               quizId={lastPage?.quizId ?? 0}
-              selfId={user?.id ?? 0}
+              selfId={lastPage?.userId ?? 0}
               friendIds={lastPage?.friendIds ?? []}
             />
           ) : null}
