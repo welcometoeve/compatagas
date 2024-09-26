@@ -70,7 +70,7 @@ export const CardContents: React.FC<CardContentsProps> = ({
               setSelfAnswer(sa)
               setIndexAnswered(index)
             }}
-            disabled={isLoading}
+            disabled={isLoading || selfAnswer}
           >
             <View
               style={[
