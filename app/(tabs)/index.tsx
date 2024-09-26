@@ -56,23 +56,26 @@ export default function App() {
   const nextQuestionRef = useRef<SelectedQuestion | null>(null)
 
   useEffect(() => {
-    const availableQuestions = selfAnswers.map((sa) => {
-      return {
-        questionId: sa.questionId,
-        selfId: sa.userId,
-        quizId: sa.quizId,
-        answered:
-          friendAnswers.find(
-            (fa) => fa.friendId === user?.id && fa.questionId === sa.questionId
-          ) !== undefined ||
-          questionsRef.current.some(
-            (q) =>
-              q.selfId === sa.userId &&
-              q.questionId === sa.questionId &&
-              q.answered
-          ),
-      }
-    })
+    const availableQuestions = selfAnswers
+      .map((sa) => {
+        return {
+          questionId: sa.questionId,
+          selfId: sa.userId,
+          quizId: sa.quizId,
+          answered:
+            friendAnswers.find(
+              (fa) =>
+                fa.friendId === user?.id && fa.questionId === sa.questionId
+            ) !== undefined ||
+            questionsRef.current.some(
+              (q) =>
+                q.selfId === sa.userId &&
+                q.questionId === sa.questionId &&
+                q.answered
+            ),
+        }
+      })
+      .filter((q) => q.selfId !== user?.id)
 
     questionsRef.current = availableQuestions
 

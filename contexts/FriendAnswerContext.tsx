@@ -22,6 +22,7 @@ export type FriendAnswer = {
   questionId: number
   optionIndex: number
   quizId: number
+  createdAt: string // Add this field to track creation time
 }
 
 type FriendAnswerContextType = {
@@ -90,13 +91,16 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase.from(tableName).select("*")
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("*")
+      .order("createdAt", { ascending: false }) // Order by createdAt, most recent first
 
     if (error) {
       console.error("Error fetching friend answers:", error)
       setFetchError("Error fetching friend answers")
     } else {
-      console.log("")
+      // console.log("Fetched friend answers:", data)
       setAnswers(data)
     }
 
@@ -122,7 +126,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       return "Answer already exists for this friend and question"
     }
 
-    const newAnswer: Omit<FriendAnswer, "id"> = {
+    const newAnswer: Omit<FriendAnswer, "id" | "createdAt"> = {
       friendId: user.id,
       selfId: selfId,
       questionId,
@@ -138,6 +142,7 @@ export const AnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error adding friend answer:", error)
       return "Error adding friend answer"
     } else if (data) {
+      // console.log("Added friend answer:", data)
       // Handle successful insertion if needed
     }
   }

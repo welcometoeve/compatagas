@@ -4,6 +4,7 @@ import { useUser } from "@/contexts/UserContext"
 import { useFriends } from "@/contexts/FriendsContext"
 import { insertName } from "@/constants/questions/questions"
 import React from "react"
+import { GREEN } from "@/components/results/QuestionResultView"
 
 type QuestionViewProps = {
   question: Question
@@ -58,11 +59,7 @@ export default function QuestionView({
                 padding: 12,
                 borderRadius: 8,
                 backgroundColor:
-                  isDone && optionIndex === answer?.optionIndex
-                    ? "#75B7FF"
-                    : optionIndex === answer?.optionIndex
-                    ? "#3A93F4"
-                    : "#F0F0F0",
+                  optionIndex === answer?.optionIndex ? GREEN : "#F0F0F0",
                 marginBottom: 8,
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -70,7 +67,7 @@ export default function QuestionView({
                 borderWidth: 1,
                 borderColor: isDone
                   ? optionIndex === answer?.optionIndex
-                    ? "#007AFF"
+                    ? "black"
                     : "#D0D0D0"
                   : "transparent",
               }}
@@ -80,7 +77,7 @@ export default function QuestionView({
                 style={{
                   color:
                     optionIndex === answer?.optionIndex && !isDone
-                      ? "white"
+                      ? "black"
                       : "black",
                 }}
               >

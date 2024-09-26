@@ -22,6 +22,7 @@ export type SelfAnswer = {
   questionId: number
   optionIndex: number
   quizId: number
+  createdAt: string // Add this field to track creation time
 }
 
 type SelfAnswerContextType = {
@@ -89,14 +90,16 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true)
     setFetchError(null)
 
-    const { data, error } = await supabase.from(tableName).select("*")
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("*")
+      .order("createdAt", { ascending: false }) // Order by createdAt, most recent first
 
     if (error) {
       console.error("Error fetching self answers:", error)
       setFetchError("Error fetching self answers")
     } else {
-      console.log("")
-
+      // console.log("Fetched self answers:", data)
       setAnswers(data)
     }
 
@@ -116,7 +119,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       return null
     }
 
-    const newAnswer: Omit<SelfAnswer, "id"> = {
+    const newAnswer: Omit<SelfAnswer, "id" | "createdAt"> = {
       userId: user.id,
       questionId,
       optionIndex,

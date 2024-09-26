@@ -16,14 +16,17 @@ import * as ImagePicker from "expo-image-picker"
 import processQuizLists, {
   QuizItem,
 } from "@/components/results/proccessQuizLists"
-import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
-import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
+import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { FriendAnswer, useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { questions, quizzes } from "@/constants/questions/questions"
 import QuizResultsView from "@/components/results/QuizResultView"
 import { ChevronLeft } from "lucide-react-native"
 import { usePage } from "@/contexts/PageContext"
 import { SafeAreaView } from "react-native-safe-area-context"
 import QuizItemComponent from "@/components/results/QuizListItemComponent"
+import collect from "@/components/collect"
+import QuestionResultView from "@/components/results/QuestionResultView"
+import { Question } from "@/constants/questions/types"
 
 interface ProfilePageProps {
   userId: number
@@ -130,7 +133,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 activeTab === "results" && styles.activeTabText,
               ]}
             >
-              Packs ({yourQuizzes.length})
+              Answers ({yourQuizzes.length})
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -149,23 +152,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         </View>
 
         {activeTab === "results" ? (
-          <>
-            {yourQuizzes.length === 0 ? (
-              <View style={styles.resultsContainer}>
-                <Text style={styles.resultsText}>Results list is empty</Text>
-              </View>
-            ) : (
-              yourQuizzes.map((quiz) => (
-                <QuizItemComponent
-                  quizId={quiz.quiz.id}
-                  userId={quiz.selfId}
-                  friendIds={quiz.friendIds}
-                  key={quiz.quiz.id}
-                  isLast={quiz === yourQuizzes[yourQuizzes.length - 1]}
-                />
-              ))
-            )}
-          </>
+          <QuestionsList userId={userId} />
         ) : (
           <View style={styles.friendsContainer}>
             <View style={styles.friendsTitleContainer}>
@@ -189,6 +176,50 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         )}
       </ScrollView>
     </SafeAreaView>
+  )
+}
+
+function QuestionsList({ userId }: { userId: number }) {
+  const { user } = useUser()
+  const isYou = userId === user?.id
+  const { selfAnswers } = useSelfAnswers()
+  const { friendAnswers } = useFriendAnswers()
+  const relevantSelfAnswers = selfAnswers.filter((sa) => sa.userId === userId)
+  const faGroups = collect(friendAnswers, ["questionId", "selfId"])
+
+  const groups: {
+    selfAnswer: SelfAnswer
+    friendAnswers: FriendAnswer[]
+    question: Question | undefined
+  }[] = relevantSelfAnswers.map((sa) => {
+    const friendAnswers = faGroups.find(
+      (group) =>
+        group.length > 0 &&
+        group[0].questionId === sa.questionId &&
+        group[0].selfId === sa.userId
+    )
+
+    const question = questions.find((q) => q.id === sa.quizId)
+    return { selfAnswer: sa, friendAnswers: friendAnswers ?? [], question }
+  })
+
+  const usableGroups = groups.filter(
+    (g) => g.friendAnswers.length > 0 && !!g.question
+  )
+  return usableGroups.length === 0 ? (
+    <View style={styles.resultsContainer}>
+      <Text style={styles.resultsText}>Results list is empty</Text>
+    </View>
+  ) : (
+    usableGroups.map((g, i) => (
+      <QuestionResultView
+        selfAnswer={g.selfAnswer}
+        friendAnswers={g.friendAnswers}
+        quizType={isYou ? "your" : "their"}
+        question={g.question!}
+        index={i}
+      />
+    ))
   )
 }
 
