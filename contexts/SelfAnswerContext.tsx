@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react"
+import React, { createContext, useContext, useState, useEffect } from "react"
 import {
   createClient,
   PostgrestError,
@@ -12,7 +12,6 @@ import collect from "@/components/collect"
 import { useEnvironment } from "./EnvironmentContext"
 import { useNotification } from "./notification/NotificationContext"
 import { useFriends } from "./FriendsContext"
-import React = require("react")
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)

@@ -4,7 +4,7 @@ import { LinearGradient } from "expo-linear-gradient"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import { Quiz } from "@/constants/questions/types"
 import { useFriends } from "@/contexts/FriendsContext"
-import React = require("react")
+import React from "react"
 
 interface QuizResultsWithoutFriendsViewProps {
   friendsWhoTookQuiz: number[]

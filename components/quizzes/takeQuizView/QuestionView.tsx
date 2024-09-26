@@ -3,7 +3,7 @@ import { TouchableOpacity, View, Text } from "react-native"
 import { useUser } from "@/contexts/UserContext"
 import { useFriends } from "@/contexts/FriendsContext"
 import { insertName } from "@/constants/questions/questions"
-import React = require("react")
+import React from "react"
 
 type QuestionViewProps = {
   question: Question

@@ -36,6 +36,7 @@ import TakeQuizView from "@/components/quizzes/takeQuizView/TakeQuizView"
 import QuizResultsView from "@/components/results/QuizResultView"
 import QuizResultView from "@/components/results/QuizResultView"
 import QuizFeed from "./(tabs)/Feed"
+import App from "./(tabs)"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -183,7 +184,7 @@ function RootLayout() {
               friendIds={lastPage?.friendIds ?? []}
             />
           ) : lastPage?.type === "feed" ? (
-            <QuizFeed />
+            <App />
           ) : null}
         </View>
         <DebugView

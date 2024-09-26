@@ -4,7 +4,12 @@ import { Ionicons } from "@expo/vector-icons"
 import { useNotification } from "@/contexts/notification/NotificationContext"
 import { useUser } from "@/contexts/UserContext"
 import collect from "@/components/collect"
-import { HomeIcon as HomeIconSolid } from "react-native-heroicons/solid"
+import {
+  HomeIcon as HomeIconSolid,
+  RectangleStackIcon as RectangleStackIconSolid,
+} from "react-native-heroicons/solid"
+import { RectangleStackIcon } from "react-native-heroicons/outline"
+
 import { PageEnum, PageStackItem, usePage } from "@/contexts/PageContext"
 
 interface TabItem {
@@ -162,12 +167,12 @@ const getTabs = (userId: number): TabItem[] => {
       },
     },
     {
-      name: "Home",
+      name: "Stack",
       icon: ({ color, size }) =>
         color === "#007AFF" ? (
-          <HomeIconSolid color={color} size={size} />
+          <RectangleStackIconSolid color={color} size={size} />
         ) : (
-          <HomeIconSolid color={color} size={size} />
+          <RectangleStackIcon color={color} size={size} />
         ),
       pageStackItem: {
         type: "feed",

@@ -20,7 +20,7 @@ import * as Haptics from "expo-haptics"
 import { useFriends } from "@/contexts/FriendsContext"
 import { insertName, questions, quizzes } from "@/constants/questions/questions"
 import { usePage } from "@/contexts/PageContext"
-import React = require("react")
+import React from "react"
 
 export type SelfAnswer = {
   id: number
