@@ -64,7 +64,13 @@ export default function App() {
         answered:
           friendAnswers.find(
             (fa) => fa.friendId === user?.id && fa.questionId === sa.questionId
-          ) !== undefined || questionsRef.current.some((q) => q.answered),
+          ) !== undefined ||
+          questionsRef.current.some(
+            (q) =>
+              q.selfId === sa.userId &&
+              q.questionId === sa.questionId &&
+              q.answered
+          ),
       }
     })
 
