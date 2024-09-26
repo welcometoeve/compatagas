@@ -39,7 +39,7 @@ export const CardContents: React.FC<CardContentsProps> = ({
   useEffect(() => {
     setSelfAnswer(undefined)
     setIndexAnswered(undefined)
-  }, [question])
+  }, [question, selfUser])
 
   return (
     <>
