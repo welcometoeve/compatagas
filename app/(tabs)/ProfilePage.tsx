@@ -41,14 +41,9 @@ function useHitScore(userId: number) {
   const relevantFriendAnswers = friendAnswers.filter(
     (fa) => fa.friendId === userId
   )
-  const relevantSelfAnswers = selfAnswers.filter((sa) =>
-    relevantFriendAnswers.some(
-      (fa) => fa.questionId === sa.questionId && fa.selfId === sa.userId
-    )
-  )
 
   return relevantFriendAnswers.filter((fa) => {
-    const selfAnswer = relevantSelfAnswers.find(
+    const selfAnswer = selfAnswers.find(
       (sa) => sa.questionId === fa.questionId && sa.userId === fa.friendId
     )
     return selfAnswer?.optionIndex === fa.optionIndex

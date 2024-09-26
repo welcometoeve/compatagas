@@ -17,7 +17,9 @@ export function useQuestionResults(userId: number) {
   const friends = getFriends(userId)
 
   const faGroups = collect(
-    friendAnswers.filter((fa) => friends.some((f) => f.id === fa.friendId)),
+    friendAnswers.filter(
+      (fa) => friends.some((f) => f.id === fa.friendId) && fa.selfId === userId
+    ),
     ["questionId", "selfId"]
   )
 
@@ -27,19 +29,17 @@ export function useQuestionResults(userId: number) {
     question: Question | undefined
   }[] = relevantSelfAnswers.map((sa) => {
     const friendAnswers = faGroups.find(
-      (group) =>
-        group.length > 0 &&
-        group[0].questionId === sa.questionId &&
-        group[0].selfId === sa.userId
+      (group) => group.length > 0 && group[0].questionId === sa.questionId
     )
 
-    const question = questions.find((q) => q.id === sa.quizId)
+    const question = questions.find((q) => q.id === sa.questionId)
     return { selfAnswer: sa, friendAnswers: friendAnswers ?? [], question }
   })
 
   const usableGroups = groups.filter(
     (g) => g.friendAnswers.length > 0 && !!g.question
   )
+
   return usableGroups
 }
 
