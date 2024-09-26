@@ -25,8 +25,35 @@ import { usePage } from "@/contexts/PageContext"
 import { SafeAreaView } from "react-native-safe-area-context"
 import QuizItemComponent from "@/components/results/QuizListItemComponent"
 import collect from "@/components/collect"
-import QuestionResultView from "@/components/results/QuestionResultView"
+import QuestionResultView, {
+  GREEN,
+  RED,
+} from "@/components/results/QuestionResultView"
 import { Question } from "@/constants/questions/types"
+import QuestionsList, {
+  useQuestionResults,
+} from "@/components/profile/AnsweredQuestionsList"
+
+function useHitScore(userId: number) {
+  const { selfAnswers } = useSelfAnswers()
+  const { friendAnswers } = useFriendAnswers()
+
+  const relevantFriendAnswers = friendAnswers.filter(
+    (fa) => fa.friendId === userId
+  )
+  const relevantSelfAnswers = selfAnswers.filter((sa) =>
+    relevantFriendAnswers.some(
+      (fa) => fa.questionId === sa.questionId && fa.selfId === sa.userId
+    )
+  )
+
+  return relevantFriendAnswers.filter((fa) => {
+    const selfAnswer = relevantSelfAnswers.find(
+      (sa) => sa.questionId === fa.questionId && sa.userId === fa.friendId
+    )
+    return selfAnswer?.optionIndex === fa.optionIndex
+  }).length
+}
 
 interface ProfilePageProps {
   userId: number
@@ -41,6 +68,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
   const { popPage, pageStack } = usePage()
+
+  const hitScore = useHitScore(userId)
 
   const answeredQuestions = useQuestionResults(userId)
 
@@ -107,7 +136,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           <Text style={styles.name}>{`${currentUser?.name} ${
             currentUser?.lastName ?? ""
           }`}</Text>
-          {/* <Text style={styles.phoneNumber}>{currentUser?.phoneNumber}</Text> */}
+          <View
+            style={[
+              styles.hitScoreContainer,
+              { backgroundColor: hitScore < 1 ? RED : GREEN },
+            ]}
+          >
+            <Text style={styles.hitScoreText}>Hit Score: </Text>
+            <Text style={styles.hitScoreValue}>{hitScore} 🎯</Text>
+          </View>
         </View>
 
         <View style={styles.tabContainer}>
@@ -164,64 +201,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         )}
       </ScrollView>
     </SafeAreaView>
-  )
-}
-
-function useQuestionResults(userId: number) {
-  const { selfAnswers } = useSelfAnswers()
-  const { friendAnswers } = useFriendAnswers()
-  const relevantSelfAnswers = selfAnswers.filter((sa) => sa.userId === userId)
-  const { getFriends } = useFriends()
-  const friends = getFriends(userId)
-
-  const faGroups = collect(
-    friendAnswers.filter((fa) => friends.some((f) => f.id === fa.friendId)),
-    ["questionId", "selfId"]
-  )
-
-  const groups: {
-    selfAnswer: SelfAnswer
-    friendAnswers: FriendAnswer[]
-    question: Question | undefined
-  }[] = relevantSelfAnswers.map((sa) => {
-    const friendAnswers = faGroups.find(
-      (group) =>
-        group.length > 0 &&
-        group[0].questionId === sa.questionId &&
-        group[0].selfId === sa.userId
-    )
-
-    const question = questions.find((q) => q.id === sa.quizId)
-    return { selfAnswer: sa, friendAnswers: friendAnswers ?? [], question }
-  })
-
-  const usableGroups = groups.filter(
-    (g) => g.friendAnswers.length > 0 && !!g.question
-  )
-  return usableGroups
-}
-
-function QuestionsList({ userId }: { userId: number }) {
-  const usableGroups = useQuestionResults(userId)
-  const { user } = useUser()
-
-  const isYou = userId === user?.id
-
-  return usableGroups.length === 0 ? (
-    <View style={styles.resultsContainer}>
-      <Text style={styles.resultsText}>Results list is empty</Text>
-    </View>
-  ) : (
-    usableGroups.map((g, i) => (
-      <QuestionResultView
-        selfAnswer={g.selfAnswer}
-        friendAnswers={g.friendAnswers}
-        quizType={isYou ? "your" : "their"}
-        question={g.question!}
-        index={i}
-        key={i}
-      />
-    ))
   )
 }
 
@@ -283,11 +262,30 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: "bold",
   },
-  phoneNumber: {
-    fontSize: 18,
-    marginBottom: 10,
-    paddingTop: 15,
-    color: "gray",
+  hitScoreContainer: {
+    alignItems: "center",
+    marginTop: 16,
+    marginBottom: 8,
+    backgroundColor: GREEN,
+    borderRadius: 15,
+    padding: 10,
+    paddingHorizontal: 12,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
+    // elevation: 5,
+    flexDirection: "row",
+  },
+  hitScoreText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "black",
+  },
+  hitScoreValue: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "black",
   },
   tabContainer: {
     flexDirection: "row",
@@ -334,16 +332,6 @@ const styles = StyleSheet.create({
     color: "gray",
     paddingTop: 12,
     textAlign: "center",
-  },
-  resultsContainer: {
-    width: "100%",
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  resultsText: {
-    fontSize: 18,
-    color: "gray",
   },
 })
 
