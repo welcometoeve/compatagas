@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
 import {
   createClient,
   PostgrestError,
@@ -12,6 +12,7 @@ import collect from "@/components/collect"
 import { useEnvironment } from "./EnvironmentContext"
 import { useNotification } from "./notification/NotificationContext"
 import { useFriends } from "./FriendsContext"
+import React = require("react")
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -112,7 +113,8 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
     )
 
     if (exists) {
-      return "Answer already exists for this user and question"
+      console.log("Answer already exists for this user and question")
+      return null
     }
 
     const newAnswer: Omit<SelfAnswer, "id"> = {
@@ -131,6 +133,7 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("Error adding self answer:", error)
       throw new Error("Failed to add self answer")
     } else if (data) {
+      console.log("Added self answer:", data)
       return data ? data[0] : null
     }
   }
