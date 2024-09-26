@@ -90,7 +90,8 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
                 styles.optionButton,
                 {
                   backgroundColor:
-                    selfSelected && friendWhoIsYouSelected
+                    selfSelected &&
+                    (friendWhoIsYouSelected || quizType === "your")
                       ? GREEN
                       : numFriendsWhoSelected > 0
                       ? RED

@@ -42,6 +42,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const { friendAnswers } = useFriendAnswers()
   const { popPage, pageStack } = usePage()
 
+  const answeredQuestions = useQuestionResults(userId)
+
   const { user, createUser } = useUser()
   const currentUser = allUsers.find((u) => u.id === userId)
   const handleEditPress = async () => {
@@ -63,20 +65,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         )
     }
   }
-
-  const { yourQuizzes } = useMemo(
-    () =>
-      currentUser
-        ? processQuizLists(
-            friendAnswers,
-            selfAnswers,
-            quizzes,
-            questions,
-            currentUser?.id
-          )
-        : { yourQuizzes: [], theirQuizzes: [] },
-    [selfAnswers, friendAnswers, quizzes, currentUser]
-  )
 
   const isThisUser = currentUser?.id == user?.id
 
@@ -133,7 +121,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 activeTab === "results" && styles.activeTabText,
               ]}
             >
-              Answers ({yourQuizzes.length})
+              Questions ({answeredQuestions.length})
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -179,13 +167,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   )
 }
 
-function QuestionsList({ userId }: { userId: number }) {
-  const { user } = useUser()
-  const isYou = userId === user?.id
+function useQuestionResults(userId: number) {
   const { selfAnswers } = useSelfAnswers()
   const { friendAnswers } = useFriendAnswers()
   const relevantSelfAnswers = selfAnswers.filter((sa) => sa.userId === userId)
-  const faGroups = collect(friendAnswers, ["questionId", "selfId"])
+  const { getFriends } = useFriends()
+  const friends = getFriends(userId)
+
+  const faGroups = collect(
+    friendAnswers.filter((fa) => friends.some((f) => f.id === fa.friendId)),
+    ["questionId", "selfId"]
+  )
 
   const groups: {
     selfAnswer: SelfAnswer
@@ -206,6 +198,15 @@ function QuestionsList({ userId }: { userId: number }) {
   const usableGroups = groups.filter(
     (g) => g.friendAnswers.length > 0 && !!g.question
   )
+  return usableGroups
+}
+
+function QuestionsList({ userId }: { userId: number }) {
+  const usableGroups = useQuestionResults(userId)
+  const { user } = useUser()
+
+  const isYou = userId === user?.id
+
   return usableGroups.length === 0 ? (
     <View style={styles.resultsContainer}>
       <Text style={styles.resultsText}>Results list is empty</Text>
@@ -218,6 +219,7 @@ function QuestionsList({ userId }: { userId: number }) {
         quizType={isYou ? "your" : "their"}
         question={g.question!}
         index={i}
+        key={i}
       />
     ))
   )
