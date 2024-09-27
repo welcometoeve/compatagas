@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from "react"
 import { View, StyleSheet, Animated, Dimensions } from "react-native"
 import { questions, quizzes } from "../../constants/questions/questions"
-import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
+import { SelfAnswer, useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { useUser } from "@/contexts/UserContext"
 import { useFriendAnswers } from "@/contexts/FriendAnswerContext"
 import { useNotification } from "@/contexts/notification/NotificationContext"
@@ -17,99 +17,38 @@ import { useEnvironment } from "@/contexts/EnvironmentContext"
 import { useFriends } from "@/contexts/FriendsContext"
 import { Quiz } from "@/constants/questions/types"
 import { SelectedQuestion } from "@/components/stack/selectNextQuestion"
+import {
+  StackSelfAnswer,
+  useStackSelfAnswers,
+} from "@/components/stack/useStackSelfAnswers"
 
 const { width } = Dimensions.get("window")
 
 interface CardState {
-  currentQuestion: SelectedQuestion | null
-  nextQuestion: SelectedQuestion | null
+  currentSelfAnswer: StackSelfAnswer | null
+  nextSelfAnswer: StackSelfAnswer | null
 }
 
 // Add this boolean to control showing dummy info in the completion screen
 const SHOW_DUMMY_COMPLETION = false
 
 export default function App() {
-  const { friendAnswers, addFriendAnswer, isLoading } = useFriendAnswers()
   const [cardState, setCardState] = useState<CardState>({
-    currentQuestion: null,
-    nextQuestion: null,
+    currentSelfAnswer: null,
+    nextSelfAnswer: null,
   })
   const [addError, setAddError] = useState<string | undefined>()
-  const { user, addLemon } = useUser()
+  const { user } = useUser()
   const { allUsers, getFriends } = useFriends()
-
-  const friends = useMemo(
-    () => (user ? getFriends(user?.id) : []),
-    [user, allUsers]
-  )
-
   const { addNotification, notifications } = useNotification()
-  const { selfAnswers } = useSelfAnswers()
-  // const [completedQuizFriendId, setCompletedQuizFriendId] = useState<
-  //   number | undefined
-  // >(undefined)
+  const { addFriendAnswer } = useFriendAnswers()
   const [completedQuizId, setCompletedQuizId] = useState<number | undefined>()
   const [completionAnimation] = useState(new Animated.Value(1))
   const slideAnimation = useRef(new Animated.Value(0)).current
-  const { isDev } = useEnvironment()
-  const questionsRef = useRef<SelectedQuestion[]>([])
-  const nextQuestionRef = useRef<SelectedQuestion | null>(null)
+  const { stackSelfAnswers, stackSelfAnswersLoading, stackSelfAnswersError } =
+    useSelfAnswers()
 
-  useEffect(() => {
-    const availableQuestions = selfAnswers
-      .map((sa) => {
-        return {
-          questionId: sa.questionId,
-          selfId: sa.userId,
-          quizId: sa.quizId,
-          answered:
-            friendAnswers.find(
-              (fa) =>
-                fa.friendId === user?.id && fa.questionId === sa.questionId
-            ) !== undefined ||
-            questionsRef.current.some(
-              (q) =>
-                q.selfId === sa.userId &&
-                q.questionId === sa.questionId &&
-                q.answered
-            ),
-        }
-      })
-      .filter((q) => q.selfId !== user?.id)
-
-    questionsRef.current = availableQuestions
-
-    if (nextQuestionRef.current === null) {
-      const newQuestion = selectNewQuestion()
-      const anotherNewQuestion = selectNewQuestion()
-      setCardState((prevState) => ({
-        currentQuestion: newQuestion,
-        nextQuestion: anotherNewQuestion,
-      }))
-    }
-  }, [friendAnswers, selfAnswers, user, friends])
-
-  const selectNewQuestion = () => {
-    if (questionsRef.current.filter((q) => !q.answered).length === 0) {
-      nextQuestionRef.current = null
-      return null
-    }
-
-    const newQuestion = questionsRef.current.filter((q) => !q.answered)[0]
-
-    // Update the refs after selecting a new question
-    if (newQuestion) {
-      nextQuestionRef.current = newQuestion
-      questionsRef.current = questionsRef.current.map((q) => {
-        return q.questionId === newQuestion.questionId &&
-          q.selfId == newQuestion.selfId
-          ? { ...q, answered: true }
-          : q
-      })
-    }
-
-    return newQuestion
-  }
+  const [selfAnswers, setSelfAnswers] = useState<StackSelfAnswer[]>([])
 
   const triggerHaptic = async (style: Haptics.ImpactFeedbackStyle) => {
     try {
@@ -118,6 +57,13 @@ export default function App() {
       console.error("Failed to trigger haptic:", error)
     }
   }
+
+  useEffect(() => {
+    const currentSelfAnswer = stackSelfAnswers[0]
+    const nextSelfAnswer = stackSelfAnswers[1]
+    setSelfAnswers(stackSelfAnswers.slice(2))
+    setCardState({ currentSelfAnswer, nextSelfAnswer })
+  }, [stackSelfAnswers])
 
   const startCompletionAnimation = () => {
     Animated.timing(completionAnimation, {
@@ -133,7 +79,9 @@ export default function App() {
   //   }
   // }, [completedQuizFriendId])
 
-  const animateCardAway = (q?: SelectedQuestion) => {
+  const handleNext = () => {
+    const sa = selfAnswers[0]
+    setSelfAnswers(selfAnswers.slice(1))
     Animated.timing(slideAnimation, {
       toValue: -width,
       duration: 300,
@@ -141,53 +89,42 @@ export default function App() {
     }).start(() => {
       slideAnimation.setValue(0)
       setCardState((prevState) => ({
-        currentQuestion: prevState.nextQuestion ?? null,
-        nextQuestion: q ?? null,
+        currentSelfAnswer: prevState.nextSelfAnswer ?? null,
+        nextSelfAnswer: sa ?? null,
       }))
     })
   }
 
-  const handleNext = () => {
-    const newQuestion = selectNewQuestion()
-
-    // Animate the card away and update the state
-    animateCardAway(newQuestion ?? undefined)
-
-    // Update the currentQuestionRef after setting the new state
-    if (cardState.nextQuestion) {
-      nextQuestionRef.current = cardState.nextQuestion
-    }
-  }
   const handleAnswer = async (optionIndex?: number) => {
-    if (!cardState.currentQuestion) return
+    if (!cardState.currentSelfAnswer) return
 
-    const { questionId, quizId, selfId } = cardState.currentQuestion
+    const sa = cardState.currentSelfAnswer
 
     try {
       if (optionIndex !== undefined) {
-        addFriendAnswer(selfId, questionId, optionIndex)
-        const result = addFriendAnswerInitiatedNotification(
-          friends,
-          friendAnswers,
-          selfAnswers,
-          quizId,
-          selfId,
-          user?.id || 0,
-          notifications,
-          addNotification
-        )
-        if (result !== undefined) {
-          await triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy)
-          // setCompletedQuizFriendId(result.friendId)
-          // setCompletedQuizId(result.quizId)
-          // addLemon()
-        } else {
-          await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
-        }
+        addFriendAnswer(sa.user.id, sa.questionId, optionIndex)
+        await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
 
-        return selfAnswers.find(
-          (sa) => sa.questionId === questionId && sa.userId === selfId
-        )
+        // const result = addFriendAnswerInitiatedNotification(
+        //   friends,
+        //   friendAnswers,
+        //   selfAnswers,
+        //   quizId,
+        //   selfId,
+        //   user?.id || 0,
+        //   notifications,
+        //   addNotification
+        // )
+        // if (result !== undefined) {
+        //   await triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy)
+        //   // setCompletedQuizFriendId(result.friendId)
+        //   // setCompletedQuizId(result.quizId)
+        //   // addLemon()
+        // } else {
+        //   await triggerHaptic(Haptics.ImpactFeedbackStyle.Light)
+        // }
+
+        return sa
       }
     } catch (error) {
       setAddError(JSON.stringify(error))
@@ -195,36 +132,44 @@ export default function App() {
     }
   }
 
-  const handleContinue = () => {
-    // setCompletedQuizFriendId(undefined)
-    setCompletedQuizId(undefined)
-    const newQuestion = selectNewQuestion()
-    setCardState((prevState) => ({
-      ...prevState,
-      nextQuestion: newQuestion,
-    }))
-  }
+  // const handleContinue = () => {
+  //   // setCompletedQuizFriendId(undefined)
+  //   setCompletedQuizId(undefined)
+  //   const newQuestion = selectNewQuestion()
+  //   setCardState((prevState) => ({
+  //     ...prevState,
+  //     nextQuestion: newQuestion,
+  //   }))
+  // }
 
-  const isOutOfQuestions = !cardState.currentQuestion && !cardState.nextQuestion
+  // get initial answers
+
+  const isOutOfQuestions =
+    !cardState.nextSelfAnswer &&
+    !cardState.currentSelfAnswer &&
+    !stackSelfAnswersLoading
 
   const renderCardContents = (current: boolean) => {
-    const selectedQuestion = current
-      ? cardState.currentQuestion
-      : cardState.nextQuestion
-    if (!selectedQuestion) return null
+    const selectedSelfAnswer = current
+      ? cardState.currentSelfAnswer
+      : cardState.nextSelfAnswer
+    if (!selectedSelfAnswer) return null
 
-    const question = questions.find((q) => q.id === selectedQuestion.questionId)
-    const selfUser = friends.find((u) => u.id === selectedQuestion.selfId)
+    const question = questions.find(
+      (q) => q.id === selectedSelfAnswer.questionId
+    )
 
     return (
-      <CardContents
-        selfUser={selfUser}
-        question={question}
-        isLoading={isLoading}
-        handleAnswer={handleAnswer}
-        onSkip={() => handleAnswer()}
-        onNext={handleNext}
-      />
+      !stackSelfAnswersLoading && (
+        <CardContents
+          selfUser={selectedSelfAnswer.user}
+          question={question}
+          isLoading={false}
+          handleAnswer={handleAnswer}
+          onSkip={() => handleAnswer()}
+          onNext={handleNext}
+        />
+      )
     )
   }
 

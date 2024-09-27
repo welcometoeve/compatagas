@@ -1,5 +1,6 @@
 import { useFriends } from "@/contexts/FriendsContext"
 import { usePage } from "@/contexts/PageContext"
+import { useSelfAnswers } from "@/contexts/SelfAnswerContext"
 import { UserProfile, useUser } from "@/contexts/UserContext"
 import React, { useState, useMemo } from "react"
 import {
@@ -58,6 +59,7 @@ export default function FriendListItem({
 
   const friends = getFriends(userId)
   const isFriend = friends.some((f) => f.id === friend.id)
+  const { refetchStackSelfAnswers } = useSelfAnswers()
 
   const avatarColor = useMemo(() => getColorForFriend(friend.id), [friend.id])
   const isThisUser = user?.id === userId
@@ -71,6 +73,8 @@ export default function FriendListItem({
         setError(e.message)
         setLoading(false)
       })
+
+    refetchStackSelfAnswers()
   }
 
   return (

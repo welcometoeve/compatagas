@@ -12,12 +12,13 @@ import { insertName, quizzes } from "@/constants/questions/questions"
 import { Ionicons } from "@expo/vector-icons"
 import { useFriends } from "@/contexts/FriendsContext"
 import { SelfAnswer } from "@/contexts/SelfAnswerContext"
+import { StackSelfAnswer } from "./useStackSelfAnswers"
 
 interface CardContentsProps {
   selfUser: UserProfile | undefined
   question: Question | undefined
   isLoading: boolean
-  handleAnswer: (index: number) => Promise<SelfAnswer | undefined>
+  handleAnswer: (index: number) => Promise<StackSelfAnswer | undefined>
   onSkip: () => void
   onNext: () => void
 }
@@ -33,7 +34,9 @@ export const CardContents: React.FC<CardContentsProps> = ({
   const quizId = question?.quizId
   const quizName = quizzes.find((q) => q.id === quizId)?.name
 
-  const [selfAnswer, setSelfAnswer] = React.useState<SelfAnswer | undefined>()
+  const [selfAnswer, setSelfAnswer] = React.useState<
+    StackSelfAnswer | undefined
+  >()
   const [indexAnswered, setIndexAnswered] = React.useState<number | undefined>()
 
   useEffect(() => {

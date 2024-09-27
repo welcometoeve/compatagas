@@ -37,6 +37,7 @@ import QuizResultsView from "@/components/results/QuizResultView"
 import QuizResultView from "@/components/results/QuizResultView"
 import QuizFeed from "./(tabs)/Feed"
 import App from "./(tabs)"
+import { useStackSelfAnswers } from "@/components/stack/useStackSelfAnswers"
 
 SplashScreen.preventAutoHideAsync()
 

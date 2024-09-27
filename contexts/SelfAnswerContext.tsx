@@ -12,6 +12,10 @@ import collect from "@/components/collect"
 import { useEnvironment } from "./EnvironmentContext"
 import { useNotification } from "./notification/NotificationContext"
 import { useFriends } from "./FriendsContext"
+import {
+  StackSelfAnswer,
+  useStackSelfAnswers,
+} from "@/components/stack/useStackSelfAnswers"
 
 // Create Supabase client
 const supabase = createClient(SupabaseUrl, SupabaseKey)
@@ -34,6 +38,10 @@ type SelfAnswerContextType = {
   fetchError: string | null
   isLoading: boolean
   fetchSelfAnswers: () => Promise<void>
+  stackSelfAnswers: StackSelfAnswer[]
+  stackSelfAnswersLoading: boolean
+  stackSelfAnswersError: any | null
+  refetchStackSelfAnswers: () => Promise<void>
 }
 
 const SelfAnswerContext = createContext<SelfAnswerContextType | undefined>(
@@ -50,6 +58,13 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { addNotification } = useNotification()
   const { isDev } = useEnvironment()
+
+  const {
+    selfAnswers: stackSelfAnswers,
+    loading: stackSelfAnswersLoading,
+    error: stackSelfAnswersError,
+    refetch: refetchStackSelfAnswers,
+  } = useStackSelfAnswers(user?.id)
 
   const tableName = isDev ? "_SelfAnswer_dev" : "SelfAnswer"
 
@@ -148,6 +163,10 @@ export const SelfAnswerProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchError,
         isLoading,
         fetchSelfAnswers: fetchAnswers,
+        stackSelfAnswers,
+        stackSelfAnswersLoading,
+        stackSelfAnswersError,
+        refetchStackSelfAnswers,
       }}
     >
       {children}
