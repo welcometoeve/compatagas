@@ -82,6 +82,13 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
             }
           }
 
+          const friendWhoIsYouSelectedCorrect = friendAnswers.some(
+            (fa) =>
+              fa.friendId === user?.id &&
+              fa.optionIndex === optionIndex &&
+              optionIndex === selfAnswer.optionIndex
+          )
+
           return (
             <TouchableOpacity
               key={`${question.id}-${optionIndex}`}
@@ -90,11 +97,14 @@ const QuestionResultView: React.FC<QuestionResultViewProps> = ({
                 styles.optionButton,
                 {
                   backgroundColor:
-                    selfSelected &&
-                    (friendWhoIsYouSelected || quizType === "your")
+                    selfSelected && quizType === "your"
                       ? GREEN
-                      : numFriendsWhoSelected > 0
+                      : friendWhoIsYouSelectedCorrect
+                      ? GREEN
+                      : friendWhoIsYouSelected
                       ? RED
+                      : numFriendsWhoSelected > 0
+                      ? "rgb(200, 200, 200)"
                       : "#F0F0F0",
                 },
               ]}
